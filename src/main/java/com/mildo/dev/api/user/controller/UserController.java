@@ -3,6 +3,7 @@ package com.mildo.dev.api.user.controller;
 import com.mildo.dev.api.user.customoauth.dto.CustomUser;
 import com.mildo.dev.api.user.domain.dto.TokenRedis;
 import com.mildo.dev.api.user.service.UserService;
+import com.mildo.dev.api.utils.Random.CodeGenerator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,8 @@ public class UserController {
 
     @GetMapping("/Test")
     public String loginFailure(){
+        String userId = CodeGenerator.generateUserId();
+        log.info("userId = {}", userId);
         return "TEST";
     }
 
