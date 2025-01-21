@@ -1,7 +1,7 @@
 package com.mildo.dev.api.code.domain.entity;
 
 import com.mildo.dev.api.problem.domain.entity.ProblemEntity;
-import com.mildo.dev.api.user.domain.entity.UserEntity;
+import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,7 +17,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +29,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "code")
+@Table(name = "code_dev")
 public class CodeEntity {
 
     @Id
@@ -39,7 +41,8 @@ public class CodeEntity {
     private String codeSource;
 
     @Column(name = "code_solveddate")
-    private String codeSolveddate;
+    @CreationTimestamp
+    private Timestamp codeSolveddate;
 
     @Column(name = "code_annotation")
     private String codeAnnotation;
@@ -48,8 +51,8 @@ public class CodeEntity {
     private String codeStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
+    @JoinColumn(name = "member_id")
+    private MemberEntity memberEntity;
 
     @OneToMany(mappedBy = "codeEntity")
     private List<CommentEntity> commentList = new ArrayList<>();

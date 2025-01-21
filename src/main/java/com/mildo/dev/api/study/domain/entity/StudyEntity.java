@@ -1,10 +1,8 @@
 package com.mildo.dev.api.study.domain.entity;
 
-import com.mildo.dev.api.user.domain.entity.UserEntity;
+import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -24,7 +22,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "study")
+@Table(name = "study_dev")
 public class StudyEntity {
 
     @Id
@@ -45,7 +43,7 @@ public class StudyEntity {
     private Date studyEnd;
 
     @OneToMany(mappedBy = "studyEntity")
-    private List<UserEntity> userEntity = new ArrayList<>();
+    private List<MemberEntity> memberEntityList = new ArrayList<>();
 
 
 }
