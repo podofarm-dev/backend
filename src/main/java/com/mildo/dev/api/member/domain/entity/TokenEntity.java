@@ -1,4 +1,4 @@
-package com.mildo.dev.api.user.domain.entity;
+package com.mildo.dev.api.member.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,7 +37,7 @@ public class TokenEntity {
     private Timestamp refreshExpirationTime;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
+    @JoinColumn(name = "member_id")
+    private MemberEntity memberEntity;
 
 }

@@ -1,8 +1,8 @@
-package com.mildo.dev.api.user.controller;
+package com.mildo.dev.api.member.controller;
 
-import com.mildo.dev.api.user.customoauth.dto.CustomUser;
-import com.mildo.dev.api.user.domain.dto.TokenRedis;
-import com.mildo.dev.api.user.service.UserService;
+import com.mildo.dev.api.member.customoauth.dto.CustomUser;
+import com.mildo.dev.api.member.domain.dto.TokenRedis;
+import com.mildo.dev.api.member.service.MemberService;
 import com.mildo.dev.api.utils.Random.CodeGenerator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class UserController {
+public class MemberController {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final UserService userService;
+    private static final Logger log = LoggerFactory.getLogger(MemberController.class);
+    private final MemberService userService;
 
     @GetMapping("/loginSuccess")
     public ResponseEntity<?> loginSuccess(@AuthenticationPrincipal CustomUser customUser){

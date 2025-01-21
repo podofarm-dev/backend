@@ -1,4 +1,4 @@
-package com.mildo.dev.api.user.customoauth.dto;
+package com.mildo.dev.api.member.customoauth.dto;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;

@@ -1,9 +1,9 @@
 package com.mildo.dev.global.config.security;
 
-import com.mildo.dev.api.user.customoauth.handler.CustomLogoutSuccessHandler;
-import com.mildo.dev.api.user.customoauth.handler.CustomOAuthFailureHandler;
-import com.mildo.dev.api.user.customoauth.handler.CustomOAuthUserService;
-import com.mildo.dev.api.user.repository.UserRepository;
+import com.mildo.dev.api.member.customoauth.handler.CustomLogoutSuccessHandler;
+import com.mildo.dev.api.member.customoauth.handler.CustomOAuthFailureHandler;
+import com.mildo.dev.api.member.customoauth.handler.CustomOAuthUserService;
+import com.mildo.dev.api.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +20,11 @@ import org.springframework.web.filter.CorsFilter;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UserRepository userRepository;
+    private final MemberRepository userRepository;
     private final CorsFilter corsFilter;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
-    public SecurityConfig(UserRepository userRepository, CorsFilter corsFilter, CustomLogoutSuccessHandler customLogoutSuccessHandler) {
+    public SecurityConfig(MemberRepository userRepository, CorsFilter corsFilter, CustomLogoutSuccessHandler customLogoutSuccessHandler) {
         this.userRepository = userRepository;
         this.corsFilter = corsFilter;
         this.customLogoutSuccessHandler = customLogoutSuccessHandler;

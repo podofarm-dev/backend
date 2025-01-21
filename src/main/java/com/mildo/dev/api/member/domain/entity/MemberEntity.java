@@ -1,6 +1,7 @@
-package com.mildo.dev.api.user.domain.entity;
+package com.mildo.dev.api.member.domain.entity;
 
 import com.mildo.dev.api.code.domain.entity.CodeEntity;
+import com.mildo.dev.api.code.domain.entity.CommentEntity;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,33 +30,33 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "users_dev")
-public class UserEntity {
+@Table(name = "member_dev")
+public class MemberEntity {
 
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "member_id")
     private String userId;
 
-    @Column(name = "user_name")
+    @Column(name = "member_name")
     private String name;
 
-    @Column(name = "user_googleid")
+    @Column(name = "member_googleid")
     private String googleId;
 
-    @Column(name = "user_email")
+    @Column(name = "member_email")
     private String email;
 
-    @Column(name = "user_solvedproblem")
+    @Column(name = "member_solvedproblem")
     private int solvedProblem;
 
-    @Column(name = "user_leader")
+    @Column(name = "member_leader")
     private String leader;
 
-    @Column(name = "user_isparticipant")
+    @Column(name = "member_isparticipant")
     private Date isParticipant; // 스터디 시작일
 
-    @Column(name = "user_date", updatable = false)
+    @Column(name = "member_date", updatable = false)
     @CreationTimestamp
     private Timestamp createDate; // 유저 생성일
 
@@ -63,10 +64,13 @@ public class UserEntity {
     @JoinColumn(name = "study_id")
     private StudyEntity studyEntity;
 
-    @OneToMany(mappedBy = "userEntity")
+    @OneToMany(mappedBy = "memberEntity")
     private List<CodeEntity> codeList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "userEntity")
+    @OneToMany(mappedBy = "memberEntity")
+    private List<CommentEntity> commentEntityList = new ArrayList<>();
+
+    @OneToOne(mappedBy = "memberEntity")
     private TokenEntity tokenEntity;
 
 }
