@@ -1,4 +1,4 @@
-package com.mildo.dev.api.user.customoauth.handler;
+package com.mildo.dev.api.member.customoauth.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

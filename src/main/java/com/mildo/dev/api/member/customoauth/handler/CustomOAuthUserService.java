@@ -1,9 +1,9 @@
-package com.mildo.dev.api.user.customoauth.handler;
+package com.mildo.dev.api.member.customoauth.handler;
 
-import com.mildo.dev.api.user.controller.UserController;
-import com.mildo.dev.api.user.customoauth.dto.CustomUser;
-import com.mildo.dev.api.user.domain.entity.UserEntity;
-import com.mildo.dev.api.user.repository.UserRepository;
+import com.mildo.dev.api.member.controller.MemberController;
+import com.mildo.dev.api.member.customoauth.dto.CustomUser;
+import com.mildo.dev.api.member.domain.entity.MemberEntity;
+import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.utils.Random.CodeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +13,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 public class CustomOAuthUserService extends DefaultOAuth2UserService {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(MemberController.class);
 
-    private final UserRepository userRepository;
+    private final MemberRepository userRepository;
 
-    public CustomOAuthUserService(UserRepository userRepository) {
+    public CustomOAuthUserService(MemberRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -30,7 +30,7 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email"); // 이메일
         String username = oAuth2User.getAttribute("name"); //이름
 
-        UserEntity user = userRepository.findByName(username);
+        MemberEntity user = userRepository.findByGoogleId(googleId);
         if (user == null) {
             String userId;
 
@@ -38,7 +38,7 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
                 userId = CodeGenerator.generateUserId();
             } while (userRepository.findByUserId(userId).isPresent());
 
-            user = UserEntity.builder()
+            user = MemberEntity.builder()
                     .userId(userId)
                     .name(username)
                     .googleId(googleId)
@@ -47,7 +47,7 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
                     .build();
             userRepository.save(user);
 
-            user = userRepository.findByName(username);
+            user = userRepository.findByGoogleId(googleId);
             log.info("회원 가입 성공");
         }
 

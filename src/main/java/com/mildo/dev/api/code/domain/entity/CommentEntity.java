@@ -1,5 +1,6 @@
 package com.mildo.dev.api.code.domain.entity;
 
+import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,7 +24,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Entity
-@Table(name = "comment")
+@Table(name = "comment_dev")
 public class CommentEntity {
 
     @Id
@@ -36,6 +37,10 @@ public class CommentEntity {
 
     @Column(name = "comment_date")
     private Timestamp commentDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private MemberEntity memberEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "code_no")

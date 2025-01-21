@@ -1,4 +1,4 @@
-package com.mildo.dev.api.user.domain.dto;
+package com.mildo.dev.api.member.domain.dto;
 
 import lombok.Data;
 
