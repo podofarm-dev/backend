@@ -40,7 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (pathMatcher.match("/", requestURI)||
                 pathMatcher.match("/loginSuccess", requestURI) ||
                 pathMatcher.match("/loginFailure", requestURI) ||
-                pathMatcher.match("favicon.ico", requestURI) ||
+                pathMatcher.match("/dev-login", requestURI) ||
                 requestURI.startsWith("/public")) {
             filterChain.doFilter(request, response);
             return;

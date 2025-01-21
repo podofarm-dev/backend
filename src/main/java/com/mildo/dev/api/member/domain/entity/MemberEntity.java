@@ -36,7 +36,7 @@ public class MemberEntity {
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
-    private String userId;
+    private String memberId;
 
     @Column(name = "member_name")
     private String name;

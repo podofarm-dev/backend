@@ -51,7 +51,7 @@ public class CodeEntity {
     private String codeStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
     @OneToMany(mappedBy = "codeEntity")

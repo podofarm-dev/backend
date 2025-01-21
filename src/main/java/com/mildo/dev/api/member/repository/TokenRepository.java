@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface TokenRepository extends JpaRepository<TokenEntity, Long> {
 
-    Optional<TokenEntity> findByMemberEntity_UserId(String userId);
+    Optional<TokenEntity> findByMemberEntity_MemberId(String memberId);
 
 }
