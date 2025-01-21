@@ -56,7 +56,7 @@ public class MemberService {
         MemberEntity memberEntity = memberRepository.findById(customUser.getName())
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-        Optional<TokenEntity> existingToken = tokenRepository.findByMemberEntity_UserId(customUser.getName());
+        Optional<TokenEntity> existingToken = tokenRepository.findByMemberEntity_MemberId(customUser.getName());
         TokenEntity token;
         if (existingToken.isPresent()) {
             token = existingToken.get(); // 객체 가져오기
