@@ -55,7 +55,7 @@ public class CodeEntity {
     private MemberEntity memberEntity;
 
     @OneToMany(mappedBy = "codeEntity")
-    private List<CommentEntity> commentList = new ArrayList<>();
+    private final List<CommentEntity> commentList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_no")
