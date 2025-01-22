@@ -44,6 +44,6 @@ public class ProblemEntity {
     private String problemReadme;
 
     @OneToMany(mappedBy = "problemEntity")
-    private List<CodeEntity> codeList = new ArrayList<>();
+    private final List<CodeEntity> codeList = new ArrayList<>();
 
 }
