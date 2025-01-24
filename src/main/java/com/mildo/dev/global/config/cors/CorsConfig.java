@@ -7,6 +7,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
+
 @Slf4j
 @Configuration
 public class CorsConfig {
@@ -19,9 +21,17 @@ public class CorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // 자바스크립트로 받을 수 있게 할건지
-        config.addAllowedOrigin("*"); // 모든 IP 출처가 달라도 응답을 허용
+
+        // IP 출처가 달라도 응답을 허용
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000",
+                                                "http://localhost:5173",
+                                                "http://localhost:5174",
+                                                "http://localhost:5175",
+                                                "https://dev.mildo.xyz")
+                                                );
+
         config.addAllowedHeader("*"); // 모든 헤데어 응답을 허용
-        config.addAllowedMethod("*"); // 모든 메서드에 요청을 허용
+        config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
