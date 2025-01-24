@@ -43,7 +43,7 @@ public class StudyEntity {
     private Date studyEnd;
 
     @OneToMany(mappedBy = "studyEntity")
-    private List<MemberEntity> memberEntityList = new ArrayList<>();
+    private final List<MemberEntity> memberEntityList = new ArrayList<>();
 
 
 }

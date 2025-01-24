@@ -36,7 +36,7 @@ public class MemberEntity {
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
-    private String userId;
+    private String memberId;
 
     @Column(name = "member_name")
     private String name;
@@ -65,10 +65,10 @@ public class MemberEntity {
     private StudyEntity studyEntity;
 
     @OneToMany(mappedBy = "memberEntity")
-    private List<CodeEntity> codeList = new ArrayList<>();
+    private final List<CodeEntity> codeList = new ArrayList<>();
 
     @OneToMany(mappedBy = "memberEntity")
-    private List<CommentEntity> commentEntityList = new ArrayList<>();
+    private final List<CommentEntity> commentEntityList = new ArrayList<>();
 
     @OneToOne(mappedBy = "memberEntity")
     private TokenEntity tokenEntity;

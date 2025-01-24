@@ -25,54 +25,33 @@ public class MemberService {
     private final TokenRepository tokenRepository;
     private final JwtInterface jwtInterface;
 
-    public TokenRedis token(CustomUser customUser){
-        String accessToken = null;
-        String refreshToken = null;
-        Timestamp refreshTime = null;
+    public TokenRedis token(String memberId){
+        String accessToken = jwtInterface.getAccess(memberId);
+        String refreshToken = jwtInterface.getRefresh(memberId);
+        Timestamp refreshTime = jwtInterface.getRefreshExpiration(refreshToken);
 
-        try {
-            refreshToken = jwtInterface.getRefresh(customUser.getName());
-            refreshTime = jwtInterface.getRefreshExpiration(refreshToken);
-            log.info("refreshTime = {}", refreshTime);
-
-            accessToken = jwtInterface.getAccess(customUser.getName());
-            log.info("customUser.getName() = {}", customUser.getName());
-            log.info("accessToken = {}", accessToken);
-
-            RedisUtil.saveAccessToken(customUser.getName(), accessToken, 60); // accessToken 저장
-            String getAccess = RedisUtil.getAccessToken(customUser.getName()); // accessToken 값 조회
-            log.info("getAccess = {}", getAccess);
-
-            Long getTTL = RedisUtil.getTTLAccess(customUser.getName()); // TTL 시간 확인
-            log.info("getTTL = {}", getTTL);
-
-        } catch (RedisConnectionFailureException e){
-            log.error("Redis 서버 연결 실패: ", e);
-            throw new RedisConnectionFailureException("Redis 문제");
-        } catch (Exception e) {
-            log.error("Redis 작업 중 오류가 발생했습니다: ", e);
-        }
-
-        MemberEntity memberEntity = memberRepository.findById(customUser.getName())
+        // 나중에 멤버 없으면 예외 처리;
+        MemberEntity memberEntity = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-        Optional<TokenEntity> existingToken = tokenRepository.findByMemberEntity_UserId(customUser.getName());
+        Optional<TokenEntity> existingToken = tokenRepository.findByMemberEntity_MemberId(memberId);
         TokenEntity token;
         if (existingToken.isPresent()) {
             token = existingToken.get(); // 객체 가져오기
             token.setRefreshToken(refreshToken);
+            token.setAccessToken(accessToken);
             token.setRefreshExpirationTime(refreshTime);
         } else {
-             token = TokenEntity.builder()
+            token = TokenEntity.builder()
                     .memberEntity(memberEntity) // memberEntity 관련 만 들어갈 수 있음
                     .refreshToken(refreshToken)
+                    .accessToken(accessToken)
                     .refreshExpirationTime(refreshTime)
                     .build();
         }
 
         tokenRepository.save(token);
-
-        return new TokenRedis(customUser.getName(), accessToken);
+        return new TokenRedis(memberId, accessToken);
     }
 
 }

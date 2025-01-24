@@ -1,5 +1,7 @@
 package com.mildo.dev.global.oauth.jwt.filter;
 
+import com.mildo.dev.api.member.domain.entity.TokenEntity;
+import com.mildo.dev.api.member.repository.TokenRepository;
 import com.mildo.dev.global.oauth.jwt.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -10,12 +12,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -24,10 +26,10 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final String SECRET_KEY = JwtTokenProvider.SECRET_KEY;
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private TokenRepository tokenRepository;
 
-    public JwtFilter(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public JwtFilter(TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -40,7 +42,8 @@ public class JwtFilter extends OncePerRequestFilter {
         if (pathMatcher.match("/", requestURI)||
                 pathMatcher.match("/loginSuccess", requestURI) ||
                 pathMatcher.match("/loginFailure", requestURI) ||
-                pathMatcher.match("favicon.ico", requestURI) ||
+                pathMatcher.match("/dev-login", requestURI) ||
+                pathMatcher.match("/tokens", requestURI) ||
                 requestURI.startsWith("/public")) {
             filterChain.doFilter(request, response);
             return;
@@ -57,7 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 부분 제거
+            token = token.substring(7);
 
             try {
                 // 토큰 검증
@@ -66,9 +69,9 @@ public class JwtFilter extends OncePerRequestFilter {
                         .parseClaimsJws(token)
                         .getBody();
 
-                String getToken = (String) redisTemplate.opsForValue().get("accessToken:" + claims.getSubject());
+                Optional<TokenEntity> getToken = tokenRepository.findByMemberEntityMemberIdAndAccessToken(claims.getSubject(), token);
 
-                if (!token.equals(getToken)) {
+                if (getToken.isEmpty()) { // getToken이 없을 경우
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
