@@ -29,7 +29,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "code_dev")
+@Table(name = "code")
 public class CodeEntity {
 
     @Id

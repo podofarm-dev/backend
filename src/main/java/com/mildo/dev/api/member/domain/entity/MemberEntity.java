@@ -30,7 +30,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "member_dev")
+@Table(name = "member")
 public class MemberEntity {
 
     @Id

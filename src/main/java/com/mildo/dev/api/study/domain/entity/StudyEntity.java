@@ -22,7 +22,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "study_dev")
+@Table(name = "study")
 public class StudyEntity {
 
     @Id
