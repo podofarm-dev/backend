@@ -5,11 +5,11 @@ import lombok.Data;
 @Data
 public class TokenRedis {
 
-    private String userId;
+    private String memberId;
     private String accessToken;
 
-    public TokenRedis(String userId, String accessToken) {
-        this.userId = userId;
+    public TokenRedis(String memberId, String accessToken) {
+        this.memberId = memberId;
         this.accessToken = accessToken;
     }
 
