@@ -11,10 +11,7 @@ import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,19 +20,16 @@ public class MemberController {
     private static final Logger log = LoggerFactory.getLogger(MemberController.class);
     private final MemberService userService;
 
-    @PostMapping("/tokens")
-    public ResponseEntity<?> tokenMake(@AuthenticationPrincipal CustomUser customUser){
-        if (customUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
+    @ResponseBody
+    @PostMapping(value = "/tokens", produces = "application/json; charset=UTF-8")
+    public ResponseEntity<?> tokenMake(@RequestBody TokenRedis memberId){
 
-        try{
-            TokenRedis res = userService.token(customUser);
-            return ResponseEntity.status(HttpStatus.OK).body(res);
-        } catch (RedisConnectionFailureException e){
-            return ResponseEntity.status(HttpStatus.OK).body("RedisConnectionFailureException !!!");
-        }
+        TokenRedis res = userService.token(memberId.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-
+    @GetMapping("/test")
+    public String Test(){
+        return "TEST";
+    }
 }
