@@ -24,7 +24,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Entity
-@Table(name = "comment_dev")
+@Table(name = "comment")
 public class CommentEntity {
 
     @Id
