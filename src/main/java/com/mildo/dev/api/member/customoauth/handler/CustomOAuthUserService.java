@@ -4,7 +4,7 @@ import com.mildo.dev.api.member.controller.MemberController;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
-import com.mildo.dev.api.utils.Random.CodeGenerator;
+import com.mildo.dev.api.utils.random.CodeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
