@@ -44,6 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 pathMatcher.match("/loginFailure", requestURI) ||
                 pathMatcher.match("/dev-login", requestURI) ||
                 pathMatcher.match("/tokens", requestURI) ||
+                pathMatcher.match("/tokens/refresh", requestURI) ||
                 requestURI.startsWith("/public")) {
             filterChain.doFilter(request, response);
             return;
