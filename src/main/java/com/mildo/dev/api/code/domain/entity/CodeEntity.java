@@ -40,15 +40,18 @@ public class CodeEntity {
     @Column(name = "code_source")
     private String codeSource;
 
-    @Column(name = "code_solveddate")
+    @Column(name = "code_solved_date")
     @CreationTimestamp
-    private Timestamp codeSolveddate;
+    private Timestamp codeSolvedDate;
 
     @Column(name = "code_annotation")
     private String codeAnnotation;
 
     @Column(name = "code_status")
     private String codeStatus;
+
+    @Column(name = "code_answer")
+    private String codeAnswer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
