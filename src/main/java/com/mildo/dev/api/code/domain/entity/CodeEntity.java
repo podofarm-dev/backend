@@ -29,7 +29,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "code_dev")
+@Table(name = "code")
 public class CodeEntity {
 
     @Id
@@ -40,9 +40,9 @@ public class CodeEntity {
     @Column(name = "code_source")
     private String codeSource;
 
-    @Column(name = "code_solveddate")
+    @Column(name = "code_solved_date")
     @CreationTimestamp
-    private Timestamp codeSolveddate;
+    private Timestamp codeSolvedDate;
 
     @Column(name = "code_annotation")
     private String codeAnnotation;
@@ -50,12 +50,15 @@ public class CodeEntity {
     @Column(name = "code_status")
     private String codeStatus;
 
+    @Column(name = "code_answer")
+    private String codeAnswer;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
 
     @OneToMany(mappedBy = "codeEntity")
-    private List<CommentEntity> commentList = new ArrayList<>();
+    private final List<CommentEntity> commentList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_no")

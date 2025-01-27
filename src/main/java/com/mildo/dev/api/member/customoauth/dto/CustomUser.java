@@ -9,17 +9,17 @@ import java.util.Map;
 
 public class CustomUser implements OAuth2User {
 
-    private final String userId;
+    private final String memberId;
     private final String username;
     private final String email;
 
-    public CustomUser(String userId, String username, String email) {
-        this.userId = userId;
+    public CustomUser(String memberId, String username, String email) {
+        this.memberId = memberId;
         this.username = username;
         this.email = email;
     }
 
-    public String getUserId() {return userId;}
+    public String getUserId() {return memberId;}
 
     public String getUsername() {
         return username;
@@ -41,7 +41,7 @@ public class CustomUser implements OAuth2User {
 
     @Override
     public String getName() {
-        return userId;
+        return memberId;
     }
 
 }

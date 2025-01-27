@@ -4,6 +4,7 @@ import com.mildo.dev.api.member.customoauth.handler.CustomLogoutSuccessHandler;
 import com.mildo.dev.api.member.customoauth.handler.CustomOAuthFailureHandler;
 import com.mildo.dev.api.member.customoauth.handler.CustomOAuthUserService;
 import com.mildo.dev.api.member.repository.MemberRepository;
+import com.mildo.dev.api.member.repository.TokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,11 +22,20 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig {
 
     private final MemberRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final CorsFilter corsFilter;
+
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
-    public SecurityConfig(MemberRepository userRepository, CorsFilter corsFilter, CustomLogoutSuccessHandler customLogoutSuccessHandler) {
+//    public SecurityConfig(MemberRepository userRepository, TokenRepository tokenRepository, CorsFilter corsFilter) {
+//        this.userRepository = userRepository;
+//        this.tokenRepository = tokenRepository;
+//        this.corsFilter = corsFilter;
+//    }
+
+    public SecurityConfig(MemberRepository userRepository, TokenRepository tokenRepository, CorsFilter corsFilter, CustomLogoutSuccessHandler customLogoutSuccessHandler) {
         this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
         this.corsFilter = corsFilter;
         this.customLogoutSuccessHandler = customLogoutSuccessHandler;
     }
@@ -45,6 +55,7 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessHandler(customLogoutSuccessHandler)
+//                        .logoutSuccessHandler(new CustomLogoutSuccessHandler(tokenRepository))
                         .logoutSuccessUrl("/") // 로그아웃 후 리디렉션
                         .invalidateHttpSession(true) // 세션 무효화
                         .deleteCookies("JSESSIONID", "RefreshToken") // JSESSIONID 쿠키 삭제

@@ -23,7 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "problem_dev")
+@Table(name = "problem")
 public class ProblemEntity {
 
     @Id
@@ -44,6 +44,6 @@ public class ProblemEntity {
     private String problemReadme;
 
     @OneToMany(mappedBy = "problemEntity")
-    private List<CodeEntity> codeList = new ArrayList<>();
+    private final List<CodeEntity> codeList = new ArrayList<>();
 
 }

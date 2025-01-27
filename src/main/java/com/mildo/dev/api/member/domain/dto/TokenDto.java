@@ -1,17 +1,17 @@
 package com.mildo.dev.api.member.domain.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
 public class TokenDto {
 
-    private int userid;
+    private String memberId;
     private String accessToken;
-    private LocalDateTime accessExpirationTime;
     private String refreshToken;
-    private LocalDateTime refreshExpirationTime;
 
-    public TokenDto(){};
+
 }

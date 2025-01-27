@@ -1,4 +1,4 @@
-package com.mildo.dev.api.utils.Random;
+package com.mildo.dev.api.utils.random;
 
 import java.util.Random;
 

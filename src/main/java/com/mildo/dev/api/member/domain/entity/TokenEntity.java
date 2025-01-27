@@ -22,7 +22,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @Entity
-@Table(name = "token_dev")
+@Table(name = "token")
 public class TokenEntity {
 
     @Id
@@ -32,6 +32,9 @@ public class TokenEntity {
 
     @Column(name = "refresh_token")
     private String refreshToken;
+
+    @Column(name = "access_token")
+    private String accessToken;
 
     @Column(name = "refresh_expiration_time")
     private Timestamp refreshExpirationTime;

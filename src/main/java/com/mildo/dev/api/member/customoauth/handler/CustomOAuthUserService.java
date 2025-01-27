@@ -4,7 +4,7 @@ import com.mildo.dev.api.member.controller.MemberController;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
-import com.mildo.dev.api.utils.Random.CodeGenerator;
+import com.mildo.dev.api.utils.random.CodeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -15,10 +15,10 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
 
     private static final Logger log = LoggerFactory.getLogger(MemberController.class);
 
-    private final MemberRepository userRepository;
+    private final MemberRepository memberRepository;
 
-    public CustomOAuthUserService(MemberRepository userRepository) {
-        this.userRepository = userRepository;
+    public CustomOAuthUserService(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
     }
 
     @Override
@@ -30,28 +30,28 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email"); // 이메일
         String username = oAuth2User.getAttribute("name"); //이름
 
-        MemberEntity user = userRepository.findByGoogleId(googleId);
-        if (user == null) {
-            String userId;
+        MemberEntity member = memberRepository.findByGoogleId(googleId);
+        if (member == null) {
+            String memberId;
 
             do {
-                userId = CodeGenerator.generateUserId();
-            } while (userRepository.findByUserId(userId).isPresent());
+                memberId = CodeGenerator.generateUserId();
+            } while (memberRepository.findByMemberId(memberId).isPresent());
 
-            user = MemberEntity.builder()
-                    .userId(userId)
+            member = MemberEntity.builder()
+                    .memberId(memberId)
                     .name(username)
                     .googleId(googleId)
                     .email(email)
                     .leader("N")
                     .build();
-            userRepository.save(user);
+            memberRepository.save(member);
 
-            user = userRepository.findByGoogleId(googleId);
+            member = memberRepository.findByGoogleId(googleId);
             log.info("회원 가입 성공");
         }
 
-        return new CustomUser(user.getUserId(), user.getName(), user.getEmail());
+        return new CustomUser(member.getMemberId(), member.getName(), member.getEmail());
     }
 
 }
