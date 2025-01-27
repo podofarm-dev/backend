@@ -45,6 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 pathMatcher.match("/dev-login", requestURI) ||
                 pathMatcher.match("/tokens", requestURI) ||
                 pathMatcher.match("/tokens/refresh", requestURI) ||
+                pathMatcher.match("/logout", requestURI) ||
                 requestURI.startsWith("/public")) {
             filterChain.doFilter(request, response);
             return;
@@ -77,8 +78,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     return;
                 }
             } catch (ExpiredJwtException e) { // Access Token 만료 시 발생
-                // 요청을 완수한 이후에 에이전트에게 문서 뷰를 리셋하라고 열려 줌 205
-                response.setStatus(HttpServletResponse.SC_RESET_CONTENT);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
 
             }catch (Exception e) {

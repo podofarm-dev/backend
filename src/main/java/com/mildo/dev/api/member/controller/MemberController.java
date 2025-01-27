@@ -1,20 +1,26 @@
 package com.mildo.dev.api.member.controller;
 
+import com.mildo.dev.api.code.domain.dto.CodeLeverDTO;
+import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.member.domain.dto.TokenDto;
 import com.mildo.dev.api.member.domain.dto.TokenRedis;
 import com.mildo.dev.api.member.service.MemberService;
 import com.mildo.dev.api.utils.cookie.CookieUtil;
 import com.mildo.dev.global.exception.exceptionClass.TokenException;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,6 +55,41 @@ public class MemberController {
         catch (TokenException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
+    }
+
+    @ResponseBody
+    @GetMapping(value="/{memberId}/level", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> levelCount(@PathVariable String memberId) {
+        try{
+            List<CodeLeverDTO> LevelCount = userService.memberLevel(memberId);
+            return ResponseEntity.status(HttpStatus.OK).body(LevelCount);
+        } catch (IllegalArgumentException e){
+            throw  new RuntimeException(e.getMessage());
+        }
+    }
+
+    @ResponseBody
+    @GetMapping(value="/{memberId}/solved/problem", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> solvedProblem(@PathVariable String memberId,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "10") int size)
+    {
+        try{
+            List<CodeSolvedListDTO> solvedProblemList = userService.solvedProblemList(memberId, page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
+        } catch (IllegalArgumentException e){
+            throw  new RuntimeException(e.getMessage());
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody TokenRedis memberId, HttpServletRequest request, HttpServletResponse response, Authentication authentication){
+        if (authentication != null) {
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+        }
+        userService.tokenDelete(memberId.getMemberId());
+        CookieUtil.deleteRefreshTokenCookie(response);
+        return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
     }
 
     @GetMapping("/test")
