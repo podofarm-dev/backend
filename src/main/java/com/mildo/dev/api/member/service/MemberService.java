@@ -1,9 +1,12 @@
 package com.mildo.dev.api.member.service;
 
-import com.mildo.dev.api.code.domain.dto.CodeLeverDTO;
+import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
+import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
+import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
 import com.mildo.dev.api.code.repository.CodeRepository;
 import com.mildo.dev.api.member.domain.dto.TokenDto;
+import com.mildo.dev.api.member.domain.dto.TokenRedis;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.domain.entity.TokenEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
@@ -64,7 +67,7 @@ public class MemberService {
         return new TokenDto(memberId, accessToken, refreshToken);
     }
 
-    public String refreshNew(String RefreshToken){
+    public TokenRedis refreshNew(String RefreshToken){
         try{
             Claims claims = Jwts.parser()
                     .setSigningKey(REFRESH_SECRET_KEY)
@@ -82,7 +85,7 @@ public class MemberService {
                 token.setAccessToken(accessToken);
             }
             tokenRepository.save(token);
-            return accessToken;
+            return new TokenRedis(claims.getSubject(), accessToken);
         } catch (ExpiredJwtException e) { // Token 만료 시 발생
             log.error("ExpiredJwtException e = {}", e.getMessage());
             throw new TokenException("expired - Login Again");
@@ -92,18 +95,17 @@ public class MemberService {
         }
     }
 
-    public List<CodeLeverDTO> memberLevel(String memberId){
+    public SolvedProblemResponse memberLevel(String memberId){
         vaildMemberId(memberId);
-        // 가공작업 없을시 즉 DB에서 바로 꺼내서 보여줘도 되기때문에 DTO로 접근해서 그대로 받아오기
-        List<CodeLeverDTO> CodeLeverCount = codeRepository.findSolvedProblemLevelCountByMemberId(memberId);
-        return CodeLeverCount;
+        List<CodeLevelDTO> CodeLeverCount = codeRepository.findSolvedProblemLevelCountByMemberId(memberId);
+        return new SolvedProblemResponse(CodeLeverCount);
     }
 
-    public List<CodeSolvedListDTO> solvedProblemList(String memberId, int page, int size){
+    public SolvedListResponse solvedProblemList(String memberId, int page, int size){
         vaildMemberId(memberId);
         Pageable pageable = PageRequest.of(page, size);
         List<CodeSolvedListDTO> results = codeRepository.findSolvedProblemListByMemberId(memberId, pageable);
-        return results;
+        return new SolvedListResponse(results);
     }
 
     public void vaildMemberId(String memberId){

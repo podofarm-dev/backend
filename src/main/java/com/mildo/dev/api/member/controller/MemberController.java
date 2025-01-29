@@ -1,7 +1,9 @@
 package com.mildo.dev.api.member.controller;
 
-import com.mildo.dev.api.code.domain.dto.CodeLeverDTO;
+import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
+import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
+import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
 import com.mildo.dev.api.member.domain.dto.TokenDto;
 import com.mildo.dev.api.member.domain.dto.TokenRedis;
 import com.mildo.dev.api.member.service.MemberService;
@@ -13,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -49,7 +50,7 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cookie is missing");
         }
         try {
-            String res = userService.refreshNew(RefreshToken);
+            TokenRedis res = userService.refreshNew(RefreshToken);
             return ResponseEntity.ok(res);
         }
         catch (TokenException e) {
@@ -61,7 +62,7 @@ public class MemberController {
     @GetMapping(value="/{memberId}/level", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> levelCount(@PathVariable String memberId) {
         try{
-            List<CodeLeverDTO> LevelCount = userService.memberLevel(memberId);
+            SolvedProblemResponse LevelCount = userService.memberLevel(memberId);
             return ResponseEntity.status(HttpStatus.OK).body(LevelCount);
         } catch (IllegalArgumentException e){
             throw  new RuntimeException(e.getMessage());
@@ -75,7 +76,7 @@ public class MemberController {
                                            @RequestParam(defaultValue = "10") int size)
     {
         try{
-            List<CodeSolvedListDTO> solvedProblemList = userService.solvedProblemList(memberId, page, size);
+            SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size);
             return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
         } catch (IllegalArgumentException e){
             throw  new RuntimeException(e.getMessage());

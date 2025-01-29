@@ -22,7 +22,7 @@ public class CookieUtil {
         myCookie.setPath("/");
         myCookie.setHttpOnly(true);
         myCookie.setSecure(true);
-//        myCookie.setDomain("dev.mildo.xyz");
+        myCookie.setDomain("dev.mildo.xyz");
         myCookie.setAttribute("SameSite", "None");
         response.addCookie(myCookie);
         response.setHeader("Set-Cookie", "RefreshToken=; Path=/; Domain=dev.mildo.xyz; Max-Age=0; Secure; HttpOnly; SameSite=None");
