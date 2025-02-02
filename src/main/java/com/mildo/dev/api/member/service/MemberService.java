@@ -5,6 +5,7 @@ import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
 import com.mildo.dev.api.code.repository.CodeRepository;
+import com.mildo.dev.api.member.domain.dto.MemberInfoDTO;
 import com.mildo.dev.api.member.domain.dto.TokenDto;
 import com.mildo.dev.api.member.domain.dto.TokenRedis;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
@@ -124,6 +125,16 @@ public class MemberService {
             token.setRefreshExpirationTime(null);
             tokenRepository.save(token);
         }
+    }
+
+    public MemberInfoDTO memberInfo(String memberId){
+        return memberRepository.findByMemberId(memberId).map(member -> new MemberInfoDTO(
+                member.getMemberId(),
+                member.getName(),
+                member.getEmail(),
+                member.getStudyEntity().getStudyId(),
+                member.getMemberImgEntity()
+        )).orElseThrow(() -> new RuntimeException("Member not found"));
     }
 
 }

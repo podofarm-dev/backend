@@ -4,6 +4,7 @@ import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
+import com.mildo.dev.api.member.domain.dto.MemberInfoDTO;
 import com.mildo.dev.api.member.domain.dto.TokenDto;
 import com.mildo.dev.api.member.domain.dto.TokenRedis;
 import com.mildo.dev.api.member.service.MemberService;
@@ -91,6 +92,13 @@ public class MemberController {
         userService.tokenDelete(memberId.getMemberId());
         CookieUtil.deleteRefreshTokenCookie(response);
         return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/member/info", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> updateUser(@RequestBody TokenRedis vo) {
+        MemberInfoDTO memberInfo = userService.memberInfo(vo.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body(memberInfo);
     }
 
     @GetMapping("/test")
