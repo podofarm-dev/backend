@@ -1,5 +1,8 @@
 package com.mildo.dev.api.member.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
@@ -20,10 +23,13 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +43,13 @@ public class MemberService {
     private final TokenRepository tokenRepository;
     private final JwtInterface jwtInterface;
     private final CodeRepository codeRepository;
+    private final AmazonS3Client amazonS3Client;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    @Value("${BASIC_URL}")
+    private String basic;
 
     private static final String REFRESH_SECRET_KEY = JwtTokenProvider.REFRESH_TOKEN_SECRET_KEY;
 
@@ -47,7 +60,7 @@ public class MemberService {
 
         // 나중에 멤버 없으면 예외 처리;
         MemberEntity memberEntity = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException(""));
+                .orElseThrow(() -> new RuntimeException("Member not found"));
 
         Optional<TokenEntity> existingToken = tokenRepository.findByMemberEntity_MemberId(memberId);
         TokenEntity token;
@@ -133,8 +146,48 @@ public class MemberService {
                 member.getName(),
                 member.getEmail(),
                 member.getStudyEntity().getStudyId(),
-                member.getMemberImgEntity()
+                member.getImgUrl()
         )).orElseThrow(() -> new RuntimeException("Member not found"));
     }
+
+    public MemberInfoDTO updateUser(MemberInfoDTO vo) {
+        MemberEntity member = memberRepository.findByMemberId(vo.getMemberId())
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        member.setName(vo.getName());
+        memberRepository.save(member);
+        return new MemberInfoDTO( member.getMemberId(),
+                member.getName(),
+                member.getEmail(),
+                member.getStudyEntity().getStudyId(),
+                member.getImgUrl());
+    }
+
+    public MemberInfoDTO uploadImg(MultipartFile file, String memberId) throws IOException {
+        MemberEntity member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        if(!basic.equals(member.getImgUrl())){
+            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, memberId));
+        }
+
+        String fileName = "profile/" + memberId;
+        String fileUrl = "https://.s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
+
+        ObjectMetadata metadata= new ObjectMetadata();
+        metadata.setContentType(file.getContentType());
+        metadata.setContentLength(file.getSize());
+        amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
+
+        member.setImgUrl(fileUrl);
+        memberRepository.save(member);
+
+        return new MemberInfoDTO( member.getMemberId(),
+                member.getName(),
+                member.getEmail(),
+                member.getStudyEntity().getStudyId(),
+                member.getImgUrl());
+    }
+
 
 }

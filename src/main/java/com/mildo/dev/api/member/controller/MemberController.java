@@ -21,7 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -96,9 +98,27 @@ public class MemberController {
 
     @ResponseBody
     @GetMapping(value = "/member/info", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> updateUser(@RequestBody TokenRedis vo) {
+    public ResponseEntity<?> memberInfo(@RequestBody TokenRedis vo) {
         MemberInfoDTO memberInfo = userService.memberInfo(vo.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(memberInfo);
+    }
+
+    @ResponseBody
+    @PatchMapping(value = "/member/info", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> updateUser(@RequestBody MemberInfoDTO vo) {
+        MemberInfoDTO res = userService.updateUser(vo);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @ResponseBody
+    @PutMapping(value="/{memberId}/upload", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String memberId) {
+        try {
+            MemberInfoDTO dto = userService.uploadImg(file, memberId);
+            return ResponseEntity.ok(dto);
+        } catch (IOException e) {
+            throw  new RuntimeException("File not found");
+        }
     }
 
     @GetMapping("/test")

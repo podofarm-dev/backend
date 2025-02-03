@@ -58,6 +58,9 @@ public class MemberEntity {
     @CreationTimestamp
     private Timestamp createDate; // 유저 생성일
 
+    @Column(name = "member_img_url")
+    private String imgUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id")
     private StudyEntity studyEntity;
@@ -71,8 +74,8 @@ public class MemberEntity {
     @OneToOne(mappedBy = "memberEntity")
     private TokenEntity tokenEntity;
 
-    @OneToOne(mappedBy = "memberEntity")
-    @JsonManagedReference
-    private MemberImgEntity memberImgEntity;
+//    @OneToOne(mappedBy = "memberEntity")
+//    @JsonManagedReference
+//    private MemberImgEntity memberImgEntity;
 
 }
