@@ -1,9 +1,9 @@
 package com.mildo.dev.global.config.security;
 
-import com.mildo.dev.api.member.customoauth.handler.CustomLogoutSuccessHandler;
 import com.mildo.dev.api.member.customoauth.handler.CustomOAuthFailureHandler;
 import com.mildo.dev.api.member.customoauth.handler.CustomOAuthUserService;
 import com.mildo.dev.api.member.repository.MemberRepository;
+import com.mildo.dev.api.member.repository.TokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,13 +21,13 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig {
 
     private final MemberRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final CorsFilter corsFilter;
-    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
-    public SecurityConfig(MemberRepository userRepository, CorsFilter corsFilter, CustomLogoutSuccessHandler customLogoutSuccessHandler) {
+    public SecurityConfig(MemberRepository userRepository, TokenRepository tokenRepository, CorsFilter corsFilter) {
         this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
         this.corsFilter = corsFilter;
-        this.customLogoutSuccessHandler = customLogoutSuccessHandler;
     }
 
     @Bean
@@ -39,16 +39,8 @@ public class SecurityConfig {
                 );
 
         http
-                .csrf((auth) -> auth.disable()); // CSRF 비활성화
-
-        http
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessHandler(customLogoutSuccessHandler)
-                        .logoutSuccessUrl("/") // 로그아웃 후 리디렉션
-                        .invalidateHttpSession(true) // 세션 무효화
-                        .deleteCookies("JSESSIONID", "RefreshToken") // JSESSIONID 쿠키 삭제
-                );
+                .csrf((auth) -> auth.disable()) // CSRF 비활성화
+                .logout((auth) -> auth.disable()); // logout 비활성화
 
         http
                 .oauth2Login(oauth -> oauth

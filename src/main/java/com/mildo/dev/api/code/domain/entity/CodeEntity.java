@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,15 +41,21 @@ public class CodeEntity {
     @Column(name = "code_source")
     private String codeSource;
 
-    @Column(name = "code_solveddate")
+    @Column(name = "code_solved_date")
     @CreationTimestamp
-    private Timestamp codeSolveddate;
+    private Timestamp codeSolvedDate;
 
     @Column(name = "code_annotation")
     private String codeAnnotation;
 
     @Column(name = "code_status")
     private String codeStatus;
+
+    @Column(name = "code_answer")
+    private String codeAnswer;
+
+    @Column(name = "code_time")
+    private Time codeTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
