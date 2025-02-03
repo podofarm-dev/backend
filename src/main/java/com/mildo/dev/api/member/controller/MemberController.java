@@ -4,6 +4,7 @@ import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
+import com.mildo.dev.api.member.domain.dto.MemberInfoDTO;
 import com.mildo.dev.api.member.domain.dto.TokenDto;
 import com.mildo.dev.api.member.domain.dto.TokenRedis;
 import com.mildo.dev.api.member.service.MemberService;
@@ -20,7 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -73,10 +76,11 @@ public class MemberController {
     @GetMapping(value="/{memberId}/solved/problem", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> solvedProblem(@PathVariable String memberId,
                                            @RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "10") int size)
+                                           @RequestParam(defaultValue = "10") int size,
+                                           @RequestParam(required = false) String title)
     {
         try{
-            SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size);
+            SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size, title);
             return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
         } catch (IllegalArgumentException e){
             throw  new RuntimeException(e.getMessage());
@@ -91,6 +95,31 @@ public class MemberController {
         userService.tokenDelete(memberId.getMemberId());
         CookieUtil.deleteRefreshTokenCookie(response);
         return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/member/info", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> memberInfo(@RequestBody TokenRedis vo) {
+        MemberInfoDTO memberInfo = userService.memberInfo(vo.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body(memberInfo);
+    }
+
+    @ResponseBody
+    @PatchMapping(value = "/member/info", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> updateUser(@RequestBody MemberInfoDTO vo) {
+        MemberInfoDTO res = userService.updateUser(vo);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @ResponseBody
+    @PutMapping(value="/{memberId}/upload", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String memberId) {
+        try {
+            MemberInfoDTO dto = userService.uploadImg(file, memberId);
+            return ResponseEntity.ok(dto);
+        } catch (IOException e) {
+            throw  new RuntimeException("File not found");
+        }
     }
 
     @GetMapping("/test")
