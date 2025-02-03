@@ -76,10 +76,11 @@ public class MemberController {
     @GetMapping(value="/{memberId}/solved/problem", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> solvedProblem(@PathVariable String memberId,
                                            @RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "10") int size)
+                                           @RequestParam(defaultValue = "10") int size,
+                                           @RequestParam(required = false) String title)
     {
         try{
-            SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size);
+            SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size, title);
             return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
         } catch (IllegalArgumentException e){
             throw  new RuntimeException(e.getMessage());

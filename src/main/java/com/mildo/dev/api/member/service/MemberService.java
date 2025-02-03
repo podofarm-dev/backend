@@ -115,10 +115,18 @@ public class MemberService {
         return new SolvedProblemResponse(CodeLeverCount);
     }
 
-    public SolvedListResponse solvedProblemList(String memberId, int page, int size){
+    public SolvedListResponse solvedProblemList(String memberId, int page, int size, String title){
         vaildMemberId(memberId);
         Pageable pageable = PageRequest.of(page, size);
-        List<CodeSolvedListDTO> results = codeRepository.findSolvedProblemListByMemberId(memberId, pageable);
+
+        List<CodeSolvedListDTO> results;
+        if (title != null && !title.isEmpty()) {
+            results = codeRepository.findSolvedProblemListTitleByMemberId(memberId, title, pageable);
+        } else {
+            results = codeRepository.findSolvedProblemListByMemberId(memberId, pageable);
+        }
+
+
         return new SolvedListResponse(results);
     }
 
