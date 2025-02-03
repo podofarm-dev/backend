@@ -11,7 +11,7 @@ public class CookieUtil {
         cookie.setSecure(true); // HTTPS에서만 전송
         cookie.setPath("/"); // 애플리케이션 전체에서 접근 가능
         cookie.setMaxAge(maxAge); // 쿠키 만료 시간
-        cookie.setDomain("dev.mildo.xyz"); // 도메인 설정
+        cookie.setDomain("test.mildo.xyz"); // 도메인 설정
         cookie.setAttribute("SameSite", "None"); // SameSite 설정
         return cookie;
     }
@@ -22,10 +22,10 @@ public class CookieUtil {
         myCookie.setPath("/");
         myCookie.setHttpOnly(true);
         myCookie.setSecure(true);
-        myCookie.setDomain("dev.mildo.xyz");
+        myCookie.setDomain("test.mildo.xyz");
         myCookie.setAttribute("SameSite", "None");
         response.addCookie(myCookie);
-        response.setHeader("Set-Cookie", "RefreshToken=; Path=/; Domain=dev.mildo.xyz; Max-Age=0; Secure; HttpOnly; SameSite=None");
+        response.setHeader("Set-Cookie", "RefreshToken=; Path=/; Domain=test.mildo.xyz; Max-Age=0; Secure; HttpOnly; SameSite=None");
     }
 
 }
