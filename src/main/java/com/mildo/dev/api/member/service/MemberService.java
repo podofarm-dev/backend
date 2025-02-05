@@ -9,6 +9,7 @@ import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
 import com.mildo.dev.api.code.repository.CodeRepository;
 import com.mildo.dev.api.member.domain.dto.MemberInfoDTO;
+import com.mildo.dev.api.member.domain.dto.ProblemMemberDto;
 import com.mildo.dev.api.member.domain.dto.TokenDto;
 import com.mildo.dev.api.member.domain.dto.TokenRedis;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
@@ -110,13 +111,13 @@ public class MemberService {
     }
 
     public SolvedProblemResponse memberLevel(String memberId){
-        vaildMemberId(memberId);
+        MemberEntity member = vaildMemberId(memberId);
         List<CodeLevelDTO> CodeLeverCount = codeRepository.findSolvedProblemLevelCountByMemberId(memberId);
         return new SolvedProblemResponse(CodeLeverCount);
     }
 
     public SolvedListResponse solvedProblemList(String memberId, int page, int size, String title){
-        vaildMemberId(memberId);
+        MemberEntity member = vaildMemberId(memberId);
         Pageable pageable = PageRequest.of(page, size);
 
         List<CodeSolvedListDTO> results;
@@ -126,12 +127,11 @@ public class MemberService {
             results = codeRepository.findSolvedProblemListByMemberId(memberId, pageable);
         }
 
-
         return new SolvedListResponse(results);
     }
 
-    public void vaildMemberId(String memberId){
-        memberRepository.findByMemberId(memberId)
+    public MemberEntity vaildMemberId(String memberId){
+        return memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
     }
 
@@ -155,12 +155,11 @@ public class MemberService {
                 member.getEmail(),
                 member.getStudyEntity().getStudyId(),
                 member.getImgUrl()
-        )).orElseThrow(() -> new RuntimeException("Member not found"));
+        )).orElseThrow(() -> new RuntimeException("해당 ID의 회원이 존재하지 않습니다."));
     }
 
     public MemberInfoDTO updateUser(MemberInfoDTO vo) {
-        MemberEntity member = memberRepository.findByMemberId(vo.getMemberId())
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+        MemberEntity member = vaildMemberId(vo.getMemberId());
 
         member.setName(vo.getName());
         memberRepository.save(member);
@@ -172,8 +171,7 @@ public class MemberService {
     }
 
     public MemberInfoDTO uploadImg(MultipartFile file, String memberId) throws IOException {
-        MemberEntity member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+        MemberEntity member = vaildMemberId(memberId);
 
         if(!basic.equals(member.getImgUrl())){
             amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, memberId));
@@ -197,5 +195,29 @@ public class MemberService {
                 member.getImgUrl());
     }
 
+    public void deleteMember(MemberInfoDTO vo){
+        MemberEntity member = vaildMemberId(vo.getMemberId());
+
+        long count = memberRepository.countMembersByStudyId(member.getStudyEntity().getStudyId());
+
+        if("Y".equals(member.getLeader()) && count > 1){
+            throw new RuntimeException("YOU LEADER CHANGE");
+        }
+
+        if(!basic.equals(member.getImgUrl())){
+            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, vo.getMemberId()));
+        }
+
+        memberRepository.delete(member);
+
+//        if (count == 1) {
+//            studyRepository.deleteById(member.getStudyEntity().getStudyId());
+//        }
+    }
+
+    public ProblemMemberDto problemMember(MemberInfoDTO vo){
+        MemberEntity member = vaildMemberId(vo.getMemberId());
+        return memberRepository.countProblemByMemberId(vo.getMemberId());
+    }
 
 }
