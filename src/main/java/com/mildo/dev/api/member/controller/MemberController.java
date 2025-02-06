@@ -6,10 +6,7 @@ import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
-import com.mildo.dev.api.member.domain.dto.MemberInfoDTO;
-import com.mildo.dev.api.member.domain.dto.ProblemMemberDto;
-import com.mildo.dev.api.member.domain.dto.TokenDto;
-import com.mildo.dev.api.member.domain.dto.TokenRedis;
+import com.mildo.dev.api.member.domain.dto.*;
 import com.mildo.dev.api.member.service.MemberService;
 import com.mildo.dev.api.utils.cookie.CookieUtil;
 import com.mildo.dev.global.exception.exceptionClass.ServerUnstableException;
@@ -30,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -132,6 +130,13 @@ public class MemberController {
     @GetMapping(value="/problem/member", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> problem(@RequestBody MemberInfoDTO vo) {
         ProblemMemberDto res = userService.problemMember(vo);
+        return ResponseEntity.ok(res);
+    }
+
+    @ResponseBody
+    @GetMapping(value="/{studyId}/solved/{memberId}", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> solvedMember(@PathVariable String memberId, @PathVariable String studyId) {
+        Optional<SolvedMemberListDto> res = userService.solvedMember(memberId, studyId);
         return ResponseEntity.ok(res);
     }
 

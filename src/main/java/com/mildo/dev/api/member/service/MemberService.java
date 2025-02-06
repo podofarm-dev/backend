@@ -8,10 +8,7 @@ import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
 import com.mildo.dev.api.code.repository.CodeRepository;
-import com.mildo.dev.api.member.domain.dto.MemberInfoDTO;
-import com.mildo.dev.api.member.domain.dto.ProblemMemberDto;
-import com.mildo.dev.api.member.domain.dto.TokenDto;
-import com.mildo.dev.api.member.domain.dto.TokenRedis;
+import com.mildo.dev.api.member.domain.dto.*;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.domain.entity.TokenEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
@@ -218,6 +215,27 @@ public class MemberService {
     public ProblemMemberDto problemMember(MemberInfoDTO vo){
         MemberEntity member = vaildMemberId(vo.getMemberId());
         return memberRepository.countProblemByMemberId(vo.getMemberId());
+    }
+
+    public Optional<SolvedMemberListDto> solvedMember(String memberId, String studyId){
+        MemberEntity member = vaildMemberId(memberId);
+
+        List<SolvedMemberListDto> members = memberRepository.solvedMemberRanking(studyId);
+        // sort 메서드를 이용해서 Integer.compare 정수 비교 메서드 사용해서 정렬
+        // a 객체가 0번째 인덱스에 오고 b 객체가 a보다 크면 앞으로 오고 작으면 뒤로 가고 값이 같으면 순서를 바꾸지 않는 방식
+        members.sort((a, b) -> Integer.compare(b.getSolvedProblem(), a.getSolvedProblem()));
+
+        int rank = 1;
+        for (int i = 0; i < members.size(); i++) {
+            if (i > 0 && members.get(i).getSolvedProblem() < members.get(i - 1).getSolvedProblem()) {
+                rank = i + 1;
+            }
+            members.get(i).setRank(rank);
+        }
+
+        return members.stream()
+                .filter(m -> m.getMemberId().equals(memberId))
+                .findFirst();
     }
 
 }
