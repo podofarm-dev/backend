@@ -1,18 +1,20 @@
 package com.mildo.dev.api.member.controller;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
-import com.mildo.dev.api.member.domain.dto.MemberInfoDTO;
-import com.mildo.dev.api.member.domain.dto.TokenDto;
-import com.mildo.dev.api.member.domain.dto.TokenRedis;
+import com.mildo.dev.api.member.domain.dto.*;
 import com.mildo.dev.api.member.service.MemberService;
 import com.mildo.dev.api.utils.cookie.CookieUtil;
+import com.mildo.dev.global.exception.exceptionClass.ServerUnstableException;
 import com.mildo.dev.global.exception.exceptionClass.TokenException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,12 +67,8 @@ public class MemberController {
     @ResponseBody
     @GetMapping(value="/{memberId}/level", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> levelCount(@PathVariable String memberId) {
-        try{
-            SolvedProblemResponse LevelCount = userService.memberLevel(memberId);
-            return ResponseEntity.status(HttpStatus.OK).body(LevelCount);
-        } catch (IllegalArgumentException e){
-            throw  new RuntimeException(e.getMessage());
-        }
+        SolvedProblemResponse LevelCount = userService.memberLevel(memberId);
+        return ResponseEntity.status(HttpStatus.OK).body(LevelCount);
     }
 
     @ResponseBody
@@ -79,12 +78,8 @@ public class MemberController {
                                            @RequestParam(defaultValue = "10") int size,
                                            @RequestParam(required = false) String title)
     {
-        try{
-            SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size, title);
-            return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
-        } catch (IllegalArgumentException e){
-            throw  new RuntimeException(e.getMessage());
-        }
+        SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size, title);
+        return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
     }
 
     @PostMapping("/logout")
@@ -106,20 +101,43 @@ public class MemberController {
 
     @ResponseBody
     @PatchMapping(value = "/member/info", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> updateUser(@RequestBody MemberInfoDTO vo) {
+    public ResponseEntity<?> updateUser(@Valid @RequestBody MemberInfoDTO vo) {
         MemberInfoDTO res = userService.updateUser(vo);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @ResponseBody
-    @PutMapping(value="/{memberId}/upload", produces="application/json; charset=UTF-8")
+    @PatchMapping(value="/{memberId}/upload", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String memberId) {
         try {
             MemberInfoDTO dto = userService.uploadImg(file, memberId);
             return ResponseEntity.ok(dto);
         } catch (IOException e) {
             throw  new RuntimeException("File not found");
+        }catch (AmazonServiceException e) {
+            throw new ServerUnstableException("S3 업로드 실패");
         }
+    }
+
+    @ResponseBody
+    @DeleteMapping(value="/member/info", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> deleteMember(@RequestBody MemberInfoDTO vo) {
+        userService.deleteMember(vo);
+        return ResponseEntity.ok("삭제 성공");
+    }
+
+    @ResponseBody
+    @GetMapping(value="/problem/member", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> problem(@RequestBody MemberInfoDTO vo) {
+        ProblemMemberDto res = userService.problemMember(vo);
+        return ResponseEntity.ok(res);
+    }
+
+    @ResponseBody
+    @GetMapping(value="/{studyId}/solved/{memberId}", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> solvedMember(@PathVariable String memberId, @PathVariable String studyId) {
+        Optional<SolvedMemberListDto> res = userService.solvedMember(memberId, studyId);
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("/test")
