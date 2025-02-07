@@ -6,6 +6,7 @@ import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
 import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
+import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.member.domain.dto.*;
 import com.mildo.dev.api.member.service.MemberService;
 import com.mildo.dev.api.utils.cookie.CookieUtil;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -135,7 +138,11 @@ public class MemberController {
 
     @ResponseBody
     @GetMapping(value="/{studyId}/solved/{memberId}", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> solvedMember(@PathVariable String memberId, @PathVariable String studyId) {
+    public ResponseEntity<?> solvedMember(@PathVariable String memberId, @PathVariable String studyId,
+                                          @AuthenticationPrincipal CustomUser customUser) {
+
+        log.info("customUser = {}", customUser);
+        log.info("customUser = {}", customUser.getMemberId());
         Optional<SolvedMemberListDto> res = userService.solvedMember(memberId, studyId);
         return ResponseEntity.ok(res);
     }
