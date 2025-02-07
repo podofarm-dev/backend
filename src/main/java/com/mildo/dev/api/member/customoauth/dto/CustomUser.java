@@ -1,5 +1,6 @@
 package com.mildo.dev.api.member.customoauth.dto;
 
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -7,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+@ToString
 public class CustomUser implements OAuth2User {
 
     private final String memberId;
@@ -19,7 +21,7 @@ public class CustomUser implements OAuth2User {
         this.email = email;
     }
 
-    public String getUserId() {return memberId;}
+    public String getMemberId() {return memberId;}
 
     public String getUsername() {
         return username;
