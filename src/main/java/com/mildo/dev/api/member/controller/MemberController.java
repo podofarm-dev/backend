@@ -69,51 +69,78 @@ public class MemberController {
 
     @ResponseBody
     @GetMapping(value="/{memberId}/level", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> levelCount(@PathVariable String memberId) {
-        SolvedProblemResponse LevelCount = userService.memberLevel(memberId);
+    public ResponseEntity<?> levelCount(@PathVariable String memberId,
+                                        @AuthenticationPrincipal CustomUser customUser)
+    {
+        if (!memberId.equals(customUser.getMemberId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
+        }
+
+        SolvedProblemResponse LevelCount = userService.memberLevel(customUser.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(LevelCount);
     }
 
     @ResponseBody
     @GetMapping(value="/{memberId}/solved/problem", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> solvedProblem(@PathVariable String memberId,
+                                           @AuthenticationPrincipal CustomUser customUser,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "10") int size,
                                            @RequestParam(required = false) String title)
     {
-        SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size, title);
+        if (!memberId.equals(customUser.getMemberId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
+        }
+
+        SolvedListResponse solvedProblemList = userService.solvedProblemList(customUser.getMemberId(), page, size, title);
         return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody TokenRedis memberId, HttpServletRequest request, HttpServletResponse response, Authentication authentication){
+    public ResponseEntity<?> logout(@AuthenticationPrincipal CustomUser customUser,
+                                    HttpServletRequest request, HttpServletResponse response,
+                                    Authentication authentication)
+    {
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }
-        userService.tokenDelete(memberId.getMemberId());
+        userService.tokenDelete(customUser.getMemberId());
         CookieUtil.deleteRefreshTokenCookie(response);
         return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
     }
 
     @ResponseBody
     @GetMapping(value = "/member/info", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> memberInfo(@RequestBody TokenRedis vo) {
-        MemberInfoDTO memberInfo = userService.memberInfo(vo.getMemberId());
+    public ResponseEntity<?> memberInfo(@AuthenticationPrincipal CustomUser customUser)
+    {
+        MemberInfoDTO memberInfo = userService.memberInfo(customUser.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(memberInfo);
     }
 
     @ResponseBody
     @PatchMapping(value = "/member/info", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> updateUser(@Valid @RequestBody MemberInfoDTO vo) {
-        MemberInfoDTO res = userService.updateUser(vo);
+    public ResponseEntity<?> updateUser(@Valid @RequestBody MemberReNameDto nameDto,
+                                        @AuthenticationPrincipal CustomUser customUser)
+    {
+        MemberInfoDTO res = userService.updateUser(nameDto, customUser.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @ResponseBody
     @PatchMapping(value="/{memberId}/upload", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable String memberId) {
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
+                                        @AuthenticationPrincipal CustomUser customUser,
+                                        @PathVariable String memberId)
+    {
+        if (!memberId.equals(customUser.getMemberId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
+        }
+
         try {
-            MemberInfoDTO dto = userService.uploadImg(file, memberId);
+            MemberInfoDTO dto = userService.uploadImg(file, customUser.getMemberId());
             return ResponseEntity.ok(dto);
         } catch (IOException e) {
             throw  new RuntimeException("File not found");
@@ -124,26 +151,32 @@ public class MemberController {
 
     @ResponseBody
     @DeleteMapping(value="/member/info", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> deleteMember(@RequestBody MemberInfoDTO vo) {
-        userService.deleteMember(vo);
+    public ResponseEntity<?> deleteMember(@AuthenticationPrincipal CustomUser customUser)
+    {
+        userService.deleteMember(customUser.getMemberId());
         return ResponseEntity.ok("삭제 성공");
     }
 
     @ResponseBody
     @GetMapping(value="/problem/member", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> problem(@RequestBody MemberInfoDTO vo) {
-        ProblemMemberDto res = userService.problemMember(vo);
+    public ResponseEntity<?> problem(@AuthenticationPrincipal CustomUser customUser)
+    {
+        ProblemMemberDto res = userService.problemMember(customUser.getMemberId());
         return ResponseEntity.ok(res);
     }
 
     @ResponseBody
     @GetMapping(value="/{studyId}/solved/{memberId}", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> solvedMember(@PathVariable String memberId, @PathVariable String studyId,
-                                          @AuthenticationPrincipal CustomUser customUser) {
+    public ResponseEntity<?> solvedMember(@PathVariable String memberId,
+                                          @PathVariable String studyId,
+                                          @AuthenticationPrincipal CustomUser customUser)
+    {
+        if (!memberId.equals(customUser.getMemberId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
+        }
 
-        log.info("customUser = {}", customUser);
-        log.info("customUser = {}", customUser.getMemberId());
-        Optional<SolvedMemberListDto> res = userService.solvedMember(memberId, studyId);
+        Optional<SolvedMemberListDto> res = userService.solvedMember(customUser.getMemberId(), studyId);
         return ResponseEntity.ok(res);
     }
 
