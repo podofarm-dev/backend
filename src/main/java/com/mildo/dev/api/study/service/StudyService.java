@@ -46,15 +46,15 @@ public class StudyService {
                 .build();
 
         //2. 스터디 저장
-        studyRepository.save(study);
+        StudyEntity savedStudy = studyRepository.save(study);
 
         //3. 사용자 조회
         MemberEntity member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
 
         //4. 생성한 스터디에 리더로 가입
-        joinStudyAsLeader(member, study);
-        return StudySummaryResDto.from(study);
+        joinStudyAsLeader(member, savedStudy);
+        return StudySummaryResDto.from(savedStudy);
     }
 
     public void join(String memberId, StudyJoinReqDto requestDto) {
