@@ -49,7 +49,7 @@ public class StudyService {
         studyRepository.save(study);
 
         //3. 사용자 조회
-        MemberEntity member = memberRepository.findByMemberId(memberId)
+        MemberEntity member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
 
         //4. 생성한 스터디에 리더로 가입
