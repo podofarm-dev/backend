@@ -39,7 +39,7 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
             String memberId;
 
             do {
-                memberId = CodeGenerator.generateUserId();
+                memberId = CodeGenerator.generateRandomCode();
             } while (memberRepository.findByMemberId(memberId).isPresent());
 
             member = MemberEntity.builder()
