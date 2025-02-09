@@ -150,17 +150,28 @@ public class MemberController {
     }
 
     @ResponseBody
-    @DeleteMapping(value="/member/info", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> deleteMember(@AuthenticationPrincipal CustomUser customUser)
+    @DeleteMapping(value="/{memberId}/info", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> deleteMember(@PathVariable String memberId,
+                                          @AuthenticationPrincipal CustomUser customUser)
     {
+        if (!memberId.equals(customUser.getMemberId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
+        }
+
         userService.deleteMember(customUser.getMemberId());
         return ResponseEntity.ok("삭제 성공");
     }
 
     @ResponseBody
-    @GetMapping(value="/problem/member", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> problem(@AuthenticationPrincipal CustomUser customUser)
+    @GetMapping(value="/problem/{memberId}", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> problem(@PathVariable String memberId,
+                                     @AuthenticationPrincipal CustomUser customUser)
     {
+        if (!memberId.equals(customUser.getMemberId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
+        }
         ProblemMemberDto res = userService.problemMember(customUser.getMemberId());
         return ResponseEntity.ok(res);
     }
