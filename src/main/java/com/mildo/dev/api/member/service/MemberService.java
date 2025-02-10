@@ -175,7 +175,7 @@ public class MemberService {
         }
 
         String fileName = "profile/" + memberId;
-        String fileUrl = "https://.s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
+        String fileUrl = "https://s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
 
         ObjectMetadata metadata= new ObjectMetadata();
         metadata.setContentType(file.getContentType());
