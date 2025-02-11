@@ -1,5 +1,6 @@
 package com.mildo.dev.global.oauth.jwt.filter;
 
+import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.member.domain.entity.TokenEntity;
 import com.mildo.dev.api.member.repository.TokenRepository;
 import com.mildo.dev.global.oauth.jwt.JwtTokenProvider;
@@ -12,11 +13,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Optional;
 
 @Slf4j
@@ -76,9 +83,16 @@ public class JwtFilter extends OncePerRequestFilter {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
+
+                CustomUser customUser = new CustomUser(claims.getSubject(), null, null);
+                Authentication authentication =
+                        new UsernamePasswordAuthenticationToken(customUser, null, Collections.emptyList()); // 사용자 정보, 비밀번호, 권한 없음
+
+                // SecurityContext에 저장
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
             } catch (ExpiredJwtException e) { // Access Token 만료 시 발생
-                // 요청을 완수한 이후에 에이전트에게 문서 뷰를 리셋하라고 열려 줌 205
-                response.setStatus(HttpServletResponse.SC_RESET_CONTENT);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
 
             }catch (Exception e) {

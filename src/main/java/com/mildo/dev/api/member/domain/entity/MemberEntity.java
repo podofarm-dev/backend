@@ -1,22 +1,11 @@
 package com.mildo.dev.api.member.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mildo.dev.api.code.domain.entity.CodeEntity;
 import com.mildo.dev.api.code.domain.entity.CommentEntity;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Date;
@@ -24,6 +13,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -60,17 +50,24 @@ public class MemberEntity {
     @CreationTimestamp
     private Timestamp createDate; // 유저 생성일
 
+    @Column(name = "member_img_url")
+    private String imgUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id")
     private StudyEntity studyEntity;
 
-    @OneToMany(mappedBy = "memberEntity")
+    @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<CodeEntity> codeList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "memberEntity")
+    @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<CommentEntity> commentEntityList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "memberEntity")
+    @OneToOne(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private TokenEntity tokenEntity;
+
+//    @OneToOne(mappedBy = "memberEntity")
+//    @JsonManagedReference
+//    private MemberImgEntity memberImgEntity;
 
 }

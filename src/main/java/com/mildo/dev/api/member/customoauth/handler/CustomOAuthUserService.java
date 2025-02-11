@@ -7,6 +7,7 @@ import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.utils.random.CodeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -20,6 +21,9 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
     public CustomOAuthUserService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
+
+    @Value("${BASIC_URL}")
+    private String basic;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
@@ -35,7 +39,7 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
             String memberId;
 
             do {
-                memberId = CodeGenerator.generateUserId();
+                memberId = CodeGenerator.generateRandomCode();
             } while (memberRepository.findByMemberId(memberId).isPresent());
 
             member = MemberEntity.builder()
@@ -44,6 +48,7 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
                     .googleId(googleId)
                     .email(email)
                     .leader("N")
+                    .imgUrl(basic)
                     .build();
             memberRepository.save(member);
 

@@ -12,7 +12,7 @@ public class CodeGenerator {
             "U", "V", "W", "X", "Y", "Z"
     };
 
-    public static String generateUserId() {
+    public static String generateRandomCode() {
         //01 배열은 알파벳으로 구성되어있고, 랜덤으로 배열을 뽑아 6자리로 구성됩니다
         StringBuilder userIdBuilder = new StringBuilder();
         for (int i = 0; i < 6; i++) {

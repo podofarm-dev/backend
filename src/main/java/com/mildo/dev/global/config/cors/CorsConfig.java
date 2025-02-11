@@ -24,6 +24,7 @@ public class CorsConfig {
 
         // IP 출처가 달라도 응답을 허용
         config.setAllowedOrigins(Arrays.asList("http://localhost:3000",
+                                                "https://localhost:3000",
                                                 "http://localhost:5173",
                                                 "http://localhost:5174",
                                                 "http://localhost:5175",
