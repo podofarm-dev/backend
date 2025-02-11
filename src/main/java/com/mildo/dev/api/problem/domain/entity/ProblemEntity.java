@@ -46,6 +46,9 @@ public class ProblemEntity {
     @Column(name = "problem_type")
     private String problemType;
 
+    @Column(name = "problemd_")
+    private String problemId;
+
     @OneToMany(mappedBy = "problemEntity")
     private final List<CodeEntity> codeList = new ArrayList<>();
 
