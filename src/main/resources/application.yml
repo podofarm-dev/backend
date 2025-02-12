@@ -24,11 +24,6 @@ spring:
       hibernate:
         format_sql: true
 
-  data:
-    redis:
-      host: "${REDIS_HOST}"
-      port: "${REDIS_PORT}"
-
   security:
     oauth2:
       client:
