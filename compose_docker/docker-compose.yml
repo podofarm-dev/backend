@@ -21,8 +21,6 @@ services:
     networks:
       - monitoring
 
-
-
 #  loki:
 #    image: grafana/loki:latest
 #    container_name: loki
