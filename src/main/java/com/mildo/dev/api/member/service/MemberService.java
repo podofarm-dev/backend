@@ -238,4 +238,8 @@ public class MemberService {
                 .findFirst();
     }
 
+
+    public boolean checkExtensionSync(String userId, String studyId) {
+        return memberRepository.checkExtensionSync(userId, studyId);
+    }
 }

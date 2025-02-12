@@ -28,7 +28,8 @@ public class CorsConfig {
                                                 "http://localhost:5173",
                                                 "http://localhost:5174",
                                                 "http://localhost:5175",
-                                                "https://dev.mildo.xyz")
+                                                "https://dev.mildo.xyz",
+                                                "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb")
                                                 );
 
         config.addAllowedHeader("*"); // 모든 헤데어 응답을 허용
