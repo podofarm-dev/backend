@@ -6,7 +6,9 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.time.ZoneId.systemDefault;
@@ -33,10 +35,9 @@ public class DashBoardFrameResDto {
         return DashBoardFrameResDto.builder()
                 .studyId(repoDto.getStudyId())
                 .studyName(repoDto.getStudyName())
-                .lapsedDate(Period.between(
-                        LocalDate.now(),
-                        repoDto.getStartDate().toInstant().atZone(systemDefault()).toLocalDate())
-                        .toString())
+                .lapsedDate(String.valueOf(
+                        TimeUnit.MILLISECONDS.toDays(new Date().getTime() - repoDto.getStartDate().getTime())
+                ))
                 .memberCount(repoDto.getMembers().size())
                 .memberDetails(
                         repoDto.getMembers().stream()
