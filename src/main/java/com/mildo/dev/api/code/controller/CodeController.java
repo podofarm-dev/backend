@@ -1,13 +1,18 @@
 package com.mildo.dev.api.code.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mildo.dev.api.code.domain.dto.UploadDTO;
+import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
 
 
 @RestController
@@ -17,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class CodeController {
 
     private final MemberService memberService;
-
+    private final CodeService codeService;
 
     @CrossOrigin(origins = "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb")
     @PostMapping("/receive-sync")
@@ -58,15 +63,18 @@ public class CodeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while processing the request");
         }
     }
-/*
-    @CrossOrigin(origins = "chrome-extension://kmleenknngfkjncchnbfenfamoighddf")
-    @RequestMapping(method = RequestMethod.POST, value = "/upload")
-    public ResponseEntity<String> upload(@RequestBody UploadDTO request) throws ParseException {
 
-        codeService.codeUpload(request);
+    @CrossOrigin(origins = {"chrome-extension://kmleenknngfkjncchnbfenfamoighddf", "https://school.programmers.co.kr"})
+    @RequestMapping(method = RequestMethod.POST, value = "/upload")
+    public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
+        ObjectMapper Data = new ObjectMapper();
+        JsonNode convertData = Data.readTree(request);
+        log.info("coverData Test" + convertData);
+
+
+        codeService.upload(convertData);
         return ResponseEntity.ok("Upload successful");
     }
-*/
 
 
 
