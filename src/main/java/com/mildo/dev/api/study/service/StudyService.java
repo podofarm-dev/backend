@@ -83,18 +83,15 @@ public class StudyService {
 
     public DashBoardFrameResDto getDashBoardInfo(String memberId, String studyId) {
         //1. 사용자 조회
-        log.info("사용자 조회");
         MemberEntity member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
 
         //2. memberId 사용자가 studyId 스터디에 속해있는지 확인
-        log.info("사용자 확인");
         if (!member.getStudyEntity().getStudyId().equals(studyId)) {
             throw new NotInThatStudyException(NOT_IN_THAT_STUDY_MSG);
         }
 
         //3. 스터디 및 사용자 정보 조회 -> repo 레이어의 dto 를 service/controller 레이어의 dto 로 변환
-        log.info("정보 조회");
         StudyInfoDto repoDto = studyRepository.searchStudyWithMembers(studyId);
         return DashBoardFrameResDto.fromRepoDto(repoDto);
     }
