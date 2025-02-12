@@ -85,7 +85,7 @@ class StudyServiceTest {
         void success() {
             // given
             String encodedPassword = "encodedPassword";
-            String generatedStudyId = "DEF456";
+            String generatedStudyId = "DEF45";
             LocalDate now = LocalDate.now();
 
             when(passwordEncoder.encode(requestDto.getPassword()))
@@ -94,7 +94,7 @@ class StudyServiceTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
             when(memberRepository.findById(member.getMemberId()))
                     .thenReturn(Optional.of(member));
-            mockStatic(CodeGenerator.class).when(CodeGenerator::generateRandomCode)
+            mockStatic(CodeGenerator.class).when(CodeGenerator::generateRandomStudyCode)
                     .thenReturn(generatedStudyId);
 
             // when
@@ -145,7 +145,7 @@ class StudyServiceTest {
 
         private StudyJoinReqDto requestDto;
 
-        public static final String STUDY_ID = "ABC123";
+        public static final String STUDY_ID = "ABC12";
         public static final String STUDY_NAME = "studyA";
         public static final String STUDY_PASSWORD = "password";
         public static final String ENCODED_PASSWORD = "encodedPassword";

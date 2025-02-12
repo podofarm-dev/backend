@@ -44,7 +44,7 @@ public class StudyService {
         LocalDate now = LocalDate.now();
 
         StudyEntity study = StudyEntity.builder()
-                .studyId(CodeGenerator.generateRandomCode()) //TODO 아이디 중복 여부 체크
+                .studyId(CodeGenerator.generateRandomStudyCode()) //TODO 아이디 중복 여부 체크
                 .studyName(requestDto.getName())
                 .studyPwd(passwordEncoder.encode(requestDto.getPassword()))
                 .studyStart(Date.valueOf(now))
