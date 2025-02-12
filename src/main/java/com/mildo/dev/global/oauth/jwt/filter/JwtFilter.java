@@ -52,7 +52,12 @@ public class JwtFilter extends OncePerRequestFilter {
                 pathMatcher.match("/dev-login", requestURI) ||
                 pathMatcher.match("/tokens", requestURI) ||
                 pathMatcher.match("/tokens/refresh", requestURI) ||
-                requestURI.startsWith("/public")) {
+                requestURI.startsWith("/public") ||
+                requestURI.startsWith("/actuator") ||  // Spring Boot Actuator 엔드포인트 (Prometheus 메트릭 수집)
+                requestURI.startsWith("/actuator/**") ||
+                requestURI.startsWith("/metrics") ||   // Grafana가 조회하는 메트릭 API
+                requestURI.startsWith("/api")
+        ) {
             filterChain.doFilter(request, response);
             return;
         }
