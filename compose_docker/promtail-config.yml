@@ -1,0 +1,28 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml  # 로그 수집 위치 저장 파일
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push  # Loki 서버 주소
+
+scrape_configs:
+  - job_name: spring-boot-logs
+    static_configs:
+      - targets:
+          - localhost
+#          - host.docker.internal
+        labels:
+          job: spring-boot-logs
+          application: spring-boot
+          __path__: /var/log/spring-boot/general.log    #/root/workspace/log/app.log  # Spring Boot 로그 파일의 절대 경로
+
+  - job_name: spring-boot-loghistory
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: spring-boot-history
+          __path__: /var/log/spring-boot/general-*.loghistory
