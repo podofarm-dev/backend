@@ -155,10 +155,10 @@ public class MemberService {
         )).orElseThrow(() -> new RuntimeException("해당 ID의 회원이 존재하지 않습니다."));
     }
 
-    public MemberInfoDTO updateUser(MemberInfoDTO vo) {
-        MemberEntity member = vaildMemberId(vo.getMemberId());
+    public MemberInfoDTO updateUser(MemberReNameDto nameDto, String memberId) {
+        MemberEntity member = vaildMemberId(memberId);
 
-        member.setName(vo.getName());
+        member.setName(nameDto.getName());
         memberRepository.save(member);
         return new MemberInfoDTO( member.getMemberId(),
                 member.getName(),
@@ -175,7 +175,7 @@ public class MemberService {
         }
 
         String fileName = "profile/" + memberId;
-        String fileUrl = "https://.s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
+        String fileUrl = "https://s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
 
         ObjectMetadata metadata= new ObjectMetadata();
         metadata.setContentType(file.getContentType());
@@ -192,8 +192,8 @@ public class MemberService {
                 member.getImgUrl());
     }
 
-    public void deleteMember(MemberInfoDTO vo){
-        MemberEntity member = vaildMemberId(vo.getMemberId());
+    public void deleteMember(String memberId){
+        MemberEntity member = vaildMemberId(memberId);
 
         long count = memberRepository.countMembersByStudyId(member.getStudyEntity().getStudyId());
 
@@ -202,7 +202,7 @@ public class MemberService {
         }
 
         if(!basic.equals(member.getImgUrl())){
-            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, vo.getMemberId()));
+            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, memberId));
         }
 
         memberRepository.delete(member);
@@ -212,9 +212,9 @@ public class MemberService {
 //        }
     }
 
-    public ProblemMemberDto problemMember(MemberInfoDTO vo){
-        MemberEntity member = vaildMemberId(vo.getMemberId());
-        return memberRepository.countProblemByMemberId(vo.getMemberId());
+    public ProblemMemberDto problemMember(String memberId){
+        MemberEntity member = vaildMemberId(memberId);
+        return memberRepository.countProblemByMemberId(memberId);
     }
 
     public Optional<SolvedMemberListDto> solvedMember(String memberId, String studyId){
