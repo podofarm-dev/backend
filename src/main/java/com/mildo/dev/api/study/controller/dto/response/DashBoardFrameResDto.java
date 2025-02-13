@@ -24,6 +24,7 @@ public class DashBoardFrameResDto {
     public static class MemberResDto {
         private String id;
         private String name;
+        private String imgUrl;
         private Boolean isLeader;
     }
 
@@ -40,6 +41,7 @@ public class DashBoardFrameResDto {
                                 .map(member -> MemberResDto.builder()
                                         .id(member.getId())
                                         .name(member.getName())
+                                        .imgUrl(member.getImgUrl())
                                         .isLeader("Y".equals(member.getLeader()))
                                         .build())
                                 .collect(Collectors.toList())

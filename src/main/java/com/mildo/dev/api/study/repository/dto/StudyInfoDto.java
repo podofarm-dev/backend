@@ -26,12 +26,14 @@ public class StudyInfoDto {
     public static class MemberDto {
         private String id;
         private String name;
+        private String imgUrl;
         private String leader;
 
         @QueryProjection
-        public MemberDto(String id, String name, String leader) {
+        public MemberDto(String id, String name, String imgUrl, String leader) {
             this.id = id;
             this.name = name;
+            this.imgUrl = imgUrl;
             this.leader = leader;
         }
     }

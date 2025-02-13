@@ -37,12 +37,12 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository{
                                         list(new QStudyInfoDto_MemberDto(
                                                 memberEntity.memberId,
                                                 memberEntity.name,
+                                                memberEntity.imgUrl,
                                                 memberEntity.leader
                                         ))
                                 )
                         )
                 )
                 .get(0);
-
     }
 }
