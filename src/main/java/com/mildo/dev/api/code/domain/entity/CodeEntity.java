@@ -57,6 +57,9 @@ public class CodeEntity {
     @Column(name = "code_time")
     private Time codeTime;
 
+    @Column(name = "problem_id")
+    private Long problemId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;

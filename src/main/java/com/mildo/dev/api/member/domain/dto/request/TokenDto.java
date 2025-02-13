@@ -1,4 +1,4 @@
-package com.mildo.dev.api.member.domain.dto;
+package com.mildo.dev.api.member.domain.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

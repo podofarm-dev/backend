@@ -1,13 +1,15 @@
 package com.mildo.dev.api.member.controller;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
-import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
-import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
-import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
-import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
+import com.mildo.dev.api.code.domain.dto.response.SolvedListResponse;
+import com.mildo.dev.api.code.domain.dto.response.SolvedProblemResponse;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
-import com.mildo.dev.api.member.domain.dto.*;
+import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
+import com.mildo.dev.api.member.domain.dto.request.TokenDto;
+import com.mildo.dev.api.member.domain.dto.response.MemberInfoDTO;
+import com.mildo.dev.api.member.domain.dto.response.ProblemMemberDto;
+import com.mildo.dev.api.member.domain.dto.response.SolvedMemberListDto;
+import com.mildo.dev.api.member.domain.dto.response.TokenResponse;
 import com.mildo.dev.api.member.service.MemberService;
 import com.mildo.dev.api.utils.cookie.CookieUtil;
 import com.mildo.dev.global.exception.exceptionClass.ServerUnstableException;
@@ -23,13 +25,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -41,12 +41,12 @@ public class MemberController {
 
     @ResponseBody
     @PostMapping(value = "/tokens", produces = "application/json; charset=UTF-8")
-    public TokenRedis tokenMake(@RequestBody TokenRedis memberId, HttpServletResponse response){
+    public TokenResponse tokenMake(@RequestBody TokenResponse memberId, HttpServletResponse response){
         try{
             TokenDto res = userService.token(memberId.getMemberId());
             Cookie refreshTokenCookie = CookieUtil.createCookie("RefreshToken", res.getRefreshToken(), -1);
             response.addCookie(refreshTokenCookie);
-            return new TokenRedis(res.getMemberId(), res.getAccessToken());
+            return new TokenResponse(res.getMemberId(), res.getAccessToken());
         }catch (RuntimeException ex){
             throw  new RuntimeException("Member not found");
         }
@@ -59,7 +59,7 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cookie is missing");
         }
         try {
-            TokenRedis res = userService.refreshNew(RefreshToken);
+            TokenResponse res = userService.refreshNew(RefreshToken);
             return ResponseEntity.ok(res);
         }
         catch (TokenException e) {
