@@ -5,9 +5,11 @@ import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
+import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
 import com.mildo.dev.api.study.repository.StudyRepository;
+import com.mildo.dev.api.study.repository.dto.GrassInfoDto;
 import com.mildo.dev.api.study.repository.dto.StudyInfoDto;
 import com.mildo.dev.api.utils.random.CodeGenerator;
 import com.mildo.dev.global.exception.exceptionClass.AlreadyInStudyException;
@@ -21,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.mildo.dev.global.exception.message.ExceptionMessage.ALREADY_IN_STUDY_MSG;
@@ -82,18 +86,21 @@ public class StudyService {
     }
 
     public DashBoardFrameResDto getDashBoardInfo(String memberId, String studyId) {
-        //1. 사용자 조회
-        MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkValidMemberAndStudy(memberId, studyId);
 
-        //2. memberId 사용자가 studyId 스터디에 속해있는지 확인
-        if (!member.getStudyEntity().getStudyId().equals(studyId)) {
-            throw new NotInThatStudyException(NOT_IN_THAT_STUDY_MSG);
-        }
-
-        //3. 스터디 및 사용자 정보 조회 -> repo 레이어의 dto 를 service/controller 레이어의 dto 로 변환
+        //2. 스터디 및 사용자 정보 조회 -> repo 레이어의 dto 를 service/controller 레이어의 dto 로 변환
         StudyInfoDto repoDto = studyRepository.searchStudyWithMembers(studyId);
         return DashBoardFrameResDto.fromRepoDto(repoDto);
+    }
+
+    public DashBoardGrassResDto getDashBoardGrass(String memberId, String studyId, YearMonth yearMonth) {
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkValidMemberAndStudy(memberId, studyId);
+
+        //2. 사용자별 yearMonth 에 해당하는 잔디 데이터 조회
+        List<GrassInfoDto> repoDto = studyRepository.countSolvedPerDate(studyId, yearMonth);
+        return DashBoardGrassResDto.fromRepoDto(repoDto, yearMonth.lengthOfMonth());
     }
 
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {
@@ -114,6 +121,18 @@ public class StudyService {
     private void checkIfJoined(MemberEntity member) {
         if (member.getStudyEntity() != null) {
             throw new AlreadyInStudyException(ALREADY_IN_STUDY_MSG);
+        }
+    }
+
+    private void checkValidMemberAndStudy(String memberId, String studyId) {
+        //1. 사용자 조회
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
+
+        //2. memberId 사용자가 studyId 스터디에 속해있는지 확인
+        if (member.getStudyEntity() == null
+                || !member.getStudyEntity().getStudyId().equals(studyId)) {
+            throw new NotInThatStudyException(NOT_IN_THAT_STUDY_MSG);
         }
     }
 }
