@@ -79,7 +79,8 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .leftJoin(codeEntity.memberEntity, memberEntity)
                 .where(memberEntity.studyEntity.studyId.eq(studyId),
                         codeEntity.codeSolvedDate.goe(startOfThisMonth)
-                                .and(codeEntity.codeSolvedDate.lt(startOfNextMonth))
+                                .and(codeEntity.codeSolvedDate.lt(startOfNextMonth)),
+                        codeEntity.codeAnswer.eq("Y")
                 )
                 .groupBy(memberEntity.memberId, dayExpression)
                 .orderBy(memberEntity.memberId.asc(), dayExpression.asc())
