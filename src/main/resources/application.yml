@@ -24,11 +24,6 @@ spring:
       hibernate:
         format_sql: true
 
-  data:
-    redis:
-      host: "${REDIS_HOST}"
-      port: "${REDIS_PORT}"
-
   security:
     oauth2:
       client:
@@ -42,3 +37,13 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
+
+management:
+  endpoints:
+    enabled-by-default: true  # Spring Boot 3.x에서는 필수
+    web:
+      exposure:
+        include: "prometheus" # 특정 Actuator 엔드포인트를 웹에 노출
+  endpoint:
+    prometheus:
+      enabled: true

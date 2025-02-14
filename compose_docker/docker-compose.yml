@@ -1,0 +1,53 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"  # Prometheus 웹 UI
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"  # Grafana 웹 UI
+    volumes:
+      - grafana-storage:/var/lib/grafana  # Grafana 데이터 유지
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
+#  loki:
+#    image: grafana/loki:latest
+#    container_name: loki
+#    ports:
+#      - "3100:3100"
+#    command: -config.file=/etc/loki/loki-config.yml
+#    volumes:
+#      - ./loki-config.yml:/etc/loki/loki-config.yml
+#    networks:
+#      - monitoring
+#
+#  promtail:
+#    image: grafana/promtail:latest
+#    container_name: promtail
+#    ports:
+#      - "9080:9080"
+#    volumes:
+#      - /var/log/spring-boot:/var/log/spring-boot
+#      - ./promtail-config.yml:/etc/promtail/promtail-config.yml
+#    command: -config.file=/etc/promtail/promtail-config.yml
+#    networks:
+#      - monitoring
+
+volumes:
+  grafana-storage:
+    driver: local
+
+networks:
+  monitoring:
+    driver: bridge
