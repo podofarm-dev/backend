@@ -1,14 +1,14 @@
-package com.mildo.dev.api.member.domain.dto;
+package com.mildo.dev.api.member.domain.dto.response;
 
 import lombok.Data;
 
 @Data
-public class TokenRedis {
+public class TokenResponse {
 
     private String memberId;
     private String accessToken;
 
-    public TokenRedis(String memberId, String accessToken) {
+    public TokenResponse(String memberId, String accessToken) {
         this.memberId = memberId;
         this.accessToken = accessToken;
     }
