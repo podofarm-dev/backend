@@ -6,9 +6,11 @@ import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
+import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
 import com.mildo.dev.api.study.repository.StudyRepository;
+import com.mildo.dev.api.study.repository.dto.CountingSolvedDto;
 import com.mildo.dev.api.study.repository.dto.GrassInfoDto;
 import com.mildo.dev.api.study.repository.dto.StudyInfoDto;
 import com.mildo.dev.api.utils.random.CodeGenerator;
@@ -106,6 +108,16 @@ public class StudyService {
         //3. 사용자별 yearMonth 에 해당하는 잔디 데이터 조회
         List<GrassInfoDto> repoDto = studyRepository.countSolvedPerDate(studyId, yearMonth);
         return DashBoardGrassResDto.fromRepoDto(memberIds, repoDto, yearMonth.lengthOfMonth());
+    }
+
+    @Transactional(readOnly = true)
+    public DashBoardSolvedCountResDto getDashBoardSolvedCount(String memberId, String studyId, YearMonth yearMonth) {
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkValidMemberAndStudy(memberId, studyId);
+
+        //2. 사용자별 해결한 문제 수 조회
+        List<CountingSolvedDto> repoDto = studyRepository.countSolved(studyId, yearMonth);
+        return DashBoardSolvedCountResDto.fromRepoDto(repoDto);
     }
 
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {
