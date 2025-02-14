@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class DashBoardGrassResDto {
     }
 
     public static DashBoardGrassResDto fromRepoDto(List<String> memberIds, List<GrassInfoDto> repoDto, int lengthOfMonth) {
-        Map<String, MemberGrassResDto> result = new HashMap<>(); //key: memberId
+        Map<String, MemberGrassResDto> result = new LinkedHashMap<>(); //key: memberId
 
         //result Map 초기화
         for (String memberId : memberIds) {
