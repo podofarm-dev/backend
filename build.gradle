@@ -6,6 +6,10 @@ plugins {
     id 'idea'
 }
 
+ext {
+    springCloudVersion = "2023.0.4"
+}
+
 group = 'com.mildo'
 version = '0.0.1-SNAPSHOT'
 
@@ -64,6 +68,19 @@ dependencies {
     //prometheus(metrics)
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
+    // QueryDSL 디펜던시 추가 시작
+    /*
+    디펜던시명 중간에 버전 정보가 오는 경우, 버전 변수를 작성해
+    dependency-management 가 버전을 자동으로 잡아주도록 한다.
+     */
+    implementation "com.querydsl:querydsl-jpa:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    implementation "com.querydsl:querydsl-core"
+    implementation "com.querydsl:querydsl-collections"
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api" //java.lang.NoClassDefFoundError (javax.annotation.Generated) 대응 코드
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api" //java.lang.NoClassDefFoundError (javax.annotation.Entity) 대응 코드
+    // QueryDSL 디펜던시 추가 끝
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
@@ -79,3 +96,32 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
+    }
+}
+
+//QueryDSL 설정부 시작
+/*
+QueryDSL 은 별다른 설정이 없으면, 자동으로 QClass 를 만들어 build 디렉토리에 저장한다.
+그러나 이렇게 자동 설정된 내용을 쓰면 IntelliJ IDEA 를 이용해서 빌드할 때 문제가 생길 수도 있다.
+ */
+def generated = "src/main/generated"
+
+//querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(generated))
+}
+
+//java sourceSets 에 querydsl QClass 위치 추가
+sourceSets {
+    main.java.srcDirs += [ generated ]
+}
+
+//'gradle clean' 시에 QClass 디렉토리 삭제
+clean {
+    delete file(generated)
+}
+//QueryDSL 설정부 끝
