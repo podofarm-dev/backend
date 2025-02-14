@@ -85,6 +85,7 @@ public class StudyService {
         joinStudy(member, study);
     }
 
+    @Transactional(readOnly = true)
     public DashBoardFrameResDto getDashBoardInfo(String memberId, String studyId) {
         //1. 사용자와 스터디의 존재 여부 및 관계 확인
         checkValidMemberAndStudy(memberId, studyId);
@@ -94,6 +95,7 @@ public class StudyService {
         return DashBoardFrameResDto.fromRepoDto(repoDto);
     }
 
+    @Transactional(readOnly = true)
     public DashBoardGrassResDto getDashBoardGrass(String memberId, String studyId, YearMonth yearMonth) {
         //1. 사용자와 스터디의 존재 여부 및 관계 확인
         checkValidMemberAndStudy(memberId, studyId);
