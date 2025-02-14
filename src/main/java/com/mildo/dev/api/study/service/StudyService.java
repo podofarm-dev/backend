@@ -100,9 +100,12 @@ public class StudyService {
         //1. 사용자와 스터디의 존재 여부 및 관계 확인
         checkValidMemberAndStudy(memberId, studyId);
 
-        //2. 사용자별 yearMonth 에 해당하는 잔디 데이터 조회
+        //2. 스터디에 참여하고 있는 모든 사용자 ID 조회
+        List<String> memberIds = memberRepository.findIdInStudy(studyId);
+
+        //3. 사용자별 yearMonth 에 해당하는 잔디 데이터 조회
         List<GrassInfoDto> repoDto = studyRepository.countSolvedPerDate(studyId, yearMonth);
-        return DashBoardGrassResDto.fromRepoDto(repoDto, yearMonth.lengthOfMonth());
+        return DashBoardGrassResDto.fromRepoDto(memberIds, repoDto, yearMonth.lengthOfMonth());
     }
 
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {

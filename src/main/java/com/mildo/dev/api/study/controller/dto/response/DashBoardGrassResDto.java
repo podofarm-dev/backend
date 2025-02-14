@@ -15,18 +15,16 @@ public class DashBoardGrassResDto {
 
     private List<MemberGrassResDto> data;
 
-    public static DashBoardGrassResDto fromRepoDto(List<GrassInfoDto> repoDto, int lengthOfMonth) {
+    public static DashBoardGrassResDto fromRepoDto(List<String> memberIds, List<GrassInfoDto> repoDto, int lengthOfMonth) {
         Map<String, MemberGrassResDto> result = new HashMap<>(); //key: memberId
 
+        //result Map 초기화
+        for (String memberId : memberIds) {
+            result.put(memberId, MemberGrassResDto.of(memberId, lengthOfMonth));
+        }
+
         for (GrassInfoDto aRepoDto : repoDto) {
-            String memberId = aRepoDto.getMemberId();
-            MemberGrassResDto resDto = result.get(memberId);
-
-            if (resDto == null) {
-                resDto = MemberGrassResDto.of(memberId, lengthOfMonth);
-                result.put(memberId, resDto);
-            }
-
+            MemberGrassResDto resDto = result.get(aRepoDto.getMemberId());
             resDto.getGrass().get(aRepoDto.getDate() - 1).plus(aRepoDto.getValue());
         }
 
