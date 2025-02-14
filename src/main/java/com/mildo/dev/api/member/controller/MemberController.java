@@ -86,7 +86,7 @@ public class MemberController {
     public ResponseEntity<?> solvedProblem(@PathVariable String memberId,
                                            @AuthenticationPrincipal CustomUser customUser,
                                            @RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "10") int size,
+                                           @RequestParam(defaultValue = "20") int size,
                                            @RequestParam(required = false) String title)
     {
         if (!memberId.equals(customUser.getMemberId())) {

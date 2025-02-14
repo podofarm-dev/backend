@@ -32,13 +32,5 @@ public class ProblemController {
         return ResponseEntity.ok(response);
     }
 
-    @ResponseBody
-    @PostMapping(value="/{problemNo}", produces="application/json; charset=UTF-8")
-    public void problem(@PathVariable Long problemNo,
-                                     @AuthenticationPrincipal CustomUser customUser)
-    {
-
-
-    }
 
 }

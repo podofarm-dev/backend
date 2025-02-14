@@ -3,8 +3,9 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
 @Getter
-public class QProblemListDto {
+public class ProblemListDslDto {
 
+    private Long problemNo;
     private Long problemId;
     private String problemTitle;
     private String problemLevel;
@@ -12,7 +13,8 @@ public class QProblemListDto {
     private String status;
 
     @QueryProjection
-    public QProblemListDto(Long problemId, String problemTitle, String problemLevel, String problemLink, String status) {
+    public ProblemListDslDto(Long problemNo, Long problemId, String problemTitle, String problemLevel, String problemLink, String status) {
+        this.problemNo = problemNo;
         this.problemId = problemId;
         this.problemTitle = problemTitle;
         this.problemLevel = problemLevel;
