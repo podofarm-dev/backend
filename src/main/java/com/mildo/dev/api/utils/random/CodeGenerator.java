@@ -22,4 +22,13 @@ public class CodeGenerator {
         return userIdBuilder.toString();
     }
 
+    public static String generateRandomStudyCode() {
+        StringBuilder userIdBuilder = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            int index = RANDOM.nextInt(password.length);
+            userIdBuilder.append(password[index]);
+        }
+        return userIdBuilder.toString();
+    }
+
 }
