@@ -34,6 +34,7 @@ import static com.mildo.dev.global.exception.message.ExceptionMessage.MEMBER_NOT
 import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_IN_THAT_STUDY_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_NOT_FOUND_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_PASSWORD_MISMATCH_MSG;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional
@@ -103,7 +104,10 @@ public class StudyService {
         checkValidMemberAndStudy(memberId, studyId);
 
         //2. 스터디에 참여하고 있는 모든 사용자 ID 조회
-        List<String> memberIds = memberRepository.findIdInStudySorted(studyId, memberId);
+        List<MemberEntity> members = memberRepository.findInStudySorted(studyId, memberId);
+        List<String> memberIds = members.stream()
+                .map(MemberEntity::getMemberId)
+                .collect(toList());
 
         //3. 사용자별 yearMonth 에 해당하는 잔디 데이터 조회
         List<GrassInfoDto> repoDto = studyRepository.countSolvedPerDate(studyId, yearMonth);

@@ -13,7 +13,6 @@ import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.JPQLTemplates;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -28,7 +27,6 @@ import static com.querydsl.core.group.GroupBy.list;
 import static com.querydsl.core.types.ExpressionUtils.count;
 import static com.querydsl.core.types.dsl.Expressions.numberTemplate;
 
-@Slf4j
 public class CustomStudyRepositoryImpl implements CustomStudyRepository {
 
     private final JPAQueryFactory query;
@@ -72,9 +70,6 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 Integer.class, "extract(day from {0})", codeEntity.codeSolvedDate
         );
 
-        log.info("startOfThisMonth={}", startOfThisMonth);
-        log.info("startOfNextMonth={}", startOfNextMonth);
-
         return query
                 .select(new QGrassInfoDto(
                         memberEntity.memberId,
@@ -107,6 +102,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
         return query
                 .select(new QCountingSolvedDto(
                         memberEntity.memberId,
+                        memberEntity.name,
                         solved)
                 )
                 .from(memberEntity)
@@ -118,14 +114,13 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                     )
                 .where(memberEntity.studyEntity.studyId.eq(studyId))
                 .groupBy(memberEntity.memberId)
-                .orderBy(solved.desc())
+                .orderBy(solved.desc(), memberEntity.name.asc())
                 .fetch();
     }
 
     private BooleanExpression solvedAt(YearMonth yearMonth) {
         if (yearMonth == null) { //yearMonth 가 null 이면 금일 기준 그 전날까지 해결한 총 문제 수
-            Timestamp startOfToday = Timestamp.valueOf(LocalDate.now().atStartOfDay());
-            log.info("startOfToday={}", startOfToday);
+            Timestamp startOfToday = Timestamp.valueOf(LocalDate.now().atStartOfDay()); //금일 자정
             return codeEntity.codeSolvedDate.lt(startOfToday);
         }
 

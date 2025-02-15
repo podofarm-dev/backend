@@ -32,11 +32,11 @@ public interface MemberRepository extends JpaRepository<MemberEntity, String> {
     List<SolvedMemberListDto> solvedMemberRanking(@Param("studyId") String studyId);
 
     @Query("""
-            select m.memberId 
+            select m 
             from MemberEntity m 
             where m.studyEntity.studyId = :studyId
-            order by case when m.memberId = :loggedIn then 0 else 1 end, m.memberId asc
+            order by case when m.memberId = :loggedIn then 0 else 1 end, m.name asc
             """)
-    List<String> findIdInStudySorted(@Param("studyId") String studyId, @Param("loggedIn") String loggedIn);
+    List<MemberEntity> findInStudySorted(@Param("studyId") String studyId, @Param("loggedIn") String loggedIn);
 
 }

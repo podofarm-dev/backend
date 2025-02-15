@@ -7,11 +7,13 @@ import lombok.Getter;
 public class CountingSolvedDto {
 
     private String memberId;
+    private String name;
     private Integer solved;
 
     @QueryProjection
-    public CountingSolvedDto(String memberId, Integer solved) {
+    public CountingSolvedDto(String memberId, String name, Integer solved) {
         this.memberId = memberId;
+        this.name = name;
         this.solved = solved;
     }
 }
