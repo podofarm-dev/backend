@@ -1,5 +1,6 @@
-package com.mildo.dev.api.code.domain.dto;
+package com.mildo.dev.api.code.domain.dto.response;
 
+import com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

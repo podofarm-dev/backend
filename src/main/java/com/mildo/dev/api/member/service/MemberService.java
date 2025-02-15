@@ -3,12 +3,17 @@ package com.mildo.dev.api.member.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.mildo.dev.api.code.domain.dto.CodeLevelDTO;
-import com.mildo.dev.api.code.domain.dto.CodeSolvedListDTO;
-import com.mildo.dev.api.code.domain.dto.SolvedListResponse;
-import com.mildo.dev.api.code.domain.dto.SolvedProblemResponse;
+import com.mildo.dev.api.code.domain.dto.request.CodeLevelDTO;
+import com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO;
+import com.mildo.dev.api.code.domain.dto.response.SolvedListResponse;
+import com.mildo.dev.api.code.domain.dto.response.SolvedProblemResponse;
 import com.mildo.dev.api.code.repository.CodeRepository;
-import com.mildo.dev.api.member.domain.dto.*;
+import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
+import com.mildo.dev.api.member.domain.dto.request.TokenDto;
+import com.mildo.dev.api.member.domain.dto.response.MemberInfoDTO;
+import com.mildo.dev.api.member.domain.dto.response.ProblemMemberDto;
+import com.mildo.dev.api.member.domain.dto.response.SolvedMemberListDto;
+import com.mildo.dev.api.member.domain.dto.response.TokenResponse;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.domain.entity.TokenEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
@@ -79,7 +84,7 @@ public class MemberService {
         return new TokenDto(memberId, accessToken, refreshToken);
     }
 
-    public TokenRedis refreshNew(String RefreshToken){
+    public TokenResponse refreshNew(String RefreshToken){
         try{
             Claims claims = Jwts.parser()
                     .setSigningKey(REFRESH_SECRET_KEY)
@@ -97,7 +102,7 @@ public class MemberService {
                 token.setAccessToken(accessToken);
             }
             tokenRepository.save(token);
-            return new TokenRedis(claims.getSubject(), accessToken);
+            return new TokenResponse(claims.getSubject(), accessToken);
         } catch (ExpiredJwtException e) { // Token 만료 시 발생
             log.error("ExpiredJwtException e = {}", e.getMessage());
             throw new TokenException("expired - Login Again");
