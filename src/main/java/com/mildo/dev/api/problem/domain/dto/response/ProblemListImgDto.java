@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ProblemListImgDto {
 
+    private Long problemNo;
     private Long problemId;
     private String problemTitle;
     private String problemLevel;
