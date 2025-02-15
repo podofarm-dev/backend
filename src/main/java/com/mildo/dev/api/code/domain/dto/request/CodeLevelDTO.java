@@ -1,4 +1,4 @@
-package com.mildo.dev.api.code.domain.dto;
+package com.mildo.dev.api.code.domain.dto.request;
 
 import lombok.*;
 

@@ -21,28 +21,28 @@ services:
     networks:
       - monitoring
 
-#  loki:
-#    image: grafana/loki:latest
-#    container_name: loki
-#    ports:
-#      - "3100:3100"
-#    command: -config.file=/etc/loki/loki-config.yml
-#    volumes:
-#      - ./loki-config.yml:/etc/loki/loki-config.yml
-#    networks:
-#      - monitoring
-#
-#  promtail:
-#    image: grafana/promtail:latest
-#    container_name: promtail
-#    ports:
-#      - "9080:9080"
-#    volumes:
-#      - /var/log/spring-boot:/var/log/spring-boot
-#      - ./promtail-config.yml:/etc/promtail/promtail-config.yml
-#    command: -config.file=/etc/promtail/promtail-config.yml
-#    networks:
-#      - monitoring
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki-config.yml:/etc/loki/loki-config.yml
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    ports:
+      - "9080:9080"
+    volumes:
+      - ./app.log:/app.log
+      - ./promtail-config.yml:/etc/promtail/promtail-config.yml
+    command: -config.file=/etc/promtail/promtail-config.yml
+    networks:
+      - monitoring
 
 volumes:
   grafana-storage:
