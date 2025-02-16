@@ -41,8 +41,10 @@ public class CodeService {
 //    }
 
     public CommentListResponse allComment(Long codeNo){
-        checkCode(codeNo);
-        List<CommentEntity> comments = commentRepository.findByCodeEntity_CodeNo(codeNo);
+        CodeEntity code = codeRepository.findByIdWithComments(codeNo)
+                .orElseThrow(() -> new RuntimeException("없는 코드입니다."));
+
+        List<CommentEntity> comments = code.getCommentList();
 
         return CommentListResponse.fromRepoDto(comments);
     }
