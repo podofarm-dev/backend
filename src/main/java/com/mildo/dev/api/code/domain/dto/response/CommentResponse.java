@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 public class CommentResponse {
 

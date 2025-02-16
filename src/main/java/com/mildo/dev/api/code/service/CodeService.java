@@ -1,6 +1,7 @@
 package com.mildo.dev.api.code.service;
 
 import com.mildo.dev.api.code.domain.dto.response.CommentResponse;
+import com.mildo.dev.api.code.domain.dto.response.CommentListResponse;
 import com.mildo.dev.api.code.domain.entity.CodeEntity;
 import com.mildo.dev.api.code.domain.entity.CommentEntity;
 import com.mildo.dev.api.code.repository.CodeRepository;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -25,19 +25,26 @@ public class CodeService {
     private final CodeRepository codeRepository;
     private final MemberService memberService;
 
-    public List<CommentResponse> allComment(Long codeNo){
+//    public List<CommentResponse> allComment(Long codeNo){
+//        checkCode(codeNo);
+//        List<CommentEntity> comments = commentRepository.findByCodeEntity_CodeNo(codeNo);
+//
+//        return comments.stream()
+//                .map(comment -> new CommentResponse(
+//                        comment.getCommentNo(),
+//                        comment.getCommentContent(),
+//                        comment.getCommentDate(),
+//                        comment.getMemberEntity().getMemberId(),
+//                        comment.getCodeEntity().getCodeNo()
+//                ))
+//                .collect(Collectors.toList());
+//    }
+
+    public CommentListResponse allComment(Long codeNo){
         checkCode(codeNo);
         List<CommentEntity> comments = commentRepository.findByCodeEntity_CodeNo(codeNo);
 
-        return comments.stream()
-                .map(comment -> new CommentResponse(
-                        comment.getCommentNo(),
-                        comment.getCommentContent(),
-                        comment.getCommentDate(),
-                        comment.getMemberEntity().getMemberId(),
-                        comment.getCodeEntity().getCodeNo()
-                ))
-                .collect(Collectors.toList());
+        return CommentListResponse.fromRepoDto(comments);
     }
 
     public CommentResponse insertComment(Long codeNo, String commentContent, String memberId){
