@@ -69,7 +69,7 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
                         code.codeStatus
                 ))
                 .from(problem)
-                .leftJoin(code).on(problem.problemId.eq(code.problemId).and(joinCondition)) // 동적 JOIN 조건 추가
+                .leftJoin(code).on(problem.problemId.eq(code.problemEntity.problemId).and(joinCondition)) // 동적 JOIN 조건 추가
                 .where(whereClause)
                 .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0])) // 동적 정렬 적용
                 .offset(pageable.getOffset())
