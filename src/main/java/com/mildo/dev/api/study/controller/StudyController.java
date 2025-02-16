@@ -1,8 +1,10 @@
 package com.mildo.dev.api.study.controller;
 
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
+import com.mildo.dev.api.study.controller.dto.request.DailySolvedSearchCond;
 import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
+import com.mildo.dev.api.study.controller.dto.response.DailySolvedResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
@@ -79,6 +81,16 @@ public class StudyController {
             @RequestParam(value = "yearMonth", required = false) YearMonth yearMonth
     ) {
         DashBoardSolvedCountResDto responseDto = studyService.getDashBoardSolvedCount(customUser.getMemberId(), studyId, yearMonth);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping("/{studyId}/daily-solved")
+    public ResponseEntity<DailySolvedResDto> dailSolved(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId,
+            DailySolvedSearchCond requestParam
+    ) {
+        DailySolvedResDto responseDto = studyService.getDailySolvedProblems(customUser.getMemberId(), studyId, requestParam);
         return ResponseEntity.ok(responseDto);
     }
 
