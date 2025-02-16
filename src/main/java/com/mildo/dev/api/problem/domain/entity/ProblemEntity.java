@@ -26,8 +26,8 @@ import java.util.List;
 @Table(name = "problem")
 public class ProblemEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "problem_no")
     private Long problemNo;
 
@@ -46,6 +46,7 @@ public class ProblemEntity {
     @Column(name = "problem_type")
     private String problemType;
 
+    @Id
     @Column(name = "problem_id")
     private Long problemId;
 
