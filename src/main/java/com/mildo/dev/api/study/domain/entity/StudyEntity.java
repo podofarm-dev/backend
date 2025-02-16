@@ -15,6 +15,9 @@ import lombok.Setter;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -45,5 +48,11 @@ public class StudyEntity {
     @OneToMany(mappedBy = "studyEntity")
     private final List<MemberEntity> memberEntityList = new ArrayList<>();
 
+    public boolean containsAll(List<String> memberIds) {
+        Set<String> result = memberEntityList.stream()
+                .map(MemberEntity::getMemberId)
+                .collect(toSet());
 
+        return result.containsAll(memberIds);
+    }
 }
