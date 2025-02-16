@@ -31,7 +31,12 @@ public interface MemberRepository extends JpaRepository<MemberEntity, String> {
     "FROM MemberEntity m WHERE m.studyEntity.studyId = :studyId ")
     List<SolvedMemberListDto> solvedMemberRanking(@Param("studyId") String studyId);
 
-    @Query("select m.memberId from MemberEntity m where m.studyEntity.studyId = :studyId")
-    List<String> findIdInStudy(@Param("studyId") String studyId);
+    @Query("""
+            select m 
+            from MemberEntity m 
+            where m.studyEntity.studyId = :studyId
+            order by case when m.memberId = :loggedIn then 0 else 1 end, m.name asc
+            """)
+    List<MemberEntity> findInStudySorted(@Param("studyId") String studyId, @Param("loggedIn") String loggedIn);
 
 }
