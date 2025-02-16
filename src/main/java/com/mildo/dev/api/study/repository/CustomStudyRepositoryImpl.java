@@ -130,7 +130,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
 
         return query
                 .select(new QProblemInfoDto(
-                        problemEntity.problemNo,
+                        problemEntity.problemId,
                         problemEntity.problemTitle,
                         problemEntity.problemLevel,
                         problemEntity.problemType
@@ -152,7 +152,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .select(new QRecentActivityInfoDto(
                         memberEntity.memberId,
                         memberEntity.name,
-                        problemEntity.problemNo,
+                        problemEntity.problemId,
                         problemEntity.problemTitle,
                         codeEntity.codeSolvedDate
                 ))
