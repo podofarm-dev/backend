@@ -55,6 +55,18 @@ public class CodeService {
         return new CommentResponse(res);
     }
 
+    public void deleteComment(Long codeNo, Long commentNo, String memberId){
+        checkCode(codeNo);
+        CommentEntity comment = commentRepository.findById(commentNo)
+                .orElseThrow(() -> new RuntimeException("없는 댓글입니다."));
+
+        if (!comment.getMemberEntity().getMemberId().equals(memberId)) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }
+
+        commentRepository.delete(comment);
+    }
+
     public CodeEntity checkCode(Long codeNo){
         CodeEntity code = codeRepository.findById(codeNo)
                 .orElseThrow(() -> new RuntimeException("없는 코드입니다."));

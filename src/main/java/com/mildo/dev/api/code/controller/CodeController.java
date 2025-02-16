@@ -4,7 +4,6 @@ import com.mildo.dev.api.code.domain.dto.request.CommentContentDTO;
 import com.mildo.dev.api.code.domain.dto.response.CommentResponse;
 import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
-import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,13 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/code")
 @RequiredArgsConstructor
 public class CodeController {
 
     private final CodeService codeService;
 
     @ResponseBody
-    @GetMapping(value = "/code/{codeNo}/comment", produces="application/json; charset=UTF-8")
+    @GetMapping(value = "/{codeNo}/comment", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> commentList(@PathVariable Long codeNo)
     {
         List<CommentResponse> list = codeService.allComment(codeNo);
@@ -29,7 +29,7 @@ public class CodeController {
     }
 
     @ResponseBody
-    @PostMapping(value = "/code/{codeNo}/comment", produces="application/json; charset=UTF-8")
+    @PostMapping(value = "/{codeNo}/comment", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> commentPost(@PathVariable Long codeNo,
                                          @AuthenticationPrincipal CustomUser customUser,
                                          @Valid @RequestBody CommentContentDTO comment)
@@ -38,4 +38,13 @@ public class CodeController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    @ResponseBody
+    @DeleteMapping(value = "/{codeNo}/comment/{commentNo}", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> commentDelete(@PathVariable Long codeNo,
+                              @PathVariable Long commentNo,
+                              @AuthenticationPrincipal CustomUser customUser)
+    {
+        codeService.deleteComment(codeNo, commentNo, customUser.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body("삭제 성공!");
+    }
 }
