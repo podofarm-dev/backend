@@ -1,8 +1,10 @@
 package com.mildo.dev.api.problem.repository.dto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class ProblemListDslDto {
 
     private Long problemNo;
