@@ -23,7 +23,6 @@ public class CodeController {
     @GetMapping(value = "/{codeNo}/comment", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> commentList(@PathVariable Long codeNo)
     {
-//        List<CommentResponse> list = codeService.allComment(codeNo);
         CommentListResponse list = codeService.allComment(codeNo);
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }

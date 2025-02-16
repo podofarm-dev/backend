@@ -1,9 +1,7 @@
 package com.mildo.dev.api.problem.repository;
 
-import com.mildo.dev.api.problem.domain.dto.response.ProblemListDto;
-import com.mildo.dev.api.problem.domain.dto.response.ProblemSolverDto;
+import com.mildo.dev.api.problem.domain.dto.request.ProblemSolverDto;
 import com.mildo.dev.api.problem.domain.entity.ProblemEntity;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -71,7 +69,7 @@ public interface ProblemRepository extends JpaRepository<ProblemEntity, Long>, P
 //                                                                    @Param("category") String category,
 //                                                                    Pageable pageable);
 
-    @Query("SELECT new com.mildo.dev.api.problem.domain.dto.response.ProblemSolverDto(c.problemEntity.problemId, m.imgUrl) " +
+    @Query("SELECT new com.mildo.dev.api.problem.domain.dto.request.ProblemSolverDto(c.problemEntity.problemId, m.imgUrl) " +
             "FROM CodeEntity c " +
             "JOIN MemberEntity m ON c.memberEntity.memberId = m.memberId " +
             "WHERE c.problemEntity.problemId IN :problemNos AND m.studyEntity.studyId = :studyId")

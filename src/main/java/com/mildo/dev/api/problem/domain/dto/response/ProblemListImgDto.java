@@ -11,6 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ProblemListImgDto {
 
+    // 정리하고 ProblemListImgDto 삭제 예정
+
     private Long problemNo;
     private Long problemId;
     private String problemTitle;
