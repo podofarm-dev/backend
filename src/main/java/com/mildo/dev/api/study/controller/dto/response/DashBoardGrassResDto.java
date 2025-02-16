@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,22 +15,6 @@ import java.util.Map;
 public class DashBoardGrassResDto {
 
     private List<MemberGrassResDto> data;
-
-    public static DashBoardGrassResDto fromRepoDto(List<String> memberIds, List<GrassInfoDto> repoDto, int lengthOfMonth) {
-        Map<String, MemberGrassResDto> result = new HashMap<>(); //key: memberId
-
-        //result Map 초기화
-        for (String memberId : memberIds) {
-            result.put(memberId, MemberGrassResDto.of(memberId, lengthOfMonth));
-        }
-
-        for (GrassInfoDto aRepoDto : repoDto) {
-            MemberGrassResDto resDto = result.get(aRepoDto.getMemberId());
-            resDto.getGrass().get(aRepoDto.getDate() - 1).plus(aRepoDto.getValue());
-        }
-
-        return new DashBoardGrassResDto(result.values().stream().toList()) ;
-    }
 
     @Getter
     public static class MemberGrassResDto {
@@ -64,6 +49,22 @@ public class DashBoardGrassResDto {
         public void plus(int value) {
             this.value += value;
         }
+    }
+
+    public static DashBoardGrassResDto fromRepoDto(List<String> memberIds, List<GrassInfoDto> repoDto, int lengthOfMonth) {
+        Map<String, MemberGrassResDto> result = new LinkedHashMap<>(); //key: memberId
+
+        //result Map 초기화
+        for (String memberId : memberIds) {
+            result.put(memberId, MemberGrassResDto.of(memberId, lengthOfMonth));
+        }
+
+        for (GrassInfoDto aRepoDto : repoDto) {
+            MemberGrassResDto resDto = result.get(aRepoDto.getMemberId());
+            resDto.getGrass().get(aRepoDto.getDate() - 1).plus(aRepoDto.getValue());
+        }
+
+        return new DashBoardGrassResDto(result.values().stream().toList());
     }
 
 }
