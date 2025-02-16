@@ -6,8 +6,10 @@ import com.mildo.dev.api.study.repository.dto.ProblemInfoDto;
 import com.mildo.dev.api.study.repository.dto.QCountingSolvedDto;
 import com.mildo.dev.api.study.repository.dto.QGrassInfoDto;
 import com.mildo.dev.api.study.repository.dto.QProblemInfoDto;
+import com.mildo.dev.api.study.repository.dto.QRecentActivityInfoDto;
 import com.mildo.dev.api.study.repository.dto.QStudyInfoDto;
 import com.mildo.dev.api.study.repository.dto.QStudyInfoDto_MemberDto;
+import com.mildo.dev.api.study.repository.dto.RecentActivityInfoDto;
 import com.mildo.dev.api.study.repository.dto.StudyInfoDto;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -141,6 +143,28 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                                 .and(codeEntity.codeSolvedDate.lt(startOfNextDay)),
                         codeEntity.codeAnswer.eq("Y")
                 )
+                .fetch();
+    }
+
+    @Override
+    public List<RecentActivityInfoDto> searchRecentActivityInfo(String studyId) {
+        return query
+                .select(new QRecentActivityInfoDto(
+                        memberEntity.memberId,
+                        memberEntity.name,
+                        problemEntity.problemNo,
+                        problemEntity.problemTitle,
+                        codeEntity.codeSolvedDate
+                ))
+                .from(codeEntity)
+                .join(codeEntity.problemEntity, problemEntity)
+                .join(codeEntity.memberEntity, memberEntity)
+                .where(
+                        memberEntity.studyEntity.studyId.eq(studyId),
+                        codeEntity.codeAnswer.eq("Y")
+                )
+                .orderBy(codeEntity.codeSolvedDate.desc())
+                .limit(20)
                 .fetch();
     }
 

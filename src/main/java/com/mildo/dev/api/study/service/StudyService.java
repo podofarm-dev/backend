@@ -9,12 +9,14 @@ import com.mildo.dev.api.study.controller.dto.response.DailySolvedResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
+import com.mildo.dev.api.study.controller.dto.response.LogResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
 import com.mildo.dev.api.study.repository.StudyRepository;
 import com.mildo.dev.api.study.repository.dto.CountingSolvedDto;
 import com.mildo.dev.api.study.repository.dto.GrassInfoDto;
 import com.mildo.dev.api.study.repository.dto.ProblemInfoDto;
+import com.mildo.dev.api.study.repository.dto.RecentActivityInfoDto;
 import com.mildo.dev.api.study.repository.dto.StudyInfoDto;
 import com.mildo.dev.api.utils.random.CodeGenerator;
 import com.mildo.dev.global.exception.exceptionClass.AlreadyInStudyException;
@@ -28,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -138,6 +141,16 @@ public class StudyService {
         //2. 해당 사용자가 해결한 문제 정보 조회
         List<ProblemInfoDto> repoDto = studyRepository.searchSolvedProblemInfo(cond.getDate(), cond.getMember());
         return DailySolvedResDto.fromRepoDto(repoDto);
+    }
+
+    @Transactional(readOnly = true)
+    public LogResDto getLog(String memberId, String studyId) {
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkValidMemberAndStudy(memberId, studyId);
+
+        //2. 해당 스터디의 최근 활동 정보 조회
+        List<RecentActivityInfoDto> repoDto = studyRepository.searchRecentActivityInfo(studyId);
+        return LogResDto.fromRepoDto(repoDto, LocalDateTime.now());
     }
 
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {

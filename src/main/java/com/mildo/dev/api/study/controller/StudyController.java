@@ -8,6 +8,7 @@ import com.mildo.dev.api.study.controller.dto.response.DailySolvedResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
+import com.mildo.dev.api.study.controller.dto.response.LogResDto;
 import com.mildo.dev.api.study.controller.dto.response.MessageResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.service.StudyService;
@@ -91,6 +92,15 @@ public class StudyController {
             DailySolvedSearchCond requestParam
     ) {
         DailySolvedResDto responseDto = studyService.getDailySolvedProblems(customUser.getMemberId(), studyId, requestParam);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping("/{studyId}/logs")
+    public ResponseEntity<LogResDto> logs(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId
+    ) {
+        LogResDto responseDto = studyService.getLog(customUser.getMemberId(), studyId);
         return ResponseEntity.ok(responseDto);
     }
 
