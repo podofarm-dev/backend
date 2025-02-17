@@ -25,11 +25,10 @@ public class ProblemController {
                                                                   @PathVariable String studyId,
                                                                   @RequestParam(required = false) String category,
                                                                   @RequestParam(required = false) String title,
-                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "1") int page,
                                                                   @RequestParam(defaultValue = "20") int size) {
       ProblemListResponse response = problemService.getProblemList(customUser.getMemberId(), studyId, category, title, page, size);
-
-        return ResponseEntity.ok(response);
+      return ResponseEntity.ok(response);
     }
 
 
