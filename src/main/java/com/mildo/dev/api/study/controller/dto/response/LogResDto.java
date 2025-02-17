@@ -1,7 +1,7 @@
 package com.mildo.dev.api.study.controller.dto.response;
 
 import com.mildo.dev.api.study.repository.dto.RecentActivityInfoDto;
-import com.mildo.dev.api.study.service.utils.RecentActivityUtils;
+import com.mildo.dev.api.study.service.utils.DashBoardUtils;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -32,7 +32,7 @@ public class LogResDto {
                         .memberName(aDto.getMemberName())
                         .problemId(aDto.getProblemId())
                         .problemTitle(aDto.getProblemTitle())
-                        .solvedBefore(RecentActivityUtils.getSolvedBefore(aDto.getSolvedAt(), now))
+                        .solvedBefore(DashBoardUtils.getSolvedBefore(aDto.getSolvedAt(), now))
                         .build())
                 .toList();
 
