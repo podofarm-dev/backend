@@ -1,7 +1,7 @@
 package com.mildo.dev.api.member.repository;
 
-import com.mildo.dev.api.member.domain.dto.ProblemMemberDto;
-import com.mildo.dev.api.member.domain.dto.SolvedMemberListDto;
+import com.mildo.dev.api.member.domain.dto.response.ProblemMemberDto;
+import com.mildo.dev.api.member.domain.dto.response.SolvedMemberListDto;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
