@@ -4,29 +4,42 @@ import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
+import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
+import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
+import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
 import com.mildo.dev.api.study.repository.StudyRepository;
+import com.mildo.dev.api.study.repository.dto.CountingSolvedDto;
+import com.mildo.dev.api.study.repository.dto.GrassInfoDto;
+import com.mildo.dev.api.study.repository.dto.StudyInfoDto;
 import com.mildo.dev.api.utils.random.CodeGenerator;
 import com.mildo.dev.global.exception.exceptionClass.AlreadyInStudyException;
+import com.mildo.dev.global.exception.exceptionClass.NotInThatStudyException;
 import com.mildo.dev.global.exception.exceptionClass.StudyPasswordMismatchException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.mildo.dev.global.exception.message.ExceptionMessage.ALREADY_IN_STUDY_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.MEMBER_NOT_FOUND_MSG;
+import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_IN_THAT_STUDY_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_NOT_FOUND_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_PASSWORD_MISMATCH_MSG;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class StudyService {
 
     private final StudyRepository studyRepository;
@@ -38,7 +51,7 @@ public class StudyService {
         LocalDate now = LocalDate.now();
 
         StudyEntity study = StudyEntity.builder()
-                .studyId(CodeGenerator.generateRandomCode()) //TODO 아이디 중복 여부 체크
+                .studyId(CodeGenerator.generateRandomStudyCode()) //TODO 아이디 중복 여부 체크
                 .studyName(requestDto.getName())
                 .studyPwd(passwordEncoder.encode(requestDto.getPassword()))
                 .studyStart(Date.valueOf(now))
@@ -75,6 +88,42 @@ public class StudyService {
         joinStudy(member, study);
     }
 
+    @Transactional(readOnly = true)
+    public DashBoardFrameResDto getDashBoardInfo(String memberId, String studyId) {
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkValidMemberAndStudy(memberId, studyId);
+
+        //2. 스터디 및 사용자 정보 조회 -> repo 레이어의 dto 를 service/controller 레이어의 dto 로 변환
+        StudyInfoDto repoDto = studyRepository.searchStudyWithMembers(studyId);
+        return DashBoardFrameResDto.fromRepoDto(repoDto);
+    }
+
+    @Transactional(readOnly = true)
+    public DashBoardGrassResDto getDashBoardGrass(String memberId, String studyId, YearMonth yearMonth) {
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkValidMemberAndStudy(memberId, studyId);
+
+        //2. 스터디에 참여하고 있는 모든 사용자 ID 조회
+        List<MemberEntity> members = memberRepository.findInStudySorted(studyId, memberId);
+        List<String> memberIds = members.stream()
+                .map(MemberEntity::getMemberId)
+                .collect(toList());
+
+        //3. 사용자별 yearMonth 에 해당하는 잔디 데이터 조회
+        List<GrassInfoDto> repoDto = studyRepository.countSolvedPerDate(studyId, yearMonth);
+        return DashBoardGrassResDto.fromRepoDto(memberIds, repoDto, yearMonth.lengthOfMonth());
+    }
+
+    @Transactional(readOnly = true)
+    public DashBoardSolvedCountResDto getDashBoardSolvedCount(String memberId, String studyId, YearMonth yearMonth) {
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkValidMemberAndStudy(memberId, studyId);
+
+        //2. 사용자별 해결한 문제 수 조회
+        List<CountingSolvedDto> repoDto = studyRepository.countSolved(studyId, yearMonth);
+        return DashBoardSolvedCountResDto.fromRepoDto(repoDto);
+    }
+
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {
         checkIfJoined(member);
 
@@ -93,6 +142,18 @@ public class StudyService {
     private void checkIfJoined(MemberEntity member) {
         if (member.getStudyEntity() != null) {
             throw new AlreadyInStudyException(ALREADY_IN_STUDY_MSG);
+        }
+    }
+
+    private void checkValidMemberAndStudy(String memberId, String studyId) {
+        //1. 사용자 조회
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
+
+        //2. memberId 사용자가 studyId 스터디에 속해있는지 확인
+        if (member.getStudyEntity() == null
+                || !member.getStudyEntity().getStudyId().equals(studyId)) {
+            throw new NotInThatStudyException(NOT_IN_THAT_STUDY_MSG);
         }
     }
 }

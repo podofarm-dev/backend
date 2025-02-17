@@ -57,6 +57,9 @@ public class CodeEntity {
     @Column(name = "code_time")
     private Time codeTime;
 
+//    @Column(name = "problem_id")
+//    private Long problemId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
@@ -65,7 +68,11 @@ public class CodeEntity {
     private final List<CommentEntity> commentList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_no")
+    @JoinColumn(name = "problem_id")
     private ProblemEntity problemEntity;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "problem_no")
+//    private ProblemEntity problemEntity;
 
 }

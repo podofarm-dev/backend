@@ -1,7 +1,5 @@
 package com.mildo.dev.api.member.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.mildo.dev.api.member.domain.dto.MemberInfoDTO;
 import jakarta.persistence.*;
 import lombok.*;
 

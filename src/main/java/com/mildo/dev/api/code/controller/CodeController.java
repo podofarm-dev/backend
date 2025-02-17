@@ -11,6 +11,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.mildo.dev.api.code.domain.dto.request.CommentContentDTO;
+import com.mildo.dev.api.code.domain.dto.response.CommentResponse;
+import com.mildo.dev.api.code.domain.dto.response.CommentListResponse;
+import com.mildo.dev.api.code.service.CodeService;
+import com.mildo.dev.api.member.customoauth.dto.CustomUser;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 
@@ -77,7 +88,6 @@ public class CodeController {
     }
 
 
-
     private boolean validateUserStudySync(JsonNode convertData) {
         // 필요한 정보 추출
         String userId = convertData.get("id").asText();
@@ -86,5 +96,35 @@ public class CodeController {
         return memberService.checkExtensionSync(userId, studyId);
     }
 
+    @ResponseBody
+    @GetMapping(value = "/{codeNo}/comment", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> commentList(@PathVariable Long codeNo)
+    {
+        CommentListResponse list = codeService.allComment(codeNo);
+        return ResponseEntity.status(HttpStatus.OK).body(list);
+    }
 
+    @ResponseBody
+    @PostMapping(value = "/{codeNo}/comment", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> commentPost(@PathVariable Long codeNo,
+                                         @AuthenticationPrincipal CustomUser customUser,
+                                         @Valid @RequestBody CommentContentDTO comment)
+    {
+        CommentResponse res = codeService.insertComment(codeNo, comment.getCommentContent(), customUser.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @ResponseBody
+    @DeleteMapping(value = "/{codeNo}/comment/{commentNo}", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> commentDelete(@PathVariable Long codeNo,
+                                           @PathVariable Long commentNo,
+                                           @AuthenticationPrincipal CustomUser customUser)
+    {
+        codeService.deleteComment(codeNo, commentNo, customUser.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body("삭제 성공!");
+    }
 }
+
+
+
+
