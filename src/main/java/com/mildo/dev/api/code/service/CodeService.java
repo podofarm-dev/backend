@@ -1,5 +1,6 @@
 package com.mildo.dev.api.code.service;
 
+import com.mildo.dev.api.code.domain.dto.UploadDTO;
 import com.mildo.dev.api.code.domain.dto.response.CommentResponse;
 import com.mildo.dev.api.code.domain.dto.response.CommentListResponse;
 import com.mildo.dev.api.code.domain.entity.CodeEntity;
@@ -7,18 +8,22 @@ import com.mildo.dev.api.code.domain.entity.CommentEntity;
 import com.mildo.dev.api.code.repository.CodeRepository;
 import com.mildo.dev.api.code.repository.CommentRepository;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
+import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.member.service.MemberService;
+import com.mildo.dev.api.problem.domain.entity.ProblemEntity;
+import com.mildo.dev.api.problem.repository.ProblemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mildo.dev.api.code.domain.dto.UploadDTO;
-import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
+import java.util.Optional;
 
 
 @Slf4j
@@ -29,40 +34,56 @@ public class CodeService {
     private final CommentRepository commentRepository;
     private final CodeRepository codeRepository;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
+    private final ProblemRepository problemRepository;
 
-    public void upload(JsonNode request) throws ParseException {
-        UploadDTO upload = new UploadDTO();
+    public void upload(JsonNode request) {
+        UploadDTO uploadDTO = new UploadDTO(request);
 
-        String memberId = request.get("Id").asText();
-        String problemId;
-        String codeSource;
-        String codeSolvedDate;
-        String codeAnnotation;
-        String codeStatus;
-        String codeTime;
+        Optional<MemberEntity> memberEntityOptional = memberRepository.findById(uploadDTO.getMemberId());
+        if (memberEntityOptional.isEmpty()) {
+            throw new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId());
+        }
+        MemberEntity memberEntity = memberEntityOptional.get();
 
-        /*
-        //memberId 를 request에서 getId로
-        String id = request.getId();
-        String filename = request.getFilename();
-        filename = filename.substring(0, filename.length() - 5);
-        String sourceText = request.getSourceText();
-        String readmeText = request.getReadmeText();
-        String dateInfo = request.getDateInfo();
-        int problemId = Integer.parseInt(request.getProblemId());
-        // "lv2" -> "2"로 변경 (자료형 유지를 위해 charAt 등과 같은 것을 사용하지 않음)
-        String level = request.getLevel();
+        Optional<ProblemEntity> problemEntityOptional = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()));
+        if (problemEntityOptional.isEmpty()) {
+            throw new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId());
+        }
+        ProblemEntity problemEntity = problemEntityOptional.get();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime date = LocalDateTime.parse(dateInfo, formatter);
+        CodeEntity codeEntity = CodeEntity.builder()
+                .memberEntity(memberEntity)
+                .problemEntity(problemEntity)
+                .codeSource(uploadDTO.getAnnotatedSource())
+                .codeSolvedDate(uploadDTO.getSolvedDate())
+                .codeTime(Time.valueOf(uploadDTO.getTime()))
+                .codeStatus(uploadDTO.getStatus())
+                .build();
 
-        // TODO: 추가 로직 작성 필요(코드 아이디에 대한 의견 필요)
-        // codeLikes 의 값이 Y / N 임.
-        CodeVO vo = new CodeVO(id, filename, readmeText, sourceText, "N", level, problemId, 0, date);
-
-        codeRepository.upload(vo);
-            */
+        codeRepository.save(codeEntity);
     }
+
+
+
+    private String generateAnnotation(String code) {
+        String apiKey = ""; // OpenAI API 키 설정
+        String openAiUrl = "https://api.openai.com/v1/completions";
+
+
+        return "코드 분석 실패: 기본 주석을 사용하세요.";
+    }
+
+
+
+
+
+
+
+
+
+
+
 //    public List<CommentResponse> allComment(Long codeNo){
 //        checkCode(codeNo);
 //        List<CommentEntity> comments = commentRepository.findByCodeEntity_CodeNo(codeNo);
