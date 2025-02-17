@@ -2,16 +2,21 @@ package com.mildo.dev.api.study.service;
 
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
+import com.mildo.dev.api.study.controller.dto.request.DailySolvedSearchCond;
 import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
+import com.mildo.dev.api.study.controller.dto.response.DailySolvedResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
+import com.mildo.dev.api.study.controller.dto.response.LogResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
 import com.mildo.dev.api.study.repository.StudyRepository;
 import com.mildo.dev.api.study.repository.dto.CountingSolvedDto;
 import com.mildo.dev.api.study.repository.dto.GrassInfoDto;
+import com.mildo.dev.api.study.repository.dto.ProblemInfoDto;
+import com.mildo.dev.api.study.repository.dto.RecentActivityInfoDto;
 import com.mildo.dev.api.study.repository.dto.StudyInfoDto;
 import com.mildo.dev.api.utils.random.CodeGenerator;
 import com.mildo.dev.global.exception.exceptionClass.AlreadyInStudyException;
@@ -25,13 +30,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.mildo.dev.global.exception.message.ExceptionMessage.ALREADY_IN_STUDY_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.MEMBER_NOT_FOUND_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_IN_THAT_STUDY_MSG;
+import static com.mildo.dev.global.exception.message.ExceptionMessage.SOMEONE_NOT_IN_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_NOT_FOUND_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_PASSWORD_MISMATCH_MSG;
 import static java.util.stream.Collectors.toList;
@@ -124,6 +133,26 @@ public class StudyService {
         return DashBoardSolvedCountResDto.fromRepoDto(repoDto);
     }
 
+    @Transactional(readOnly = true)
+    public DailySolvedResDto getDailySolvedProblems(String memberId, String studyId, DailySolvedSearchCond cond) {
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkMembersInStudy(studyId, memberId, cond.getMember());
+
+        //2. 해당 사용자가 해결한 문제 정보 조회
+        List<ProblemInfoDto> repoDto = studyRepository.searchSolvedProblemInfo(cond.getDate(), cond.getMember());
+        return DailySolvedResDto.fromRepoDto(repoDto);
+    }
+
+    @Transactional(readOnly = true)
+    public LogResDto getLog(String memberId, String studyId) {
+        //1. 사용자와 스터디의 존재 여부 및 관계 확인
+        checkValidMemberAndStudy(memberId, studyId);
+
+        //2. 해당 스터디의 최근 활동 정보 조회
+        List<RecentActivityInfoDto> repoDto = studyRepository.searchRecentActivityInfo(studyId);
+        return LogResDto.fromRepoDto(repoDto, LocalDateTime.now());
+    }
+
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {
         checkIfJoined(member);
 
@@ -154,6 +183,17 @@ public class StudyService {
         if (member.getStudyEntity() == null
                 || !member.getStudyEntity().getStudyId().equals(studyId)) {
             throw new NotInThatStudyException(NOT_IN_THAT_STUDY_MSG);
+        }
+    }
+
+    private void checkMembersInStudy(String studyId, String... memberIds) {
+        //1. 사용자 정보를 포함하여 스터디 조회
+        StudyEntity study = studyRepository.findByIdCascade(studyId)
+                .orElseThrow(() -> new NoSuchElementException(STUDY_NOT_FOUND_MSG));
+
+        //2. 파라미터로 받은 memberIds 이 모두 스터디그룹에 속해있는지 확인
+        if (!study.containsAll(List.of(memberIds))) {
+            throw new NotInThatStudyException(SOMEONE_NOT_IN_MSG);
         }
     }
 }
