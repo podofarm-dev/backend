@@ -18,7 +18,7 @@ public class DashBoardUtils {
     private static final String MINUTE_SUFFIX = "m";
     private static final String SECOND_SUFFIX = "s";
 
-    public static final String LEVEL_REGEX = "-";
+    private static final String LEVEL_REGEX = "-";
 
     public static String getSolvedBefore(LocalDateTime solvedAt, LocalDateTime now) {
         long duration;
