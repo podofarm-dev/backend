@@ -27,7 +27,6 @@ public class UploadDTO {
         this.performance = request.get("commitMessage").asText();
         this.annotation = "/** 주석 공간 테스트 */";
         this.status = "Y";
-
         this.annotatedSource = annotation + "\n" + source;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

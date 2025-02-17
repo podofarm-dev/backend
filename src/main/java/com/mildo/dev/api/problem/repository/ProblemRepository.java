@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProblemRepository extends JpaRepository<ProblemEntity, Long>, ProblemRepositoryCustom{
@@ -74,7 +75,10 @@ public interface ProblemRepository extends JpaRepository<ProblemEntity, Long>, P
             "JOIN MemberEntity m ON c.memberEntity.memberId = m.memberId " +
             "WHERE c.problemEntity.problemId IN :problemNos AND m.studyEntity.studyId = :studyId")
     List<ProblemSolverDto> findSolversByProblemNos(@Param("problemNos") List<Long> problemNos,
+
                                                    @Param("studyId") String studyId);
+    Optional<ProblemEntity> findByProblemId(Long problemId);
+
 
 
 }

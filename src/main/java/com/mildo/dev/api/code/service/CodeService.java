@@ -58,7 +58,7 @@ public class CodeService {
                 .memberEntity(memberEntity)
                 .problemEntity(problemEntity)
                 .codeSource(uploadDTO.getAnnotatedSource())
-                .codeSolvedDate(Timestamp.valueOf(uploadDTO.getSolvedDate()))
+                .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
                 .codeTime(Time.valueOf(uploadDTO.getTime()))
                 .codeStatus(uploadDTO.getStatus())
                 .build();

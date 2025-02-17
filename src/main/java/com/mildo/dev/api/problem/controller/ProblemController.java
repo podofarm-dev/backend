@@ -1,16 +1,14 @@
 package com.mildo.dev.api.problem.controller;
 
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
-import com.mildo.dev.api.problem.domain.dto.response.ProblemListImgDto;
 import com.mildo.dev.api.problem.domain.dto.response.ProblemListResponse;
+import com.mildo.dev.api.problem.domain.dto.response.ProblemTitleDto;
 import com.mildo.dev.api.problem.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/problem")
@@ -29,6 +27,12 @@ public class ProblemController {
                                                                   @RequestParam(defaultValue = "20") int size) {
       ProblemListResponse response = problemService.getProblemList(customUser.getMemberId(), studyId, category, title, page, size);
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{problemId}/title")
+    public ResponseEntity<?> getTitle(@PathVariable String problemId){
+        String response = problemService.getFormattedProblemTitle(problemId);
         return ResponseEntity.ok(response);
     }
 

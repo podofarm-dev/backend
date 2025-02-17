@@ -187,8 +187,22 @@ public class MemberController {
         return ResponseEntity.ok(res);
     }
 
+    /*
+    * MEMBER별 푼 문제 API
+    * */
+
+    @GetMapping("/{memberId}/code/{problemId}")
+    public ResponseEntity<?> getSolvedInfo(@PathVariable String memberId,
+                                           @PathVariable String problemId){
+
+        //01
+
+        return ResponseEntity.ok("");
+    }
+
     @GetMapping("/test")
     public String Test(){
         return "TEST";
     }
+    
 }

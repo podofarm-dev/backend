@@ -1,18 +1,8 @@
 package com.mildo.dev.api.problem.domain.entity;
 
 import com.mildo.dev.api.code.domain.entity.CodeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +16,6 @@ import java.util.List;
 @Table(name = "problem")
 public class ProblemEntity {
 
-
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "problem_no")
     private Long problemNo;
 
@@ -53,4 +41,8 @@ public class ProblemEntity {
     @OneToMany(mappedBy = "problemEntity")
     private final List<CodeEntity> codeList = new ArrayList<>();
 
+    // ✅ 잘못된 생성자 삭제하고 올바른 포맷 변환 메서드 추가
+    public String formatProblemTitle() {
+        return String.format("[level-%s] %s - %s", this.problemLevel, this.problemTitle, this.problemId);
+    }
 }

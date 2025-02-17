@@ -2,10 +2,13 @@ package com.mildo.dev.api.problem.service;
 
 import com.mildo.dev.api.problem.domain.dto.response.ProblemListResponse;
 import com.mildo.dev.api.problem.domain.dto.request.ProblemSolverDto;
+import com.mildo.dev.api.problem.domain.dto.response.ProblemTitleDto;
+import com.mildo.dev.api.problem.domain.entity.ProblemEntity;
 import com.mildo.dev.api.problem.repository.ProblemRepository;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.parsing.Problem;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -93,5 +97,14 @@ public class ProblemService {
 
         return ProblemListResponse.problemDto(results, problemSolverMap);
     }
+
+    public String getFormattedProblemTitle(String problemId) {
+        ProblemEntity problem = problemRepository.findByProblemId(Long.parseLong(problemId))
+                .orElseThrow(() -> new NoSuchElementException("문제를 찾을 수 없습니다: " + problemId));
+
+        ProblemTitleDto dto = ProblemTitleDto.formatTitle(problem);
+        return dto.formatTitle();
+    }
+
 
 }
