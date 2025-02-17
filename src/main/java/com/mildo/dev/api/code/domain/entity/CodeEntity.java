@@ -51,9 +51,6 @@ public class CodeEntity {
     @Column(name = "code_status")
     private String codeStatus;
 
-    @Column(name = "code_answer")
-    private String codeAnswer;
-
     @Column(name = "code_time")
     private Time codeTime;
 
