@@ -2,7 +2,7 @@ package com.mildo.dev.api.problem.service;
 
 import com.mildo.dev.api.problem.domain.dto.response.ProblemListResponse;
 import com.mildo.dev.api.problem.domain.dto.request.ProblemSolverDto;
-import com.mildo.dev.api.problem.domain.dto.response.ProblemTitleDto;
+import com.mildo.dev.api.problem.domain.dto.response.ProblemStaticDto;
 import com.mildo.dev.api.problem.domain.entity.ProblemEntity;
 import com.mildo.dev.api.problem.repository.ProblemRepository;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
@@ -98,13 +98,12 @@ public class ProblemService {
         return ProblemListResponse.problemDto(results, problemSolverMap);
     }
 
-    public String getFormattedProblemTitle(String problemId) {
-        ProblemEntity problem = problemRepository.findByProblemId(Long.parseLong(problemId))
-                .orElseThrow(() -> new NoSuchElementException("문제를 찾을 수 없습니다: " + problemId));
+    public ProblemStaticDto getFormattedProblemInfo(Long problemId) {
+        ProblemEntity problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new RuntimeException("문제를 찾을 수 없습니다: " + problemId));
 
-        ProblemTitleDto dto = ProblemTitleDto.formatTitle(problem);
-        return dto.formatTitle();
+
+        return ProblemStaticDto.formatTitle(problem);
     }
-
 
 }

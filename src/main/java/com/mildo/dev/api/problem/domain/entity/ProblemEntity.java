@@ -41,8 +41,4 @@ public class ProblemEntity {
     @OneToMany(mappedBy = "problemEntity")
     private final List<CodeEntity> codeList = new ArrayList<>();
 
-    // ✅ 잘못된 생성자 삭제하고 올바른 포맷 변환 메서드 추가
-    public String formatProblemTitle() {
-        return String.format("[level-%s] %s - %s", this.problemLevel, this.problemTitle, this.problemId);
-    }
 }
