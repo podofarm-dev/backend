@@ -6,6 +6,7 @@ import com.mildo.dev.api.problem.repository.ProblemRepository;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class ProblemService {
         Pageable pageable = PageRequest.of(page, size);
 
         // 1. 문제 가져오기
-        List<ProblemListDslDto> results = problemRepository.findFilteredProblemList(title, category, memberId, pageable);
+        Page<ProblemListDslDto> results = problemRepository.findFilteredProblemList(title, category, memberId, pageable);
 
         // 2. 문제 번호만 뽑아 오기
         List<Long> problemNos = results.stream()

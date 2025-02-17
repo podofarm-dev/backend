@@ -8,8 +8,11 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPQLTemplates;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
@@ -23,7 +26,7 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
         this.queryFactory = new JPAQueryFactory(JPQLTemplates.DEFAULT, em);
     }
 
-    public List<ProblemListDslDto> findFilteredProblemList(String title, String category, String memberId, Pageable pageable) {
+    public Page<ProblemListDslDto> findFilteredProblemList(String title, String category, String memberId, Pageable pageable) {
         QProblemEntity problem = QProblemEntity.problemEntity;
         QCodeEntity code = QCodeEntity.codeEntity;
 
@@ -59,7 +62,7 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
         orderSpecifiers.add(problem.problemNo.asc());
 
         // QueryDSL로 쿼리 작성
-        return queryFactory
+        JPAQuery<ProblemListDslDto> query = queryFactory
                 .select(new QProblemListDslDto(
                         problem.problemNo,
                         problem.problemId,
@@ -73,8 +76,22 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
                 .where(whereClause)
                 .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0])) // 동적 정렬 적용
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                .limit(pageable.getPageSize());
+
+        // 전체 데이터 개수 조회
+        long total = queryFactory
+                .select(problem.count())
+                .from(problem)
+                .leftJoin(code).on(problem.problemId.eq(code.problemEntity.problemId).and(joinCondition))
+                .where(whereClause)
+                .fetchOne();
+
+        // 데이터 목록 조회
+        List<ProblemListDslDto> content = query.fetch();
+
+        // Page 객체로 래핑하여 반환
+        return new PageImpl<>(content, pageable, total);
+
     }
 
 }
