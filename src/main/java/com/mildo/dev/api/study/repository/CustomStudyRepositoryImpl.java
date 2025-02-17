@@ -86,7 +86,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .where(memberEntity.studyEntity.studyId.eq(studyId),
                         codeEntity.codeSolvedDate.goe(startOfThisMonth)
                                 .and(codeEntity.codeSolvedDate.lt(startOfNextMonth)),
-                        codeEntity.codeAnswer.eq("Y")
+                        codeEntity.codeStatus.eq("Y")
                 )
                 .groupBy(memberEntity.memberId, dayExpression)
                 .orderBy(memberEntity.memberId.asc(), dayExpression.asc())
@@ -100,7 +100,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
 
         /*
         문제를 풀지 않은 스터디원의 정보도 결과에 포함될 수 있도록,
-        solvedAt()과 codeEntity.codeAnswer.eq("Y") 조건을 where절이 아닌 on절에 위치시킴
+        solvedAt()과 codeEntity.codeStatus.eq("Y") 조건을 where절이 아닌 on절에 위치시킴
         TODO 다만 데이터의 양이 많아지면 where절에 조건이 있는 것과 비교해서
             성능 차이가 날 수도 있기 때문에 추후 성능 테스트를 해 보는 게 좋을 듯
          */
@@ -115,7 +115,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                     .on(
                         codeEntity.memberEntity.eq(memberEntity),
                         solvedAt(yearMonth),
-                        codeEntity.codeAnswer.eq("Y")
+                        codeEntity.codeStatus.eq("Y")
                     )
                 .where(memberEntity.studyEntity.studyId.eq(studyId))
                 .groupBy(memberEntity.memberId)
@@ -141,7 +141,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                         codeEntity.memberEntity.memberId.eq(memberId),
                         codeEntity.codeSolvedDate.goe(startOfThisDay)
                                 .and(codeEntity.codeSolvedDate.lt(startOfNextDay)),
-                        codeEntity.codeAnswer.eq("Y")
+                        codeEntity.codeStatus.eq("Y")
                 )
                 .fetch();
     }
@@ -161,7 +161,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .join(codeEntity.memberEntity, memberEntity)
                 .where(
                         memberEntity.studyEntity.studyId.eq(studyId),
-                        codeEntity.codeAnswer.eq("Y")
+                        codeEntity.codeStatus.eq("Y")
                 )
                 .orderBy(codeEntity.codeSolvedDate.desc())
                 .limit(20)
