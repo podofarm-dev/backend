@@ -16,5 +16,6 @@ public class UploadDTO {
     private String codeAnnotation;
     private String codeStatus;
     private String codeTime;
+    private String problemTitle;
 
 }
