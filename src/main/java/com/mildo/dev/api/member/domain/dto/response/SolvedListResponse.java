@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Builder
 public class SolvedListResponse {
 
-    private List<SolvedDto> solved;
+    private List<SolvedDto> problemList;
 
     @Getter
     @Builder
@@ -28,7 +28,7 @@ public class SolvedListResponse {
 
     public static SolvedListResponse solvedDto(List<CodeSolvedListDTO> repoDto) {
         return SolvedListResponse.builder()
-                .solved(repoDto.stream()
+                .problemList(repoDto.stream()
                         .map(solved -> SolvedDto.builder()
                                 .problemNo(solved.getProblemNo())
                                 .problemTitle(solved.getProblemTitle())
