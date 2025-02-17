@@ -1,6 +1,7 @@
 package com.mildo.dev.api.study.controller.dto.response;
 
 import com.mildo.dev.api.study.repository.dto.ProblemInfoDto;
+import com.mildo.dev.api.study.service.utils.DashBoardUtils;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -26,7 +27,7 @@ public class DailySolvedResDto {
                 .map(aDto -> SolvedProblemResDto.builder()
                         .id(aDto.getId())
                         .title(aDto.getTitle())
-                        .level(Integer.parseInt(aDto.getLevel()))
+                        .level(DashBoardUtils.getLevel(aDto.getLevel()))
                         .type(aDto.getType())
                         .build())
                 .toList();

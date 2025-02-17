@@ -2,13 +2,14 @@ package com.mildo.dev.api.study.service.utils;
 
 import java.time.LocalDateTime;
 
+import static com.mildo.dev.global.exception.message.ExceptionMessage.PROBLEM_LEVEL_TYPE_MISMATCH;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.YEARS;
 
-public class RecentActivityUtils {
+public class DashBoardUtils {
 
     private static final String YEAR_SUFFIX = "y";
     private static final String MONTH_SUFFIX = "M";
@@ -16,6 +17,8 @@ public class RecentActivityUtils {
     private static final String HOUR_SUFFIX = "h";
     private static final String MINUTE_SUFFIX = "m";
     private static final String SECOND_SUFFIX = "s";
+
+    public static final String LEVEL_REGEX = "-";
 
     public static String getSolvedBefore(LocalDateTime solvedAt, LocalDateTime now) {
         long duration;
@@ -35,6 +38,15 @@ public class RecentActivityUtils {
             return duration + MINUTE_SUFFIX;
         }
         return duration + SECOND_SUFFIX;
+    }
+
+    public static Integer getLevel(String levelString) {
+        String[] split = levelString.split(LEVEL_REGEX);
+        if (split.length != 2) {
+            throw new IllegalStateException(PROBLEM_LEVEL_TYPE_MISMATCH);
+        }
+
+        return Integer.parseInt(split[1]);
     }
 
 }
