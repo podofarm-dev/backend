@@ -20,7 +20,7 @@ public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
     List<CodeLevelDTO> findSolvedProblemLevelCountByMemberId(@Param("memberId") String memberId);
 
     @Query(value = "SELECT new com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO(" +
-            "c.codeNo, c.problemEntity.problemTitle, c.problemEntity.problemLevel, " +
+            "c.codeNo, c.problemEntity.problemId, c.problemEntity.problemTitle, c.problemEntity.problemLevel, " +
             "c.problemEntity.problemType, c.codeSolvedDate, c.codeTime) " +
             "FROM CodeEntity c JOIN c.problemEntity p " +
             "WHERE c.memberEntity.memberId = :memberId " +
@@ -29,7 +29,7 @@ public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
     Page<CodeSolvedListDTO> findSolvedProblemListByMemberId(@Param("memberId") String memberId, Pageable pageable);
 
     @Query(value = "SELECT new com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO(" +
-            "c.codeNo, c.problemEntity.problemTitle, c.problemEntity.problemLevel, " +
+            "c.codeNo, c.problemEntity.problemId, c.problemEntity.problemTitle, c.problemEntity.problemLevel, " +
             "c.problemEntity.problemType, c.codeSolvedDate, c.codeTime) " +
             "FROM CodeEntity c JOIN c.problemEntity p " +
             "WHERE c.memberEntity.memberId = :memberId " +
