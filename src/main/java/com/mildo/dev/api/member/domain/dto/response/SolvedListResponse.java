@@ -21,6 +21,7 @@ public class SolvedListResponse {
     @Builder
     public static class SolvedDto {
         private Long problemNo;
+        private Long problemId;
         private String problemTitle;
         private String problemLevel;
         private String problemType;
@@ -42,6 +43,7 @@ public class SolvedListResponse {
                 .problemList(repoDto.stream()
                         .map(solved -> SolvedDto.builder()
                                 .problemNo(solved.getProblemNo())
+                                .problemId(solved.getProblemId())
                                 .problemTitle(solved.getProblemTitle())
                                 .problemLevel(solved.getProblemLevel())
                                 .problemType(solved.getProblemType())

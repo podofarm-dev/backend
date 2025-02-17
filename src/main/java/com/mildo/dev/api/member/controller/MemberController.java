@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/member")
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -80,17 +81,11 @@ public class MemberController {
     @ResponseBody
     @GetMapping(value="/{memberId}/solved/problem", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> solvedProblem(@PathVariable String memberId,
-                                           @AuthenticationPrincipal CustomUser customUser,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "20") int size,
                                            @RequestParam(required = false) String title)
     {
-        if (!memberId.equals(customUser.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
-        }
-
-        SolvedListResponse solvedProblemList = userService.solvedProblemList(customUser.getMemberId(), page, size, title);
+        SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size, title);
         return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
     }
 
@@ -108,7 +103,7 @@ public class MemberController {
     }
 
     @ResponseBody
-    @GetMapping(value = "/member/info", produces="application/json; charset=UTF-8")
+    @GetMapping(value = "/info", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> memberInfo(@AuthenticationPrincipal CustomUser customUser)
     {
         MemberInfoDTO memberInfo = userService.memberInfo(customUser.getMemberId());
@@ -116,7 +111,7 @@ public class MemberController {
     }
 
     @ResponseBody
-    @PatchMapping(value = "/member/info", produces="application/json; charset=UTF-8")
+    @PatchMapping(value = "/info", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> updateUser(@Valid @RequestBody MemberReNameDto nameDto,
                                         @AuthenticationPrincipal CustomUser customUser)
     {
