@@ -28,8 +28,7 @@ public class ProblemController {
                                                                   @RequestParam(defaultValue = "0") int page,
                                                                   @RequestParam(defaultValue = "20") int size) {
       ProblemListResponse response = problemService.getProblemList(customUser.getMemberId(), studyId, category, title, page, size);
-
-        return ResponseEntity.ok(response);
+      return ResponseEntity.ok(response);
     }
 
 
