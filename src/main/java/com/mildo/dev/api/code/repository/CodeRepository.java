@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
@@ -24,5 +25,8 @@ public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
     @Query("SELECT new com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO(c.codeNo, c.problemEntity.problemTitle, c.problemEntity.problemLevel, c.problemEntity.problemType, c.codeSolvedDate, c.codeTime)" +
             "FROM CodeEntity c JOIN c.problemEntity p WHERE c.memberEntity.memberId = :memberId AND (:title IS NULL OR c.problemEntity.problemTitle LIKE %:title%) ORDER BY c.codeSolvedDate DESC")
     List<CodeSolvedListDTO> findSolvedProblemListTitleByMemberId(@Param("memberId") String memberId, @Param("title") String title, Pageable pageable);
+
+    @Query("SELECT c FROM CodeEntity c JOIN FETCH c.commentList WHERE c.codeNo = :codeNo")
+    Optional<CodeEntity> findByIdWithComments(@Param("codeNo") Long codeNo);
 
 }

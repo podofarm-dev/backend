@@ -1,4 +1,4 @@
-package com.mildo.dev.api.problem.domain.dto.response;
+package com.mildo.dev.api.problem.domain.dto.request;
 
 import lombok.Builder;
 import lombok.Getter;

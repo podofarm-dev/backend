@@ -63,7 +63,7 @@ public class MemberEntity {
     @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<CommentEntity> commentEntityList = new ArrayList<>();
 
-    @OneToOne(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToOne(mappedBy = "memberEntity", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private TokenEntity tokenEntity;
 
 //    @OneToOne(mappedBy = "memberEntity")

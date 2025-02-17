@@ -5,15 +5,11 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.mildo.dev.api.code.domain.dto.request.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO;
-import com.mildo.dev.api.code.domain.dto.response.SolvedListResponse;
 import com.mildo.dev.api.code.domain.dto.response.SolvedProblemResponse;
 import com.mildo.dev.api.code.repository.CodeRepository;
 import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
 import com.mildo.dev.api.member.domain.dto.request.TokenDto;
-import com.mildo.dev.api.member.domain.dto.response.MemberInfoDTO;
-import com.mildo.dev.api.member.domain.dto.response.ProblemMemberDto;
-import com.mildo.dev.api.member.domain.dto.response.SolvedMemberListDto;
-import com.mildo.dev.api.member.domain.dto.response.TokenResponse;
+import com.mildo.dev.api.member.domain.dto.response.*;
 import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.domain.entity.TokenEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
@@ -129,7 +125,7 @@ public class MemberService {
             results = codeRepository.findSolvedProblemListByMemberId(memberId, pageable);
         }
 
-        return new SolvedListResponse(results);
+        return SolvedListResponse.solvedDto(results);
     }
 
     public MemberEntity vaildMemberId(String memberId){
