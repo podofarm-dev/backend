@@ -3,6 +3,7 @@ package com.mildo.dev.api.member.domain.dto.response;
 import com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 public class SolvedListResponse {
 
     private List<SolvedDto> problemList;
+    private Pageable PageInfo;
 
     @Getter
     @Builder
@@ -26,7 +28,16 @@ public class SolvedListResponse {
         private Time codeTime;
     }
 
-    public static SolvedListResponse solvedDto(List<CodeSolvedListDTO> repoDto) {
+    @Getter
+    @Builder
+    public static class Pageable {
+        private final long totalElements;
+        private final int totalPages;
+        private final int currentPage;
+        private final int size;
+    }
+
+    public static SolvedListResponse solvedDto(Page<CodeSolvedListDTO> repoDto) {
         return SolvedListResponse.builder()
                 .problemList(repoDto.stream()
                         .map(solved -> SolvedDto.builder()
@@ -39,6 +50,12 @@ public class SolvedListResponse {
                                 .build())
                         .collect(Collectors.toList())
                 )
+                .PageInfo(Pageable.builder()
+                        .totalElements(repoDto.getTotalElements())
+                        .totalPages(repoDto.getTotalPages())
+                        .currentPage(repoDto.getNumber())
+                        .size(repoDto.getSize())
+                        .build())
                 .build();
     }
 }
