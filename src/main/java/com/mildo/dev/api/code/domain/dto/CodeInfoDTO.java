@@ -20,7 +20,7 @@ public class CodeInfoDTO {
     private Time codeTime;
     private String codePerformance;
     private String codeAccuracy;
-    private String problemType;  // ✅ 추가
+    private String problemType;  
 
     public static CodeInfoDTO fromEntity(CodeEntity code) {
         return CodeInfoDTO.builder()
