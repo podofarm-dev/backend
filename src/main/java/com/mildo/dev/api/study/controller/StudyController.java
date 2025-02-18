@@ -4,6 +4,7 @@ import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.study.controller.dto.request.DailySolvedSearchCond;
 import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
+import com.mildo.dev.api.study.controller.dto.request.StudyUpdateReqDto;
 import com.mildo.dev.api.study.controller.dto.response.DailySolvedResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -114,5 +116,16 @@ public class StudyController {
         StudyDetailResDto responseDto = studyService.getStudyInfo(customUser.getMemberId(), studyId);
         return ResponseEntity.ok(responseDto);
     }
+
+    @PatchMapping("/{studyId}")
+    public ResponseEntity<StudyDetailResDto> modifyStudy(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId,
+            @RequestBody StudyUpdateReqDto requestDto
+    ) {
+        StudyDetailResDto responseDto = studyService.updateStudy(customUser.getMemberId(), studyId, requestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
 
 }

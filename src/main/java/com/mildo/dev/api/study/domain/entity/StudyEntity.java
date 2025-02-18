@@ -15,8 +15,10 @@ import lombok.Setter;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_EXIST_LEADER_MSG;
 import static java.util.stream.Collectors.toSet;
 
 @NoArgsConstructor
@@ -62,5 +64,31 @@ public class StudyEntity {
                 .collect(toSet());
 
         return result.contains(memberId);
+    }
+
+    public MemberEntity getLeader() {
+        return memberEntityList.stream()
+                .filter(member -> member.getLeader().equals("Y"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(NOT_EXIST_LEADER_MSG));
+    }
+
+    public Optional<MemberEntity> getMember(String memberId) {
+        return memberEntityList.stream()
+                .filter(member -> member.getMemberId().equals(memberId))
+                .findFirst();
+    }
+
+    public void changeName(String name) {
+        if (!this.studyName.equals(name)) {
+            this.studyName = name;
+        }
+    }
+
+    public void changeLeader(MemberEntity asIs, MemberEntity toBe) {
+        if (!asIs.equals(toBe)) {
+            asIs.setLeader("N");
+            toBe.setLeader("Y");
+        }
     }
 }

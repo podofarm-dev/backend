@@ -5,6 +5,7 @@ import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.study.controller.dto.request.DailySolvedSearchCond;
 import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
+import com.mildo.dev.api.study.controller.dto.request.StudyUpdateReqDto;
 import com.mildo.dev.api.study.controller.dto.response.DailySolvedResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
@@ -40,6 +41,7 @@ import java.util.Optional;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.ALREADY_IN_STUDY_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.MEMBER_NOT_FOUND_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_IN_THAT_STUDY_MSG;
+import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_STUDY_LEADER_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.SOMEONE_NOT_IN_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_NOT_FOUND_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_PASSWORD_MISMATCH_MSG;
@@ -157,6 +159,29 @@ public class StudyService {
     public StudyDetailResDto getStudyInfo(String memberId, String studyId) {
         //1. 스터디 정보와 회원 정보 조회
         StudyEntity study = getStudyWithMembers(memberId, studyId);
+
+        return StudyDetailResDto.from(study);
+    }
+
+    public StudyDetailResDto updateStudy(String memberId, String studyId, StudyUpdateReqDto requestDto) {
+        //1. 스터디 정보와 회원 정보 조회
+        StudyEntity study = studyRepository.findByIdCascade(studyId)
+                .orElseThrow(() -> new NoSuchElementException(STUDY_NOT_FOUND_MSG));
+
+        //2. 스터디의 현재 리더가 memberId 인지 확인
+        MemberEntity asIs = study.getLeader();
+        if (!asIs.getMemberId().equals(memberId)) {
+            throw new IllegalStateException(NOT_STUDY_LEADER_MSG);
+        }
+
+        //3. 스터디의 차기 리더가 해당 스터디에 속해있는지 확인
+        MemberEntity toBe = study.getMember(requestDto.getLeaderId())
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
+
+        //4. 스터디명 변경
+        study.changeName(requestDto.getName());
+        //5. 스터디장 변경
+        study.changeLeader(asIs, toBe);
 
         return StudyDetailResDto.from(study);
     }
