@@ -3,7 +3,6 @@ package com.mildo.dev.api.code.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mildo.dev.api.code.domain.dto.UploadDTO;
 import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import com.mildo.dev.api.code.domain.dto.request.CommentContentDTO;
 import com.mildo.dev.api.code.domain.dto.response.CommentResponse;
 import com.mildo.dev.api.code.domain.dto.response.CommentListResponse;
-import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 
@@ -91,8 +85,6 @@ public class CodeController {
 
         return memberService.checkExtensionSync(userId, studyId);
     }
-
-
 
 
     @ResponseBody
