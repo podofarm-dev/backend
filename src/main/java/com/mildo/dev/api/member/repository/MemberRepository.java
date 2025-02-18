@@ -14,6 +14,8 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<MemberEntity, String> {
 
+
+
     MemberEntity findByGoogleId(String googleId);
 
     Optional<MemberEntity> findByMemberId(String memberId);
@@ -30,6 +32,11 @@ public interface MemberRepository extends JpaRepository<MemberEntity, String> {
     @Query("SELECT new com.mildo.dev.api.member.domain.dto.response.SolvedMemberListDto(m.studyEntity.studyId, m.memberId, m.name, m.solvedProblem, m.imgUrl,0) " +
     "FROM MemberEntity m WHERE m.studyEntity.studyId = :studyId ")
     List<SolvedMemberListDto> solvedMemberRanking(@Param("studyId") String studyId);
+
+
+    @Query("SELECT COUNT(m) > 0 FROM MemberEntity m WHERE m.studyEntity.studyId = :studyId AND m.memberId = :memberId")
+    boolean checkExtensionSync(@Param("memberId") String memberId, @Param("studyId") String studyId);
+
 
     @Query("""
             select m 

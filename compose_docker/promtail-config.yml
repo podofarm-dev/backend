@@ -16,4 +16,5 @@ scrape_configs:
         labels:
           job: spring-boot-logs
           application: spring-boot
-          __path__: /app.log    #/root/workspace/log/app.log  # Spring Boot 로그 파일의 절대 경로
+          __path__: /home/ubuntu/test_dev/app.log
+#          __path__: /test_dev/app.log    #/root/workspace/log/app.log  # Spring Boot 로그 파일의 절대 경로

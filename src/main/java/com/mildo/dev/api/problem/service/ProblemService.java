@@ -2,6 +2,8 @@ package com.mildo.dev.api.problem.service;
 
 import com.mildo.dev.api.problem.domain.dto.response.ProblemListResponse;
 import com.mildo.dev.api.problem.domain.dto.request.ProblemSolverDto;
+import com.mildo.dev.api.problem.domain.dto.response.ProblemStaticDto;
+import com.mildo.dev.api.problem.domain.entity.ProblemEntity;
 import com.mildo.dev.api.problem.repository.ProblemRepository;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,6 +47,14 @@ public class ProblemService {
                         Collectors.mapping(ProblemSolverDto::getImgUrl, Collectors.toList())));
 
         return ProblemListResponse.problemDto(results, problemSolverMap);
+    }
+
+    public ProblemStaticDto getFormattedProblemInfo(Long problemId) {
+        ProblemEntity problem = problemRepository.findById(problemId)
+                .orElseThrow(() -> new RuntimeException("문제를 찾을 수 없습니다: " + problemId));
+
+
+        return ProblemStaticDto.formatTitle(problem);
     }
 
 }

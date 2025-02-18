@@ -51,11 +51,11 @@ public class CodeEntity {
     @Column(name = "code_status")
     private String codeStatus;
 
-    @Column(name = "code_answer")
-    private String codeAnswer;
-
     @Column(name = "code_time")
     private Time codeTime;
+
+    @Column(name = "code_performance")
+    private String codePerformance;
 
 //    @Column(name = "problem_id")
 //    private Long problemId;
@@ -70,6 +70,8 @@ public class CodeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
     private ProblemEntity problemEntity;
+
+
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "problem_no")
