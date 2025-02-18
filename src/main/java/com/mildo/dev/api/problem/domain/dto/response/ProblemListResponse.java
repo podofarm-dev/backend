@@ -1,8 +1,10 @@
 package com.mildo.dev.api.problem.domain.dto.response;
 
+import com.mildo.dev.api.member.domain.dto.response.SolvedListResponse;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 public class ProblemListResponse {
 
     private final List<ProblemList> problem;
+    private Pageable PageInfo;
 
     @Getter
     @Builder
@@ -27,7 +30,16 @@ public class ProblemListResponse {
         private List<String> img;
     }
 
-    public static ProblemListResponse problemDto(List<ProblemListDslDto> res, Map<Long, List<String>> problemSolverMap) {
+    @Getter
+    @Builder
+    public static class Pageable {
+        private final long totalElements;
+        private final int totalPages;
+        private final int currentPage;
+        private final int size;
+    }
+
+    public static ProblemListResponse problemDto(Page<ProblemListDslDto> res, Map<Long, List<String>> problemSolverMap) {
         return ProblemListResponse.builder()
                 .problem(res.stream()
                         .map(p -> ProblemList.builder()
@@ -41,6 +53,13 @@ public class ProblemListResponse {
                                 .build()
                         )
                         .collect(Collectors.toList())
-                ).build();
+                )
+                .PageInfo(ProblemListResponse.Pageable.builder()
+                        .totalElements(res.getTotalElements())
+                        .totalPages(res.getTotalPages())
+                        .currentPage(res.getNumber())
+                        .size(res.getSize())
+                        .build())
+                .build();
     }
 }

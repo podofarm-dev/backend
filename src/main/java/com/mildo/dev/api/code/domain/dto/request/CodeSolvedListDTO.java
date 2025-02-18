@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 public class CodeSolvedListDTO {
 
     private Long problemNo;
+    private Long problemId;
     private String problemTitle;
     private String problemLevel;
     private String problemType;

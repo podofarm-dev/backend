@@ -2,10 +2,14 @@ package com.mildo.dev.api.study.repository;
 
 import com.mildo.dev.api.study.repository.dto.CountingSolvedDto;
 import com.mildo.dev.api.study.repository.dto.GrassInfoDto;
+import com.mildo.dev.api.study.repository.dto.ProblemInfoDto;
 import com.mildo.dev.api.study.repository.dto.QCountingSolvedDto;
 import com.mildo.dev.api.study.repository.dto.QGrassInfoDto;
+import com.mildo.dev.api.study.repository.dto.QProblemInfoDto;
+import com.mildo.dev.api.study.repository.dto.QRecentActivityInfoDto;
 import com.mildo.dev.api.study.repository.dto.QStudyInfoDto;
 import com.mildo.dev.api.study.repository.dto.QStudyInfoDto_MemberDto;
+import com.mildo.dev.api.study.repository.dto.RecentActivityInfoDto;
 import com.mildo.dev.api.study.repository.dto.StudyInfoDto;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -21,6 +25,7 @@ import java.util.List;
 
 import static com.mildo.dev.api.code.domain.entity.QCodeEntity.codeEntity;
 import static com.mildo.dev.api.member.domain.entity.QMemberEntity.memberEntity;
+import static com.mildo.dev.api.problem.domain.entity.QProblemEntity.problemEntity;
 import static com.mildo.dev.api.study.domain.entity.QStudyEntity.studyEntity;
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.group.GroupBy.list;
@@ -80,8 +85,8 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .leftJoin(codeEntity.memberEntity, memberEntity)
                 .where(memberEntity.studyEntity.studyId.eq(studyId),
                         codeEntity.codeSolvedDate.goe(startOfThisMonth)
-                                .and(codeEntity.codeSolvedDate.lt(startOfNextMonth))
-                        //codeEntity.codeAnswer.eq("Y")
+                                .and(codeEntity.codeSolvedDate.lt(startOfNextMonth)),
+                        codeEntity.codeStatus.eq("Y")
                 )
                 .groupBy(memberEntity.memberId, dayExpression)
                 .orderBy(memberEntity.memberId.asc(), dayExpression.asc())
@@ -95,7 +100,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
 
         /*
         문제를 풀지 않은 스터디원의 정보도 결과에 포함될 수 있도록,
-        solvedAt()과 codeEntity.codeAnswer.eq("Y") 조건을 where절이 아닌 on절에 위치시킴
+        solvedAt()과 codeEntity.codeStatus.eq("Y") 조건을 where절이 아닌 on절에 위치시킴
         TODO 다만 데이터의 양이 많아지면 where절에 조건이 있는 것과 비교해서
             성능 차이가 날 수도 있기 때문에 추후 성능 테스트를 해 보는 게 좋을 듯
          */
@@ -109,12 +114,57 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .leftJoin(codeEntity)
                     .on(
                         codeEntity.memberEntity.eq(memberEntity),
-                        solvedAt(yearMonth)
-                        //codeEntity.codeAnswer.eq("Y")
+                        solvedAt(yearMonth),
+                        codeEntity.codeStatus.eq("Y")
                     )
                 .where(memberEntity.studyEntity.studyId.eq(studyId))
                 .groupBy(memberEntity.memberId)
                 .orderBy(solved.desc(), memberEntity.name.asc())
+                .fetch();
+    }
+
+    @Override
+    public List<ProblemInfoDto> searchSolvedProblemInfo(LocalDate date, String memberId) {
+        Timestamp startOfThisDay = Timestamp.valueOf(date.atStartOfDay()); //당일 자정
+        Timestamp startOfNextDay = Timestamp.valueOf(date.plusDays(1).atStartOfDay()); //익일 자정
+
+        return query
+                .select(new QProblemInfoDto(
+                        problemEntity.problemId,
+                        problemEntity.problemTitle,
+                        problemEntity.problemLevel,
+                        problemEntity.problemType
+                ))
+                .from(codeEntity)
+                .join(codeEntity.problemEntity, problemEntity)
+                .where(
+                        codeEntity.memberEntity.memberId.eq(memberId),
+                        codeEntity.codeSolvedDate.goe(startOfThisDay)
+                                .and(codeEntity.codeSolvedDate.lt(startOfNextDay)),
+                        codeEntity.codeStatus.eq("Y")
+                )
+                .fetch();
+    }
+
+    @Override
+    public List<RecentActivityInfoDto> searchRecentActivityInfo(String studyId) {
+        return query
+                .select(new QRecentActivityInfoDto(
+                        memberEntity.memberId,
+                        memberEntity.name,
+                        problemEntity.problemId,
+                        problemEntity.problemTitle,
+                        codeEntity.codeSolvedDate
+                ))
+                .from(codeEntity)
+                .join(codeEntity.problemEntity, problemEntity)
+                .join(codeEntity.memberEntity, memberEntity)
+                .where(
+                        memberEntity.studyEntity.studyId.eq(studyId),
+                        codeEntity.codeStatus.eq("Y")
+                )
+                .orderBy(codeEntity.codeSolvedDate.desc())
+                .limit(20)
                 .fetch();
     }
 
