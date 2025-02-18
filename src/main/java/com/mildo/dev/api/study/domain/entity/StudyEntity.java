@@ -55,4 +55,12 @@ public class StudyEntity {
 
         return result.containsAll(memberIds);
     }
+
+    public boolean contains(String memberId) {
+        Set<String> result = memberEntityList.stream()
+                .map(MemberEntity::getMemberId)
+                .collect(toSet());
+
+        return result.contains(memberId);
+    }
 }

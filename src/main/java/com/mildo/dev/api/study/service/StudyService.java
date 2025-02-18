@@ -10,6 +10,7 @@ import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
 import com.mildo.dev.api.study.controller.dto.response.LogResDto;
+import com.mildo.dev.api.study.controller.dto.response.StudyDetailResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
 import com.mildo.dev.api.study.repository.StudyRepository;
@@ -35,7 +36,6 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.mildo.dev.global.exception.message.ExceptionMessage.ALREADY_IN_STUDY_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.MEMBER_NOT_FOUND_MSG;
@@ -153,6 +153,14 @@ public class StudyService {
         return LogResDto.fromRepoDto(repoDto, LocalDateTime.now());
     }
 
+    @Transactional(readOnly = true)
+    public StudyDetailResDto getStudyInfo(String memberId, String studyId) {
+        //1. 스터디 정보와 회원 정보 조회
+        StudyEntity study = getStudyWithMembers(memberId, studyId);
+
+        return StudyDetailResDto.from(study);
+    }
+
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {
         checkIfJoined(member);
 
@@ -195,5 +203,17 @@ public class StudyService {
         if (!study.containsAll(List.of(memberIds))) {
             throw new NotInThatStudyException(SOMEONE_NOT_IN_MSG);
         }
+    }
+
+    private StudyEntity getStudyWithMembers(String memberId, String studyId) {
+        StudyEntity study = studyRepository.findByIdCascade(studyId)
+                .orElseThrow(() -> new NoSuchElementException(STUDY_NOT_FOUND_MSG));
+
+        //2. memberId 회원이 study 에 속해있는지 확인
+        if (!study.contains(memberId)) {
+            throw new NotInThatStudyException(NOT_IN_THAT_STUDY_MSG);
+        }
+
+        return study;
     }
 }

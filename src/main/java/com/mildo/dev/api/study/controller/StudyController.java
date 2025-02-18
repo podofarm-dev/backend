@@ -10,6 +10,7 @@ import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
 import com.mildo.dev.api.study.controller.dto.response.LogResDto;
 import com.mildo.dev.api.study.controller.dto.response.MessageResDto;
+import com.mildo.dev.api.study.controller.dto.response.StudyDetailResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.service.StudyService;
 import jakarta.validation.Valid;
@@ -101,6 +102,16 @@ public class StudyController {
             @PathVariable String studyId
     ) {
         LogResDto responseDto = studyService.getLog(customUser.getMemberId(), studyId);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    //TODO 스터디장만 해당 API를 호출할 수 있도록 막아놓을지
+    @GetMapping("/{studyId}")
+    public ResponseEntity<StudyDetailResDto> studyInfo(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId
+    ) {
+        StudyDetailResDto responseDto = studyService.getStudyInfo(customUser.getMemberId(), studyId);
         return ResponseEntity.ok(responseDto);
     }
 
