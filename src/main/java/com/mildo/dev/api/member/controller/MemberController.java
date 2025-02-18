@@ -198,9 +198,9 @@ public class MemberController {
 
     @GetMapping("/{memberId}/problem/{problemId}/solved-info")
     public ResponseEntity<List<CodeInfoDTO>> memberSolvedInfo(@PathVariable String problemId,
-                                                          @PathVariable String memberId) {
+                                                              @PathVariable String memberId) {
         List<CodeInfoDTO> codeList = codeService.getMemberSolvedInfo(memberId, Long.parseLong(problemId));
         return ResponseEntity.ok(codeList);
     }
-    
+
 }

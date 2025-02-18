@@ -21,6 +21,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mildo.dev.api.code.domain.dto.UploadDTO;
@@ -69,22 +70,12 @@ public class CodeService {
     }
 
 
-
     private String generateAnnotation(String code) {
         String apiKey = ""; // OpenAI API 키 설정
         String openAiUrl = "https://api.openai.com/v1/completions";
 
         return "코드 분석 실패: 기본 주석을 사용하세요.";
     }
-
-
-
-
-
-
-
-
-
 
 
 //    public List<CommentResponse> allComment(Long codeNo){
@@ -147,8 +138,12 @@ public class CodeService {
 
     public List<CodeInfoDTO> getMemberSolvedInfo(String memberId, Long problemId) {
         List<CodeEntity> codeEntities = codeRepository.findByMemberEntity_MemberIdAndProblemEntity_ProblemId(memberId, problemId);
-        return codeEntities.stream()
-                .map(CodeInfoDTO::fromEntity)
-                .collect(Collectors.toList());
+        List<CodeInfoDTO> codeInfoList = new ArrayList<>();
+
+        for (int i = 0; i < codeEntities.size(); i++)
+            codeInfoList.add(CodeInfoDTO.fromEntity(codeEntities.get(i)));
+
+        return codeInfoList;
     }
+
 }
