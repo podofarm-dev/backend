@@ -1,7 +1,10 @@
 package com.mildo.dev.api.member.controller;
 
 import com.amazonaws.AmazonServiceException;
+import com.mildo.dev.api.code.domain.dto.CodeInfoDTO;
 import com.mildo.dev.api.code.domain.dto.response.SolvedProblemResponse;
+import com.mildo.dev.api.code.domain.entity.CodeEntity;
+import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
 import com.mildo.dev.api.member.domain.dto.request.TokenDto;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -35,6 +39,7 @@ public class MemberController {
 
     private static final Logger log = LoggerFactory.getLogger(MemberController.class);
     private final MemberService userService;
+    private final CodeService codeService;
 
     @ResponseBody
     @PostMapping(value = "/tokens", produces = "application/json; charset=UTF-8")
@@ -186,18 +191,16 @@ public class MemberController {
     * MEMBER별 푼 문제 API
     * */
 
-    @GetMapping("/{memberId}/code/{problemId}")
-    public ResponseEntity<?> getSolvedInfo(@PathVariable String memberId,
-                                           @PathVariable String problemId){
-
-        //01
-
-        return ResponseEntity.ok("");
-    }
-
     @GetMapping("/test")
     public String Test(){
         return "TEST";
     }
-    
+
+    @GetMapping("/{memberId}/problem/{problemId}/solved-info")
+    public ResponseEntity<List<CodeInfoDTO>> memberSolvedInfo(@PathVariable String problemId,
+                                                              @PathVariable String memberId) {
+        List<CodeInfoDTO> codeList = codeService.getMemberSolvedInfo(memberId, Long.parseLong(problemId));
+        return ResponseEntity.ok(codeList);
+    }
+
 }

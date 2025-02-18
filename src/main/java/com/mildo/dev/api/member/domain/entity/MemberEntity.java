@@ -66,6 +66,11 @@ public class MemberEntity {
     @OneToOne(mappedBy = "memberEntity", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private TokenEntity tokenEntity;
 
+    public String getMemberName() {
+        return this.name;
+    }
+
+
 //    @OneToOne(mappedBy = "memberEntity")
 //    @JsonManagedReference
 //    private MemberImgEntity memberImgEntity;

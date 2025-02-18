@@ -43,11 +43,6 @@ public class ProblemController {
         return ResponseEntity.ok(response);
     }
 
-    /*
-    @GetMapping("/{problemId}/dynamic-info/{memberId}")
-    public ResponseEntity<?> dynamicInfo(@PathVariable String problemId){
-        String response = problemService.getFormattedProblemTitle(problemId);
-        return ResponseEntity.ok(response);
-    }
-     */
+
+
 }
