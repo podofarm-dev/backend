@@ -33,10 +33,10 @@ public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
             "c.problemEntity.problemType, c.codeSolvedDate, c.codeTime) " +
             "FROM CodeEntity c JOIN c.problemEntity p " +
             "WHERE c.memberEntity.memberId = :memberId " +
-            "AND (:title IS NULL OR c.problemEntity.problemTitle LIKE %:title%) " +
+            "AND c.problemEntity.problemTitle LIKE %:title% " +
             "ORDER BY c.codeSolvedDate DESC",
             countQuery = "SELECT COUNT(c) FROM CodeEntity c WHERE c.memberEntity.memberId = :memberId " +
-                    "AND (:title IS NULL OR c.problemEntity.problemTitle LIKE %:title%)")
+                    "AND c.problemEntity.problemTitle LIKE %:title%")
     Page<CodeSolvedListDTO> findSolvedProblemListTitleByMemberId(@Param("memberId") String memberId, @Param("title") String title, Pageable pageable);
 
     @Query("SELECT c FROM CodeEntity c JOIN FETCH c.commentList WHERE c.codeNo = :codeNo")
