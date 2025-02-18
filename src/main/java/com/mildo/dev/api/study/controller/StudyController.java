@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -125,6 +126,15 @@ public class StudyController {
     ) {
         StudyDetailResDto responseDto = studyService.updateStudy(customUser.getMemberId(), studyId, requestDto);
         return ResponseEntity.ok(responseDto);
+    }
+
+    @DeleteMapping("/{studyId}/members/me")
+    public ResponseEntity<Void> leaveStudy(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId
+    ) {
+        studyService.leave(customUser.getMemberId(), studyId);
+        return ResponseEntity.ok().build();
     }
 
 

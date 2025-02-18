@@ -22,8 +22,10 @@ import com.mildo.dev.api.study.repository.dto.RecentActivityInfoDto;
 import com.mildo.dev.api.study.repository.dto.StudyInfoDto;
 import com.mildo.dev.api.utils.random.CodeGenerator;
 import com.mildo.dev.global.exception.exceptionClass.AlreadyInStudyException;
+import com.mildo.dev.global.exception.exceptionClass.LeaderCannotLeaveException;
 import com.mildo.dev.global.exception.exceptionClass.NotInThatStudyException;
 import com.mildo.dev.global.exception.exceptionClass.StudyPasswordMismatchException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,9 +38,9 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static com.mildo.dev.global.exception.message.ExceptionMessage.ALREADY_IN_STUDY_MSG;
+import static com.mildo.dev.global.exception.message.ExceptionMessage.LEADER_CANNOT_LEAVE_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.MEMBER_NOT_FOUND_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_IN_THAT_STUDY_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_STUDY_LEADER_MSG;
@@ -56,6 +58,8 @@ public class StudyService {
     private final StudyRepository studyRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final EntityManager em;
 
     public StudySummaryResDto create(String memberId, StudyCreateReqDto requestDto) {
         //1. 스터디 생성
@@ -184,6 +188,31 @@ public class StudyService {
         study.changeLeader(asIs, toBe);
 
         return StudyDetailResDto.from(study);
+    }
+
+    public void leave(String memberId, String studyId) {
+        //1. 회원 정보 조회
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
+
+        //2. 스터디에 memberId가 참여중인지 확인
+        if (!member.getStudyEntity().getStudyId().equals(studyId)) {
+            throw new NotInThatStudyException(NOT_IN_THAT_STUDY_MSG);
+        }
+
+        //3. 스터디의 현재 리더가 memberId가 아닌지 확인
+        if (member.getLeader().equals("Y")) {
+            throw new LeaderCannotLeaveException(LEADER_CANNOT_LEAVE_MSG);
+        }
+
+        //4. 스터디 탈퇴
+        member.setStudyEntity(null);
+
+        //5. 관련된 code 및 comment 정보 삭제
+        studyRepository.deleteMemberCode(member.getMemberId());
+        studyRepository.deleteMemberComment(member.getMemberId());
+        em.flush();
+        em.clear();
     }
 
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {
