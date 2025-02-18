@@ -78,20 +78,11 @@ public class CodeService {
     }
 
 
-//    public List<CommentResponse> allComment(Long codeNo){
-//        checkCode(codeNo);
-//        List<CommentEntity> comments = commentRepository.findByCodeEntity_CodeNo(codeNo);
-//
-//        return comments.stream()
-//                .map(comment -> new CommentResponse(
-//                        comment.getCommentNo(),
-//                        comment.getCommentContent(),
-//                        comment.getCommentDate(),
-//                        comment.getMemberEntity().getMemberId(),
-//                        comment.getCodeEntity().getCodeNo()
-//                ))
-//                .collect(Collectors.toList());
-//    }
+
+
+
+
+
 
     public CommentListResponse allComment(Long codeNo) {
         CodeEntity code = codeRepository.findByIdWithComments(codeNo)
