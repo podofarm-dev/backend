@@ -42,4 +42,5 @@ public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
     @Query("SELECT c FROM CodeEntity c JOIN FETCH c.commentList WHERE c.codeNo = :codeNo")
     Optional<CodeEntity> findByIdWithComments(@Param("codeNo") Long codeNo);
 
+    List<CodeEntity> findByMemberEntity_MemberIdAndProblemEntity_ProblemId(String memberId, Long problemId);
 }

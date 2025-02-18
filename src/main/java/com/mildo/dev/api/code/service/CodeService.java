@@ -1,5 +1,6 @@
 package com.mildo.dev.api.code.service;
 
+import com.mildo.dev.api.code.domain.dto.CodeInfoDTO;
 import com.mildo.dev.api.code.domain.dto.UploadDTO;
 import com.mildo.dev.api.code.domain.dto.response.CommentResponse;
 import com.mildo.dev.api.code.domain.dto.response.CommentListResponse;
@@ -26,6 +27,7 @@ import com.mildo.dev.api.code.domain.dto.UploadDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -71,7 +73,6 @@ public class CodeService {
     private String generateAnnotation(String code) {
         String apiKey = ""; // OpenAI API 키 설정
         String openAiUrl = "https://api.openai.com/v1/completions";
-
 
         return "코드 분석 실패: 기본 주석을 사용하세요.";
     }
@@ -142,5 +143,12 @@ public class CodeService {
                 .orElseThrow(() -> new RuntimeException("없는 코드입니다."));
         return code;
 
+    }
+
+    public List<CodeInfoDTO> getMemberSolvedInfo(String memberId, Long problemId) {
+        List<CodeEntity> codeEntities = codeRepository.findByMemberEntity_MemberIdAndProblemEntity_ProblemId(memberId, problemId);
+        return codeEntities.stream()
+                .map(CodeInfoDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 }
