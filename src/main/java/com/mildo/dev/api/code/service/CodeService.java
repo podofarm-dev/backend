@@ -18,12 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mildo.dev.api.code.domain.dto.UploadDTO;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
@@ -98,7 +94,7 @@ public class CodeService {
     }
 
     public CommentResponse insertComment(Long codeNo, String commentContent, String memberId) {
-        CodeEntity code = checkCode(codeNo);
+        CodeEntity code = checkdCode(codeNo);
         MemberEntity member = memberService.vaildMemberId(memberId);
 
         CommentEntity comment = CommentEntity.builder()
@@ -113,9 +109,8 @@ public class CodeService {
     }
 
     public void deleteComment(Long codeNo, Long commentNo, String memberId) {
-        checkCode(codeNo);
-        CommentEntity comment = commentRepository.findById(commentNo)
-                .orElseThrow(() -> new RuntimeException("없는 댓글입니다."));
+        checkdCode(codeNo);
+        CommentEntity comment = checkdComment(commentNo);
 
         if (!comment.getMemberEntity().getMemberId().equals(memberId)) {
             throw new RuntimeException("삭제 권한이 없습니다.");
@@ -124,10 +119,26 @@ public class CodeService {
         commentRepository.delete(comment);
     }
 
-    public CodeEntity checkCode(Long codeNo) {
-        CodeEntity code = codeRepository.findById(codeNo)
+    public CommentResponse updateComment(Long codeNo, Long commentNo,String commentContent, String memberId) {
+        CodeEntity check = checkdCode(codeNo);
+        CommentEntity comment = checkdComment(commentNo);
+
+        if (!comment.getMemberEntity().getMemberId().equals(memberId)) {
+            throw new RuntimeException("수정 권한이 없습니다.");
+        }
+
+        comment.setCommentContent(commentContent);
+        return new CommentResponse(commentRepository.save(comment));
+    }
+
+    public CommentEntity checkdComment(Long commentNo) {
+        return commentRepository.findById(commentNo)
+                .orElseThrow(() -> new RuntimeException("없는 댓글입니다."));
+    }
+
+    public CodeEntity checkdCode(Long codeNo) {
+        return codeRepository.findById(codeNo)
                 .orElseThrow(() -> new RuntimeException("없는 코드입니다."));
-        return code;
 
     }
 }
