@@ -215,6 +215,31 @@ public class StudyService {
         em.clear();
     }
 
+    public void dismiss(String memberId, String studyId, String targetId) {
+        //1. 스터디 정보와 회원 정보 조회
+        StudyEntity study = studyRepository.findByIdCascade(studyId)
+                .orElseThrow(() -> new NoSuchElementException(STUDY_NOT_FOUND_MSG));
+
+        //2. 스터디의 리더가 memberId 인지 확인
+        MemberEntity leader = study.getLeader();
+        if (!leader.getMemberId().equals(memberId)) {
+            throw new IllegalStateException(NOT_STUDY_LEADER_MSG);
+        }
+
+        //3. 방출할 회원이 스터디에 속해있는지 확인
+        MemberEntity toBeDismiss = study.getMember(targetId)
+                .orElseThrow(() -> new NoSuchElementException(MEMBER_NOT_FOUND_MSG));
+
+        //4. 스터디 탈퇴
+        toBeDismiss.setStudyEntity(null);
+
+        //5. 관련된 code 및 comment 정보 삭제
+        studyRepository.deleteMemberCode(toBeDismiss.getMemberId());
+        studyRepository.deleteMemberComment(toBeDismiss.getMemberId());
+        em.flush();
+        em.clear();
+    }
+
     private void joinStudyAsLeader(MemberEntity member, StudyEntity study) {
         checkIfJoined(member);
 
