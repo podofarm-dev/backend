@@ -147,5 +147,14 @@ public class StudyController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{studyId}")
+    public ResponseEntity<Void> removeStudy(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId
+    ) {
+        studyService.remove(customUser.getMemberId(), studyId);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

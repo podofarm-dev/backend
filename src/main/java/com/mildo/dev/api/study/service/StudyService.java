@@ -38,6 +38,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static com.mildo.dev.global.exception.message.ExceptionMessage.ALREADY_IN_STUDY_MSG;
 import static com.mildo.dev.global.exception.message.ExceptionMessage.LEADER_CANNOT_LEAVE_MSG;
@@ -236,6 +237,32 @@ public class StudyService {
         //5. 관련된 code 및 comment 정보 삭제
         studyRepository.deleteMemberCode(toBeDismiss.getMemberId());
         studyRepository.deleteMemberComment(toBeDismiss.getMemberId());
+        em.flush();
+        em.clear();
+    }
+
+    public void remove(String memberId, String studyId) {
+        //1. 스터디 정보와 회원 정보 조회
+        StudyEntity study = studyRepository.findByIdCascade(studyId)
+                .orElseThrow(() -> new NoSuchElementException(STUDY_NOT_FOUND_MSG));
+
+        //2. 스터디의 리더가 memberId 인지 확인
+        MemberEntity leader = study.getLeader();
+        if (!leader.getMemberId().equals(memberId)) {
+            throw new IllegalStateException(NOT_STUDY_LEADER_MSG);
+        }
+
+        Set<String> memberIds = study.getMemberIds();
+
+        //3. 모든 스터디원 탈퇴 TODO 벌크 연산?
+        study.dismissAll();
+
+        //4. 관련된 code 및 comment 정보 삭제
+        studyRepository.deleteAllMemberCode(memberIds);
+        studyRepository.deleteAllMemberComment(memberIds);
+
+        //5. 스터디 삭제
+        studyRepository.delete(study);
         em.flush();
         em.clear();
     }

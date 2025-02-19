@@ -17,8 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.mildo.dev.global.exception.message.ExceptionMessage.NOT_EXIST_LEADER_MSG;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @NoArgsConstructor
@@ -90,5 +92,19 @@ public class StudyEntity {
             asIs.setLeader("N");
             toBe.setLeader("Y");
         }
+    }
+
+    public Set<String> getMemberIds() {
+        return memberEntityList.stream()
+                .map(MemberEntity::getMemberId)
+                .collect(toSet());
+    }
+
+    public void dismissAll() {
+        memberEntityList.forEach(member -> {
+            member.setStudyEntity(null);
+            member.setLeader("N");
+            member.setIsParticipant(null);
+        });
     }
 }

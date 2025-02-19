@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -50,5 +51,19 @@ public interface StudyRepository extends JpaRepository<StudyEntity, String>, Cus
             where c.memberEntity.memberId = :memberId
             """)
     int deleteMemberComment(@Param("memberId") String memberId);
+
+    @Modifying
+    @Query("""
+            delete from CodeEntity c
+            where c.memberEntity.memberId in :memberIds
+            """)
+    int deleteAllMemberCode(@Param("memberIds") Set<String> memberIds);
+
+    @Modifying
+    @Query("""
+            delete from CommentEntity c
+            where c.memberEntity.memberId in :memberIds
+            """)
+    int deleteAllMemberComment(@Param("memberIds") Set<String> memberIds);
 
 }
