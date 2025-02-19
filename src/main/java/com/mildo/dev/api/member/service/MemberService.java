@@ -23,6 +23,7 @@ import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -118,7 +119,7 @@ public class MemberService {
         MemberEntity member = vaildMemberId(memberId);
         Pageable pageable = PageRequest.of(page, size);
 
-        List<CodeSolvedListDTO> results;
+        Page<CodeSolvedListDTO> results;
         if (title != null && !title.isEmpty()) {
             results = codeRepository.findSolvedProblemListTitleByMemberId(memberId, title, pageable);
         } else {
@@ -151,7 +152,7 @@ public class MemberService {
                 member.getMemberId(),
                 member.getName(),
                 member.getEmail(),
-                member.getStudyEntity().getStudyId(),
+                member.getStudyEntity() != null ? member.getStudyEntity().getStudyId() : null,
                 member.getImgUrl()
         )).orElseThrow(() -> new RuntimeException("해당 ID의 회원이 존재하지 않습니다."));
     }
@@ -239,4 +240,8 @@ public class MemberService {
                 .findFirst();
     }
 
+
+    public boolean checkExtensionSync(String userId, String studyId) {
+        return memberRepository.checkExtensionSync(userId, studyId);
+    }
 }

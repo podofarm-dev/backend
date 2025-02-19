@@ -1,5 +1,6 @@
 package com.mildo.dev.api.problem.domain.dto.response;
 
+import com.mildo.dev.api.member.domain.dto.response.SolvedListResponse;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,10 +16,7 @@ import java.util.stream.Collectors;
 public class ProblemListResponse {
 
     private final List<ProblemList> problem;
-    private final long totalElements;
-    private final int totalPages;
-    private final int currentPage;
-    private final int size;
+    private Pageable PageInfo;
 
     @Getter
     @Builder
@@ -28,8 +26,17 @@ public class ProblemListResponse {
         private String problemTitle;
         private String problemLevel;
         private String problemLink;
-        private String status;
+        private Boolean status;
         private List<String> img;
+    }
+
+    @Getter
+    @Builder
+    public static class Pageable {
+        private final long totalElements;
+        private final int totalPages;
+        private final int currentPage;
+        private final int size;
     }
 
     public static ProblemListResponse problemDto(Page<ProblemListDslDto> res, Map<Long, List<String>> problemSolverMap) {
@@ -47,10 +54,12 @@ public class ProblemListResponse {
                         )
                         .collect(Collectors.toList())
                 )
-                .totalElements(res.getTotalElements())
-                .totalPages(res.getTotalPages())
-                .currentPage(res.getNumber())
-                .size(res.getSize())
+                .PageInfo(ProblemListResponse.Pageable.builder()
+                        .totalElements(res.getTotalElements())
+                        .totalPages(res.getTotalPages())
+                        .currentPage(res.getNumber())
+                        .size(res.getSize())
+                        .build())
                 .build();
     }
 }

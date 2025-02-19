@@ -86,7 +86,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .where(memberEntity.studyEntity.studyId.eq(studyId),
                         codeEntity.codeSolvedDate.goe(startOfThisMonth)
                                 .and(codeEntity.codeSolvedDate.lt(startOfNextMonth)),
-                        codeEntity.codeStatus.eq("Y")
+                        codeEntity.codeStatus.isTrue()
                 )
                 .groupBy(memberEntity.memberId, dayExpression)
                 .orderBy(memberEntity.memberId.asc(), dayExpression.asc())
@@ -115,7 +115,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                     .on(
                         codeEntity.memberEntity.eq(memberEntity),
                         solvedAt(yearMonth),
-                        codeEntity.codeStatus.eq("Y")
+                        codeEntity.codeStatus.isTrue()
                     )
                 .where(memberEntity.studyEntity.studyId.eq(studyId))
                 .groupBy(memberEntity.memberId)
@@ -141,7 +141,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                         codeEntity.memberEntity.memberId.eq(memberId),
                         codeEntity.codeSolvedDate.goe(startOfThisDay)
                                 .and(codeEntity.codeSolvedDate.lt(startOfNextDay)),
-                        codeEntity.codeStatus.eq("Y")
+                        codeEntity.codeStatus.isTrue()
                 )
                 .fetch();
     }
@@ -161,7 +161,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .join(codeEntity.memberEntity, memberEntity)
                 .where(
                         memberEntity.studyEntity.studyId.eq(studyId),
-                        codeEntity.codeStatus.eq("Y")
+                        codeEntity.codeStatus.isTrue()
                 )
                 .orderBy(codeEntity.codeSolvedDate.desc())
                 .limit(20)

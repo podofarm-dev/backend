@@ -1,7 +1,10 @@
 package com.mildo.dev.api.member.controller;
 
 import com.amazonaws.AmazonServiceException;
+import com.mildo.dev.api.code.domain.dto.CodeInfoDTO;
 import com.mildo.dev.api.code.domain.dto.response.SolvedProblemResponse;
+import com.mildo.dev.api.code.domain.entity.CodeEntity;
+import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
 import com.mildo.dev.api.member.domain.dto.request.TokenDto;
@@ -26,14 +29,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/member")
 @RequiredArgsConstructor
 public class MemberController {
 
     private static final Logger log = LoggerFactory.getLogger(MemberController.class);
     private final MemberService userService;
+    private final CodeService codeService;
 
     @ResponseBody
     @PostMapping(value = "/tokens", produces = "application/json; charset=UTF-8")
@@ -80,17 +86,11 @@ public class MemberController {
     @ResponseBody
     @GetMapping(value="/{memberId}/solved/problem", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> solvedProblem(@PathVariable String memberId,
-                                           @AuthenticationPrincipal CustomUser customUser,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "20") int size,
                                            @RequestParam(required = false) String title)
     {
-        if (!memberId.equals(customUser.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
-        }
-
-        SolvedListResponse solvedProblemList = userService.solvedProblemList(customUser.getMemberId(), page, size, title);
+        SolvedListResponse solvedProblemList = userService.solvedProblemList(memberId, page, size, title);
         return ResponseEntity.status(HttpStatus.OK).body(solvedProblemList);
     }
 
@@ -108,7 +108,7 @@ public class MemberController {
     }
 
     @ResponseBody
-    @GetMapping(value = "/member/info", produces="application/json; charset=UTF-8")
+    @GetMapping(value = "/info", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> memberInfo(@AuthenticationPrincipal CustomUser customUser)
     {
         MemberInfoDTO memberInfo = userService.memberInfo(customUser.getMemberId());
@@ -116,7 +116,7 @@ public class MemberController {
     }
 
     @ResponseBody
-    @PatchMapping(value = "/member/info", produces="application/json; charset=UTF-8")
+    @PatchMapping(value = "/info", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> updateUser(@Valid @RequestBody MemberReNameDto nameDto,
                                         @AuthenticationPrincipal CustomUser customUser)
     {
@@ -187,8 +187,20 @@ public class MemberController {
         return ResponseEntity.ok(res);
     }
 
+    /*
+    * MEMBER별 푼 문제 API
+    * */
+
     @GetMapping("/test")
     public String Test(){
         return "TEST";
     }
+
+    @GetMapping("/{memberId}/problem/{problemId}/solved-info")
+    public ResponseEntity<List<CodeInfoDTO>> memberSolvedInfo(@PathVariable String problemId,
+                                                              @PathVariable String memberId) {
+        List<CodeInfoDTO> codeList = codeService.getMemberSolvedInfo(memberId, Long.parseLong(problemId));
+        return ResponseEntity.ok(codeList);
+    }
+
 }
