@@ -75,15 +75,15 @@ public class CodeController {
         }
     }
 
-    @CrossOrigin(origins = {"chrome-extension://kmleenknngfkjncchnbfenfamoighddf", "https://school.programmers.co.kr"})
-    @RequestMapping(method = RequestMethod.POST, value = "/upload")
-    public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
-        ObjectMapper Data = new ObjectMapper();
-        JsonNode convertData = Data.readTree(request);
-
-        codeService.upload(convertData);
-        return ResponseEntity.ok("Upload successful");
-    }
+//    @CrossOrigin(origins = {"chrome-extension://kmleenknngfkjncchnbfenfamoighddf", "https://school.programmers.co.kr"})
+//    @RequestMapping(method = RequestMethod.POST, value = "/upload")
+//    public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
+//        ObjectMapper Data = new ObjectMapper();
+//        JsonNode convertData = Data.readTree(request);
+//
+//        codeService.upload(convertData);
+//        return ResponseEntity.ok("Upload successful");
+//    }
 
 
     private boolean validateUserStudySync(JsonNode convertData) {

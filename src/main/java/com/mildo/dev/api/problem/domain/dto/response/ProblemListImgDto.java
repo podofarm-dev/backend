@@ -18,7 +18,7 @@ public class ProblemListImgDto {
     private String problemTitle;
     private String problemLevel;
     private String problemLink;
-    private String status;
+    private Boolean status;
     private List<String> img;
 
 }

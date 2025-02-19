@@ -35,32 +35,32 @@ public class CodeService {
     private final MemberRepository memberRepository;
     private final ProblemRepository problemRepository;
 
-    public void upload(JsonNode request) {
-        UploadDTO uploadDTO = new UploadDTO(request);
-
-        Optional<MemberEntity> memberEntityOptional = memberRepository.findById(uploadDTO.getMemberId());
-        if (memberEntityOptional.isEmpty()) {
-            throw new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId());
-        }
-        MemberEntity memberEntity = memberEntityOptional.get();
-
-        Optional<ProblemEntity> problemEntityOptional = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()));
-        if (problemEntityOptional.isEmpty()) {
-            throw new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId());
-        }
-        ProblemEntity problemEntity = problemEntityOptional.get();
-
-        CodeEntity codeEntity = CodeEntity.builder()
-                .memberEntity(memberEntity)
-                .problemEntity(problemEntity)
-                .codeSource(uploadDTO.getAnnotatedSource())
-                .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
-                .codeTime(Time.valueOf(uploadDTO.getTime()))
-                .codeStatus(uploadDTO.getStatus())
-                .build();
-
-        codeRepository.save(codeEntity);
-    }
+//    public void upload(JsonNode request) {
+//        UploadDTO uploadDTO = new UploadDTO(request);
+//
+//        Optional<MemberEntity> memberEntityOptional = memberRepository.findById(uploadDTO.getMemberId());
+//        if (memberEntityOptional.isEmpty()) {
+//            throw new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId());
+//        }
+//        MemberEntity memberEntity = memberEntityOptional.get();
+//
+//        Optional<ProblemEntity> problemEntityOptional = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()));
+//        if (problemEntityOptional.isEmpty()) {
+//            throw new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId());
+//        }
+//        ProblemEntity problemEntity = problemEntityOptional.get();
+//
+//        CodeEntity codeEntity = CodeEntity.builder()
+//                .memberEntity(memberEntity)
+//                .problemEntity(problemEntity)
+//                .codeSource(uploadDTO.getAnnotatedSource())
+//                .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
+//                .codeTime(Time.valueOf(uploadDTO.getTime()))
+//                .codeStatus(uploadDTO.getStatus())
+//                .build();
+//
+//        codeRepository.save(codeEntity);
+//    }
 
 
 

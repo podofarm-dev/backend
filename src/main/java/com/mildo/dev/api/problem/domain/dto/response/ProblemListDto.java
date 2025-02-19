@@ -16,5 +16,5 @@ public class ProblemListDto {
     private String problemTitle;
     private String problemLevel;
     private String problemLink;
-    private String status;
+    private Boolean status;
 }
