@@ -49,12 +49,12 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
         if ("Y".equals(category)) {
             // status가 'Y'인 것을 먼저 정렬
             orderSpecifiers.add(new CaseBuilder()
-                    .when(code.codeStatus.eq("Y")).then(1)
+                    .when(code.codeStatus.isTrue()).then(1)
                     .otherwise(2).asc());
         } else if ("N".equals(category)) {
             // status가 NULL인 것을 먼저 정렬
             orderSpecifiers.add(new CaseBuilder()
-                    .when(code.codeStatus.isNull()).then(1)
+                    .when(code.codeStatus.isFalse()).then(1)
                     .otherwise(2).asc());
         }
 

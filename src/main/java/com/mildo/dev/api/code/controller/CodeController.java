@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mildo.dev.api.code.service.CodeService;
+import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
+import com.mildo.dev.api.member.domain.dto.response.MemberInfoDTO;
 import com.mildo.dev.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -113,6 +115,17 @@ public class CodeController {
     {
         codeService.deleteComment(codeNo, commentNo, customUser.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body("삭제 성공!");
+    }
+
+    @ResponseBody
+    @PatchMapping(value = "/{codeNo}/comment/{commentNo}", produces="application/json; charset=UTF-8")
+    public ResponseEntity<?> updateUser(@PathVariable Long codeNo,
+                           @PathVariable Long commentNo,
+                           @Valid @RequestBody CommentContentDTO comment,
+                           @AuthenticationPrincipal CustomUser customUser)
+    {
+        CommentResponse resComment = codeService.updateComment(codeNo, commentNo, comment.getCommentContent(), customUser.getMemberId());
+        return ResponseEntity.status(HttpStatus.OK).body(resComment);
     }
 }
 
