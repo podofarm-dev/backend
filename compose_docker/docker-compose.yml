@@ -38,7 +38,8 @@ services:
     ports:
       - "9080:9080"
     volumes:
-      - ./app.log:/app.log
+      - /home/ubuntu/test_dev/app.log:/home/ubuntu/test_dev/app.log  # 로그 파일 마운트
+      - /tmp/positions.yaml:/tmp/positions.yaml # 읽은 위치 저장
       - ./promtail-config.yml:/etc/promtail/promtail-config.yml
     command: -config.file=/etc/promtail/promtail-config.yml
     networks:

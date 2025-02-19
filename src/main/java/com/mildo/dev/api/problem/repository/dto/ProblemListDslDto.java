@@ -14,10 +14,10 @@ public class ProblemListDslDto {
     private String problemTitle;
     private String problemLevel;
     private String problemLink;
-    private String status;
+    private Boolean status;
 
     @QueryProjection
-    public ProblemListDslDto(Long problemNo, Long problemId, String problemTitle, String problemLevel, String problemLink, String status) {
+    public ProblemListDslDto(Long problemNo, Long problemId, String problemTitle, String problemLevel, String problemLink, Boolean status) {
         this.problemNo = problemNo;
         this.problemId = problemId;
         this.problemTitle = problemTitle;
