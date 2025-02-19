@@ -57,6 +57,9 @@ public class CodeEntity {
     @Column(name = "code_performance")
     private String codePerformance;
 
+    @Column(name = "code_accuracy")
+    private String codeAccuracy;
+
 //    @Column(name = "problem_id")
 //    private Long problemId;
 

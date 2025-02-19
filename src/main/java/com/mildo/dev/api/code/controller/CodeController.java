@@ -3,7 +3,6 @@ package com.mildo.dev.api.code.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mildo.dev.api.code.domain.dto.UploadDTO;
 import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
 import com.mildo.dev.api.member.domain.dto.response.MemberInfoDTO;
@@ -16,14 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import com.mildo.dev.api.code.domain.dto.request.CommentContentDTO;
 import com.mildo.dev.api.code.domain.dto.response.CommentResponse;
 import com.mildo.dev.api.code.domain.dto.response.CommentListResponse;
-import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 
@@ -75,15 +69,15 @@ public class CodeController {
         }
     }
 
-//    @CrossOrigin(origins = {"chrome-extension://kmleenknngfkjncchnbfenfamoighddf", "https://school.programmers.co.kr"})
-//    @RequestMapping(method = RequestMethod.POST, value = "/upload")
-//    public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
-//        ObjectMapper Data = new ObjectMapper();
-//        JsonNode convertData = Data.readTree(request);
-//
-//        codeService.upload(convertData);
-//        return ResponseEntity.ok("Upload successful");
-//    }
+    @CrossOrigin(origins = {"chrome-extension://kmleenknngfkjncchnbfenfamoighddf", "https://school.programmers.co.kr"})
+    @RequestMapping(method = RequestMethod.POST, value = "/upload")
+    public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
+        ObjectMapper Data = new ObjectMapper();
+        JsonNode convertData = Data.readTree(request);
+
+        codeService.upload(convertData);
+        return ResponseEntity.ok("Upload successful");
+    }
 
 
     private boolean validateUserStudySync(JsonNode convertData) {
@@ -93,8 +87,6 @@ public class CodeController {
 
         return memberService.checkExtensionSync(userId, studyId);
     }
-
-
 
 
     @ResponseBody

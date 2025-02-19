@@ -1,5 +1,6 @@
 package com.mildo.dev.api.code.service;
 
+import com.mildo.dev.api.code.domain.dto.CodeInfoDTO;
 import com.mildo.dev.api.code.domain.dto.UploadDTO;
 import com.mildo.dev.api.code.domain.dto.response.CommentResponse;
 import com.mildo.dev.api.code.domain.dto.response.CommentListResponse;
@@ -18,10 +19,14 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -35,32 +40,32 @@ public class CodeService {
     private final MemberRepository memberRepository;
     private final ProblemRepository problemRepository;
 
-//    public void upload(JsonNode request) {
-//        UploadDTO uploadDTO = new UploadDTO(request);
-//
-//        Optional<MemberEntity> memberEntityOptional = memberRepository.findById(uploadDTO.getMemberId());
-//        if (memberEntityOptional.isEmpty()) {
-//            throw new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId());
-//        }
-//        MemberEntity memberEntity = memberEntityOptional.get();
-//
-//        Optional<ProblemEntity> problemEntityOptional = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()));
-//        if (problemEntityOptional.isEmpty()) {
-//            throw new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId());
-//        }
-//        ProblemEntity problemEntity = problemEntityOptional.get();
-//
-//        CodeEntity codeEntity = CodeEntity.builder()
-//                .memberEntity(memberEntity)
-//                .problemEntity(problemEntity)
-//                .codeSource(uploadDTO.getAnnotatedSource())
-//                .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
-//                .codeTime(Time.valueOf(uploadDTO.getTime()))
-//                .codeStatus(uploadDTO.getStatus())
-//                .build();
-//
-//        codeRepository.save(codeEntity);
-//    }
+    public void upload(JsonNode request) {
+        UploadDTO uploadDTO = new UploadDTO(request);
+
+        Optional<MemberEntity> memberEntityOptional = memberRepository.findById(uploadDTO.getMemberId());
+        if (memberEntityOptional.isEmpty()) {
+            throw new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId());
+        }
+        MemberEntity memberEntity = memberEntityOptional.get();
+
+        Optional<ProblemEntity> problemEntityOptional = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()));
+        if (problemEntityOptional.isEmpty()) {
+            throw new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId());
+        }
+        ProblemEntity problemEntity = problemEntityOptional.get();
+
+        CodeEntity codeEntity = CodeEntity.builder()
+                .memberEntity(memberEntity)
+                .problemEntity(problemEntity)
+                .codeSource(uploadDTO.getAnnotatedSource())
+                .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
+                .codeTime(Time.valueOf(uploadDTO.getTime()))
+                .codeStatus(Boolean.valueOf(uploadDTO.getStatus()))
+                .build();
+
+        codeRepository.save(codeEntity);
+    }
 
 
 
@@ -71,11 +76,6 @@ public class CodeService {
 
         return "코드 분석 실패: 기본 주석을 사용하세요.";
     }
-
-
-
-
-
 
 
 
@@ -141,4 +141,15 @@ public class CodeService {
                 .orElseThrow(() -> new RuntimeException("없는 코드입니다."));
 
     }
+
+    public List<CodeInfoDTO> getMemberSolvedInfo(String memberId, Long problemId) {
+        List<CodeEntity> codeEntities = codeRepository.findByMemberEntity_MemberIdAndProblemEntity_ProblemId(memberId, problemId);
+        List<CodeInfoDTO> codeInfoList = new ArrayList<>();
+
+        for (int i = 0; i < codeEntities.size(); i++)
+            codeInfoList.add(CodeInfoDTO.fromEntity(codeEntities.get(i)));
+
+        return codeInfoList;
+    }
+
 }
