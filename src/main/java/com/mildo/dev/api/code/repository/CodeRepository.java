@@ -39,7 +39,7 @@ public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
                     "AND c.problemEntity.problemTitle LIKE %:title%")
     Page<CodeSolvedListDTO> findSolvedProblemListTitleByMemberId(@Param("memberId") String memberId, @Param("title") String title, Pageable pageable);
 
-    @Query("SELECT c FROM CodeEntity c JOIN FETCH c.commentList WHERE c.codeNo = :codeNo")
+    @Query("SELECT c FROM CodeEntity c LEFT JOIN FETCH c.commentList WHERE c.codeNo = :codeNo")
     Optional<CodeEntity> findByIdWithComments(@Param("codeNo") Long codeNo);
 
     List<CodeEntity> findByMemberEntity_MemberIdAndProblemEntity_ProblemId(String memberId, Long problemId);
