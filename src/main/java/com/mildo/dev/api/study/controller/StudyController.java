@@ -4,12 +4,14 @@ import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.study.controller.dto.request.DailySolvedSearchCond;
 import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
+import com.mildo.dev.api.study.controller.dto.request.StudyUpdateReqDto;
 import com.mildo.dev.api.study.controller.dto.response.DailySolvedResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardSolvedCountResDto;
 import com.mildo.dev.api.study.controller.dto.response.LogResDto;
 import com.mildo.dev.api.study.controller.dto.response.MessageResDto;
+import com.mildo.dev.api.study.controller.dto.response.StudyDetailResDto;
 import com.mildo.dev.api.study.controller.dto.response.StudySummaryResDto;
 import com.mildo.dev.api.study.service.StudyService;
 import jakarta.validation.Valid;
@@ -17,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -103,5 +107,54 @@ public class StudyController {
         LogResDto responseDto = studyService.getLog(customUser.getMemberId(), studyId);
         return ResponseEntity.ok(responseDto);
     }
+
+    //TODO 스터디장만 해당 API를 호출할 수 있도록 막아놓을지
+    @GetMapping("/{studyId}")
+    public ResponseEntity<StudyDetailResDto> studyInfo(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId
+    ) {
+        StudyDetailResDto responseDto = studyService.getStudyInfo(customUser.getMemberId(), studyId);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/{studyId}")
+    public ResponseEntity<StudyDetailResDto> modifyStudy(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId,
+            @RequestBody StudyUpdateReqDto requestDto
+    ) {
+        StudyDetailResDto responseDto = studyService.updateStudy(customUser.getMemberId(), studyId, requestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @DeleteMapping("/{studyId}/members/me")
+    public ResponseEntity<Void> leaveStudy(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId
+    ) {
+        studyService.leave(customUser.getMemberId(), studyId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{studyId}/members/{memberId}")
+    public ResponseEntity<Void> dismissStudyMember(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId,
+            @PathVariable String memberId
+    ) {
+        studyService.dismiss(customUser.getMemberId(), studyId, memberId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{studyId}")
+    public ResponseEntity<Void> removeStudy(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId
+    ) {
+        studyService.remove(customUser.getMemberId(), studyId);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

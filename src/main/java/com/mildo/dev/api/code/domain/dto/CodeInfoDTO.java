@@ -16,7 +16,7 @@ public class CodeInfoDTO {
 
     @CreationTimestamp
     private Timestamp codeSolvedDate;
-    private String codeStatus;
+    private Boolean codeStatus;
     private Time codeTime;
     private String codePerformance;
     private String codeAccuracy;

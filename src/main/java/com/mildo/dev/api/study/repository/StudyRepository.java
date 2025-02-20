@@ -1,12 +1,15 @@
 package com.mildo.dev.api.study.repository;
 
+import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.study.domain.entity.StudyEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,4 +33,37 @@ public interface StudyRepository extends JpaRepository<StudyEntity, String>, Cus
             where s.studyId = :studyId
             """)
     Optional<StudyEntity> findByIdCascade(@Param("studyId") String studyId);
+
+    /*
+    TODO 파라미터로 String memberId만 넘기는 게 좋을까 MemberEntity member 객체를 통으로 넘기는 게 좋을까.
+        뭔가 후자가 더 객체지향적인 것 같긴 함
+     */
+    @Modifying
+    @Query("""
+            delete from CodeEntity c
+            where c.memberEntity.memberId = :memberId
+            """)
+    int deleteMemberCode(@Param("memberId") String memberId);
+
+    @Modifying
+    @Query("""
+            delete from CommentEntity c
+            where c.memberEntity.memberId = :memberId
+            """)
+    int deleteMemberComment(@Param("memberId") String memberId);
+
+    @Modifying
+    @Query("""
+            delete from CodeEntity c
+            where c.memberEntity.memberId in :memberIds
+            """)
+    int deleteAllMemberCode(@Param("memberIds") Set<String> memberIds);
+
+    @Modifying
+    @Query("""
+            delete from CommentEntity c
+            where c.memberEntity.memberId in :memberIds
+            """)
+    int deleteAllMemberComment(@Param("memberIds") Set<String> memberIds);
+
 }

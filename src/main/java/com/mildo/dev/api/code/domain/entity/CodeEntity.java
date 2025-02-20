@@ -49,7 +49,7 @@ public class CodeEntity {
     private String codeAnnotation;
 
     @Column(name = "code_status")
-    private String codeStatus;
+    private Boolean codeStatus;
 
     @Column(name = "code_time")
     private Time codeTime;

@@ -152,7 +152,7 @@ public class MemberService {
                 member.getMemberId(),
                 member.getName(),
                 member.getEmail(),
-                member.getStudyEntity().getStudyId(),
+                member.getStudyEntity() != null ? member.getStudyEntity().getStudyId() : null,
                 member.getImgUrl()
         )).orElseThrow(() -> new RuntimeException("해당 ID의 회원이 존재하지 않습니다."));
     }
