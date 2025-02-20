@@ -14,6 +14,7 @@ import com.mildo.dev.api.member.domain.entity.MemberEntity;
 import com.mildo.dev.api.member.domain.entity.TokenEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.member.repository.TokenRepository;
+import com.mildo.dev.api.study.service.StudyService;
 import com.mildo.dev.global.exception.exceptionClass.TokenException;
 import com.mildo.dev.global.oauth.jwt.JwtInterface;
 import com.mildo.dev.global.oauth.jwt.JwtTokenProvider;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -41,6 +43,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final TokenRepository tokenRepository;
+    private final StudyService studyService;
     private final JwtInterface jwtInterface;
     private final CodeRepository codeRepository;
     private final AmazonS3Client amazonS3Client;
@@ -194,8 +197,14 @@ public class MemberService {
                 member.getImgUrl());
     }
 
+    @Transactional
     public void deleteMember(String memberId){
         MemberEntity member = vaildMemberId(memberId);
+
+        if (member.getStudyEntity() == null || member.getStudyEntity().getStudyId() == null) {
+            deleteMemberAndS3(member);
+            return;
+        }
 
         long count = memberRepository.countMembersByStudyId(member.getStudyEntity().getStudyId());
 
@@ -203,15 +212,23 @@ public class MemberService {
             throw new RuntimeException("YOU LEADER CHANGE");
         }
 
-        if(!basic.equals(member.getImgUrl())){
-            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, memberId));
+        if (count == 1) {
+            studyService.remove(member.getMemberId(), member.getStudyEntity().getStudyId());
         }
 
-        memberRepository.delete(member);
+        deleteMemberAndS3(member);
+    }
 
-//        if (count == 1) {
-//            studyRepository.deleteById(member.getStudyEntity().getStudyId());
-//        }
+    private void deleteMemberAndS3(MemberEntity member) {
+        try {
+            memberRepository.delete(member);
+        } catch (Exception e) {
+            throw new RuntimeException("멤버 삭제 중 오류가 발생 DB 롤백", e);
+        }
+
+        if (!basic.equals(member.getImgUrl())) {
+            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, member.getMemberId()));
+        }
     }
 
     public ProblemMemberDto problemMember(String memberId){

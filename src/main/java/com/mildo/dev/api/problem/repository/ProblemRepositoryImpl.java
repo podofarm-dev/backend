@@ -32,34 +32,19 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
 
         BooleanBuilder whereClause = new BooleanBuilder();
 
-        // 문제 제목 검색 조건
         if (title != null && !title.isEmpty()) {
             whereClause.and(problem.problemTitle.contains(title));
         }
+        if ("Y".equals(category)) {
+            whereClause.and(code.codeStatus.isTrue());
+        } else if ("N".equals(category)) {
+            whereClause.and(code.codeStatus.isFalse());
+        }
 
-        // memberId 조건이 있을 때만 JOIN (불필요한 조인을 방지)
         BooleanBuilder joinCondition = new BooleanBuilder();
         if (memberId != null && !memberId.isEmpty()) {
             joinCondition.and(code.memberEntity.memberId.eq(memberId));
         }
-
-        // 정렬 조건 설정
-        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
-
-        if ("Y".equals(category)) {
-            // status가 'Y'인 것을 먼저 정렬
-            orderSpecifiers.add(new CaseBuilder()
-                    .when(code.codeStatus.isTrue()).then(1)
-                    .otherwise(2).asc());
-        } else if ("N".equals(category)) {
-            // status가 NULL인 것을 먼저 정렬
-            orderSpecifiers.add(new CaseBuilder()
-                    .when(code.codeStatus.isFalse()).then(1)
-                    .otherwise(2).asc());
-        }
-
-        // 항상 problemNo 순으로 정렬
-        orderSpecifiers.add(problem.problemNo.asc());
 
         // QueryDSL로 쿼리 작성
         JPAQuery<ProblemListDslDto> query = queryFactory
@@ -74,7 +59,7 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
                 .from(problem)
                 .leftJoin(code).on(problem.problemId.eq(code.problemEntity.problemId).and(joinCondition)) // 동적 JOIN 조건 추가
                 .where(whereClause)
-                .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0])) // 동적 정렬 적용
+                .orderBy(problem.problemNo.asc()) // 동적 정렬 적용
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
@@ -91,7 +76,6 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
 
         // Page 객체로 래핑하여 반환
         return new PageImpl<>(content, pageable, total);
-
     }
 
 }

@@ -11,24 +11,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CustomOAuthUserService extends DefaultOAuth2UserService {
 
     private static final Logger log = LoggerFactory.getLogger(MemberController.class);
-
     private final MemberRepository memberRepository;
+    private final String basic;
 
-    public CustomOAuthUserService(MemberRepository memberRepository) {
+    public CustomOAuthUserService(MemberRepository memberRepository, @Value("${BASIC_URL}") String basic) {
         this.memberRepository = memberRepository;
+        this.basic = basic;
     }
-
-    @Value("${BASIC_URL}")
-    private String basic;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oAuth2User = super.loadUser(userRequest); // 정보
-        log.info("oAuth2User = {}", oAuth2User);
 
         String googleId = (String) oAuth2User.getAttributes().get("sub");
         String email = oAuth2User.getAttribute("email"); // 이메일
