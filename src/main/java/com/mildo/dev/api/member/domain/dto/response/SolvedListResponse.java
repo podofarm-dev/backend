@@ -1,6 +1,7 @@
 package com.mildo.dev.api.member.domain.dto.response;
 
 import com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO;
+import com.mildo.dev.api.study.service.utils.DashBoardUtils;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -23,10 +24,11 @@ public class SolvedListResponse {
         private Long problemNo;
         private Long problemId;
         private String problemTitle;
-        private String problemLevel;
+        private Integer problemLevel;
         private String problemType;
         private Timestamp codeSolvedDate;
         private Time codeTime;
+
     }
 
     @Getter
@@ -45,7 +47,7 @@ public class SolvedListResponse {
                                 .problemNo(solved.getProblemNo())
                                 .problemId(solved.getProblemId())
                                 .problemTitle(solved.getProblemTitle())
-                                .problemLevel(solved.getProblemLevel())
+                                .problemLevel(DashBoardUtils.getLevel(solved.getProblemLevel()))
                                 .problemType(solved.getProblemType())
                                 .codeSolvedDate(solved.getCodeSolvedDate())
                                 .codeTime(solved.getCodeTime())

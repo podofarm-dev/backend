@@ -16,9 +16,6 @@ import java.util.Optional;
 @Repository
 public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
 
-    @Query("SELECT new com.mildo.dev.api.code.domain.dto.request.CodeLevelDTO(c.problemEntity.problemLevel, COUNT(c)) FROM CodeEntity c WHERE c.memberEntity.memberId = :memberId GROUP BY c.problemEntity.problemLevel")
-    List<CodeLevelDTO> findSolvedProblemLevelCountByMemberId(@Param("memberId") String memberId);
-
     @Query(value = "SELECT new com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO(" +
             "c.codeNo, c.problemEntity.problemId, c.problemEntity.problemTitle, c.problemEntity.problemLevel, " +
             "c.problemEntity.problemType, c.codeSolvedDate, c.codeTime) " +
