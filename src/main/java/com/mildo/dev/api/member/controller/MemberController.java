@@ -2,8 +2,6 @@ package com.mildo.dev.api.member.controller;
 
 import com.amazonaws.AmazonServiceException;
 import com.mildo.dev.api.code.domain.dto.CodeInfoDTO;
-import com.mildo.dev.api.code.domain.dto.response.SolvedProblemResponse;
-import com.mildo.dev.api.code.domain.entity.CodeEntity;
 import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
@@ -43,15 +41,11 @@ public class MemberController {
 
     @ResponseBody
     @PostMapping(value = "/tokens", produces = "application/json; charset=UTF-8")
-    public TokenResponse tokenMake(@RequestBody TokenResponse memberId, HttpServletResponse response){
-        try{
-            TokenDto res = userService.token(memberId.getMemberId());
-            Cookie refreshTokenCookie = CookieUtil.createCookie("RefreshToken", res.getRefreshToken(), -1);
-            response.addCookie(refreshTokenCookie);
-            return new TokenResponse(res.getMemberId(), res.getAccessToken());
-        }catch (RuntimeException ex){
-            throw  new RuntimeException("Member not found");
-        }
+    public TokenResponse generateToken(@RequestBody TokenDto memberId, HttpServletResponse response){
+        TokenDto res = userService.generateToken(memberId.getMemberId());
+        Cookie refreshTokenCookie = CookieUtil.createCookie("RefreshToken", res.getRefreshToken(), -1);
+        response.addCookie(refreshTokenCookie);
+        return new TokenResponse(res.getMemberId(), res.getAccessToken());
     }
 
     @ResponseBody
@@ -67,20 +61,6 @@ public class MemberController {
         catch (TokenException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
-    }
-
-    @ResponseBody
-    @GetMapping(value="/{memberId}/level", produces="application/json; charset=UTF-8")
-    public ResponseEntity<?> levelCount(@PathVariable String memberId,
-                                        @AuthenticationPrincipal CustomUser customUser)
-    {
-        if (!memberId.equals(customUser.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
-        }
-
-        SolvedProblemResponse LevelCount = userService.memberLevel(customUser.getMemberId());
-        return ResponseEntity.status(HttpStatus.OK).body(LevelCount);
     }
 
     @ResponseBody
@@ -111,7 +91,7 @@ public class MemberController {
     @GetMapping(value = "/info", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> memberInfo(@AuthenticationPrincipal CustomUser customUser)
     {
-        MemberInfoDTO memberInfo = userService.memberInfo(customUser.getMemberId());
+        MemberInfoResponse memberInfo = userService.memberInfo(customUser.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(memberInfo);
     }
 
@@ -120,23 +100,18 @@ public class MemberController {
     public ResponseEntity<?> updateUser(@Valid @RequestBody MemberReNameDto nameDto,
                                         @AuthenticationPrincipal CustomUser customUser)
     {
-        MemberInfoDTO res = userService.updateUser(nameDto, customUser.getMemberId());
+        MemberInfoResponse res = userService.updateUser(nameDto, customUser.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @ResponseBody
     @PatchMapping(value="/{memberId}/upload", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file,
-                                        @AuthenticationPrincipal CustomUser customUser,
-                                        @PathVariable String memberId)
+                                        @PathVariable String memberId,
+                                        @AuthenticationPrincipal CustomUser customUser)
     {
-        if (!memberId.equals(customUser.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
-        }
-
         try {
-            MemberInfoDTO dto = userService.uploadImg(file, customUser.getMemberId());
+            MemberInfoResponse dto = userService.uploadImg(file, memberId, customUser.getMemberId());
             return ResponseEntity.ok(dto);
         } catch (IOException e) {
             throw  new RuntimeException("File not found");
@@ -150,12 +125,7 @@ public class MemberController {
     public ResponseEntity<?> deleteMember(@PathVariable String memberId,
                                           @AuthenticationPrincipal CustomUser customUser)
     {
-        if (!memberId.equals(customUser.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
-        }
-
-        userService.deleteMember(customUser.getMemberId());
+        userService.deleteMember(memberId, customUser.getMemberId());
         return ResponseEntity.ok("삭제 성공");
     }
 
@@ -164,11 +134,7 @@ public class MemberController {
     public ResponseEntity<?> problem(@PathVariable String memberId,
                                      @AuthenticationPrincipal CustomUser customUser)
     {
-        if (!memberId.equals(customUser.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
-        }
-        ProblemMemberDto res = userService.problemMember(customUser.getMemberId());
+        ProblemPageInfoResponse res = userService.problemPageInfo(memberId, customUser.getMemberId());
         return ResponseEntity.ok(res);
     }
 
@@ -178,12 +144,7 @@ public class MemberController {
                                           @PathVariable String studyId,
                                           @AuthenticationPrincipal CustomUser customUser)
     {
-        if (!memberId.equals(customUser.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("memberId와 로그인한 사용자의 ID가 다릅니다.");
-        }
-
-        Optional<SolvedMemberListDto> res = userService.solvedMember(customUser.getMemberId(), studyId);
+        Optional<SolvedMemberListResponse> res = userService.solvedMember(memberId, customUser.getMemberId(), studyId);
         return ResponseEntity.ok(res);
     }
 

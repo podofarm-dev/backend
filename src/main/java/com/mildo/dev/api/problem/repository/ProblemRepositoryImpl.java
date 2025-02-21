@@ -46,6 +46,12 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
             joinCondition.and(code.memberEntity.memberId.eq(memberId));
         }
 
+        OrderSpecifier<?> orderSpecifier = problem.problemNo.asc();
+
+        if ("Y".equals(category)) {
+            orderSpecifier = code.codeSolvedDate.asc();
+        }
+
         // QueryDSL로 쿼리 작성
         JPAQuery<ProblemListDslDto> query = queryFactory
                 .select(new QProblemListDslDto(
@@ -59,7 +65,7 @@ public class ProblemRepositoryImpl implements ProblemRepositoryCustom{
                 .from(problem)
                 .leftJoin(code).on(problem.problemId.eq(code.problemEntity.problemId).and(joinCondition)) // 동적 JOIN 조건 추가
                 .where(whereClause)
-                .orderBy(problem.problemNo.asc()) // 동적 정렬 적용
+                .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 

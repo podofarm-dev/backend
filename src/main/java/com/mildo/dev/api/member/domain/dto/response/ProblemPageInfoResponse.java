@@ -9,16 +9,12 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SolvedMemberListDto {
+public class ProblemPageInfoResponse {
 
-    private String studyId;
-    private String memberId;
     private String name;
-    private int solvedProblem;
+    private String memberId;
     private String imgUrl;
-    private int rank;
+    private Long solvedCount;
 
-    public void setRank(int rank) {
-        this.rank = rank;
-    }
+
 }

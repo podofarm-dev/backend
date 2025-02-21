@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mildo.dev.api.code.service.CodeService;
-import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
-import com.mildo.dev.api.member.domain.dto.response.MemberInfoDTO;
 import com.mildo.dev.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
