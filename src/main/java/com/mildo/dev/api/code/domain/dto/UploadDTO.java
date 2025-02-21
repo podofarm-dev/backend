@@ -18,6 +18,7 @@ public class UploadDTO {
     private String annotation;
     private String status;
     private String annotatedSource;
+    private String accuracy;
 
     public UploadDTO(JsonNode request) {
         this.memberId = request.get("id").asText();
@@ -28,6 +29,8 @@ public class UploadDTO {
         this.annotation = "/** 주석 공간 테스트 */";
         this.status = "Y";
         this.annotatedSource = annotation + "\n" + source;
+        this.accuracy = request.get("resultMessage").asText();
+        this.performance = request.get("commitMessage").asText();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {
