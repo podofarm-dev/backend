@@ -1,5 +1,6 @@
 package com.mildo.dev.global.exception;
 
+import com.mildo.dev.global.exception.exceptionClass.MemberEqException;
 import com.mildo.dev.global.exception.exceptionClass.ServerUnstableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,10 +39,17 @@ public class GlobalException {
     }
 
     @ExceptionHandler(ServerUnstableException.class)
-    public ResponseEntity<Map<String, String>> handleServerUnstableExceptionException(ServerUnstableException ex) {
+    public ResponseEntity<Map<String, String>> handleServerUnstableExceptionException(ServerUnstableException e) {
         Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", ex.getMessage());
+        errorResponse.put("error", e.getMessage());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(errorResponse);
+    }
+
+    @ExceptionHandler(MemberEqException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedAccessException(MemberEqException e) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 
 }

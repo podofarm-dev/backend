@@ -28,6 +28,10 @@ public class ProblemListResponse {
         private String problemLink;
         private Boolean status;
         private List<String> img;
+
+        public String getProblemLevel() {
+            return problemLevel.replaceAll("\\D+", "");
+        }
     }
 
     @Getter

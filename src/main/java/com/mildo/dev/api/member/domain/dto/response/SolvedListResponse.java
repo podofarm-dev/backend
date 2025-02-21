@@ -27,6 +27,10 @@ public class SolvedListResponse {
         private String problemType;
         private Timestamp codeSolvedDate;
         private Time codeTime;
+
+        public String getProblemLevel() {
+            return problemLevel.replaceAll("\\D+", "");
+        }
     }
 
     @Getter
