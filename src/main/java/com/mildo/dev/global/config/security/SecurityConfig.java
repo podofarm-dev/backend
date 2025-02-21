@@ -5,6 +5,7 @@ import com.mildo.dev.api.member.customoauth.handler.CustomOAuthUserService;
 import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.member.repository.TokenRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,11 +26,16 @@ public class SecurityConfig {
     private final MemberRepository userRepository;
     private final TokenRepository tokenRepository;
     private final CorsFilter corsFilter;
+    private final CustomOAuthUserService customOAuthUserService;
 
-    public SecurityConfig(MemberRepository userRepository, TokenRepository tokenRepository, CorsFilter corsFilter) {
+    @Value("${BASIC_URL}")
+    private String basic;
+
+    public SecurityConfig(MemberRepository userRepository, TokenRepository tokenRepository, CorsFilter corsFilter, CustomOAuthUserService customOAuthUserService) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.corsFilter = corsFilter;
+        this.customOAuthUserService = customOAuthUserService;
     }
 
     @Bean
@@ -65,7 +71,7 @@ public class SecurityConfig {
     }
 
     private OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuthUserService() {
-        return new CustomOAuthUserService(userRepository);
+        return new CustomOAuthUserService(userRepository, basic);
     }
 
 }
