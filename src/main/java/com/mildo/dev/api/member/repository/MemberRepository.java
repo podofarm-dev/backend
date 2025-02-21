@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,11 +41,13 @@ public interface MemberRepository extends JpaRepository<MemberEntity, String> {
 
 
     @Query("""
-            select m 
-            from MemberEntity m 
-            where m.studyEntity.studyId = :studyId
+            select m
+            from MemberEntity m
+            where m.studyEntity.studyId = :studyId and m.isParticipant <= :endOfMonth
             order by case when m.memberId = :loggedIn then 0 else 1 end, m.name asc
             """)
-    List<MemberEntity> findInStudySorted(@Param("studyId") String studyId, @Param("loggedIn") String loggedIn);
+    List<MemberEntity> findInStudySorted(@Param("studyId") String studyId,
+                                         @Param("loggedIn") String loggedIn,
+                                         @Param("endOfMonth") Date endOfMonth);
 
 }

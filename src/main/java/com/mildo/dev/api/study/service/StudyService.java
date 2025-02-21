@@ -119,8 +119,9 @@ public class StudyService {
         //1. 사용자와 스터디의 존재 여부 및 관계 확인
         checkValidMemberAndStudy(memberId, studyId);
 
-        //2. 스터디에 참여하고 있는 모든 사용자 ID 조회
-        List<MemberEntity> members = memberRepository.findInStudySorted(studyId, memberId);
+        //2. yearMonth 이후 스터디에 참여하고 있는 모든 사용자 ID 조회
+        Date endOfMonth = Date.valueOf(yearMonth.atEndOfMonth());
+        List<MemberEntity> members = memberRepository.findInStudySorted(studyId, memberId, endOfMonth);
         List<String> memberIds = members.stream()
                 .map(MemberEntity::getMemberId)
                 .collect(toList());
