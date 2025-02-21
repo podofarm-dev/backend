@@ -52,6 +52,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 pathMatcher.match("/dev-login", requestURI) ||
                 pathMatcher.match("/member/tokens", requestURI) ||
                 pathMatcher.match("/member/tokens/refresh", requestURI) ||
+                pathMatcher.match("/code/receive-sync", requestURI) ||
+                pathMatcher.match("/code/receive-data", requestURI) ||
+                pathMatcher.match("/code/upload", requestURI) ||
+
                 requestURI.startsWith("/public") ||
                 requestURI.startsWith("/actuator") ||  // Spring Boot Actuator 엔드포인트 (Prometheus 메트릭 수집)
                 requestURI.startsWith("/actuator/**") ||
