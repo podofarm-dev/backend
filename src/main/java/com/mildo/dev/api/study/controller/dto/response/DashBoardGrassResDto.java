@@ -61,7 +61,9 @@ public class DashBoardGrassResDto {
 
         for (GrassInfoDto aRepoDto : repoDto) {
             MemberGrassResDto resDto = result.get(aRepoDto.getMemberId());
-            resDto.getGrass().get(aRepoDto.getDate() - 1).plus(aRepoDto.getValue());
+            if (resDto != null) {
+                resDto.getGrass().get(aRepoDto.getDate() - 1).plus(aRepoDto.getValue());
+            }
         }
 
         return new DashBoardGrassResDto(result.values().stream().toList());
