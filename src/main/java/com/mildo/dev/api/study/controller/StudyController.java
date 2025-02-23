@@ -4,7 +4,8 @@ import com.mildo.dev.api.member.customoauth.dto.CustomUser;
 import com.mildo.dev.api.study.controller.dto.request.DailySolvedSearchCond;
 import com.mildo.dev.api.study.controller.dto.request.StudyCreateReqDto;
 import com.mildo.dev.api.study.controller.dto.request.StudyJoinReqDto;
-import com.mildo.dev.api.study.controller.dto.request.StudyUpdateReqDto;
+import com.mildo.dev.api.study.controller.dto.request.StudyLeaderUpdateReqDto;
+import com.mildo.dev.api.study.controller.dto.request.StudyNameUpdateReqDto;
 import com.mildo.dev.api.study.controller.dto.response.DailySolvedResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardFrameResDto;
 import com.mildo.dev.api.study.controller.dto.response.DashBoardGrassResDto;
@@ -118,13 +119,23 @@ public class StudyController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @PatchMapping("/{studyId}")
-    public ResponseEntity<StudyDetailResDto> modifyStudy(
+    @PatchMapping("/{studyId}/name")
+    public ResponseEntity<StudyDetailResDto> modifyStudyName(
             @AuthenticationPrincipal CustomUser customUser,
             @PathVariable String studyId,
-            @RequestBody StudyUpdateReqDto requestDto
+            @RequestBody StudyNameUpdateReqDto requestDto
     ) {
-        StudyDetailResDto responseDto = studyService.updateStudy(customUser.getMemberId(), studyId, requestDto);
+        StudyDetailResDto responseDto = studyService.updateStudyName(customUser.getMemberId(), studyId, requestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/{studyId}/leader")
+    public ResponseEntity<StudyDetailResDto> modifyStudyLeader(
+            @AuthenticationPrincipal CustomUser customUser,
+            @PathVariable String studyId,
+            @RequestBody StudyLeaderUpdateReqDto requestDto
+    ) {
+        StudyDetailResDto responseDto = studyService.updateStudyLeader(customUser.getMemberId(), studyId, requestDto);
         return ResponseEntity.ok(responseDto);
     }
 
