@@ -2,6 +2,7 @@ package com.mildo.dev.api.problem.domain.dto.response;
 
 import com.mildo.dev.api.member.domain.dto.response.SolvedListResponse;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
+import com.mildo.dev.api.study.service.utils.DashBoardUtils;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ public class ProblemListResponse {
         private Long problemNo;
         private Long problemId;
         private String problemTitle;
-        private String problemLevel;
+        private Integer problemLevel;
         private String problemLink;
         private Boolean status;
         private List<String> img;
@@ -46,7 +47,7 @@ public class ProblemListResponse {
                                 .problemNo(p.getProblemNo())
                                 .problemId(p.getProblemId())
                                 .problemTitle(p.getProblemTitle())
-                                .problemLevel(p.getProblemLevel())
+                                .problemLevel(DashBoardUtils.getLevel(p.getProblemLevel()))
                                 .problemLink(p.getProblemLink())
                                 .status(p.getStatus())
                                 .img(problemSolverMap.getOrDefault(p.getProblemId(), Collections.emptyList()))

@@ -3,9 +3,7 @@ package com.mildo.dev.api.member.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.mildo.dev.api.code.domain.dto.request.CodeLevelDTO;
 import com.mildo.dev.api.code.domain.dto.request.CodeSolvedListDTO;
-import com.mildo.dev.api.code.domain.dto.response.SolvedProblemResponse;
 import com.mildo.dev.api.code.repository.CodeRepository;
 import com.mildo.dev.api.member.domain.dto.request.MemberReNameDto;
 import com.mildo.dev.api.member.domain.dto.request.TokenDto;
@@ -15,6 +13,7 @@ import com.mildo.dev.api.member.domain.entity.TokenEntity;
 import com.mildo.dev.api.member.repository.MemberRepository;
 import com.mildo.dev.api.member.repository.TokenRepository;
 import com.mildo.dev.api.study.service.StudyService;
+import com.mildo.dev.global.exception.exceptionClass.MemberEqException;
 import com.mildo.dev.global.exception.exceptionClass.TokenException;
 import com.mildo.dev.global.oauth.jwt.JwtInterface;
 import com.mildo.dev.global.oauth.jwt.JwtTokenProvider;
@@ -41,6 +40,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
 
+    public static final String LOGGED_IN_MEMEBER_DIFFERENT = "memberId와 로그인한 사용자의 ID가 다릅니다.";
+    public static final String MEMBER_NOT_FOUND = "해당 ID의 회원이 존재하지 않습니다.";
+    public static final String LEADER_CHANGE_REQUEST = "리더 번경 후 재 실행 바랍니다.";
+    public static final String LOGIN_AGAIN = "재 로그인 요청 바랍니다.";
+    public static final String NO_FILES_TO_UPLOAD = "업로드할 파일이 없습니다.";
+
     private final MemberRepository memberRepository;
     private final TokenRepository tokenRepository;
     private final StudyService studyService;
@@ -56,32 +61,40 @@ public class MemberService {
 
     private static final String REFRESH_SECRET_KEY = JwtTokenProvider.REFRESH_TOKEN_SECRET_KEY;
 
-    public TokenDto token(String memberId){
+    public TokenDto generateToken(String memberId){
+        MemberEntity member = vaildMemberId(memberId);
+
         String accessToken = jwtInterface.getAccess(memberId);
         String refreshToken = jwtInterface.getRefresh(memberId);
         Timestamp refreshTime = jwtInterface.getRefreshExpiration(refreshToken);
 
-        // 나중에 멤버 없으면 예외 처리;
-        MemberEntity memberEntity = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+        TokenEntity token = saveOrUpdateToken(member, accessToken, refreshToken, refreshTime);
 
-        Optional<TokenEntity> existingToken = tokenRepository.findByMemberEntity_MemberId(memberId);
-        TokenEntity token;
-        if (existingToken.isPresent()) {
-            token = existingToken.get(); // 객체 가져오기
-            token.setRefreshToken(refreshToken);
-            token.setAccessToken(accessToken);
-            token.setRefreshExpirationTime(refreshTime);
-        } else {
-            token = TokenEntity.builder()
-                    .memberEntity(memberEntity) // memberEntity 관련 만 들어갈 수 있음
-                    .refreshToken(refreshToken)
-                    .accessToken(accessToken)
-                    .refreshExpirationTime(refreshTime)
-                    .build();
-        }
-        tokenRepository.save(token);
         return new TokenDto(memberId, accessToken, refreshToken);
+    }
+
+    private TokenEntity saveOrUpdateToken(MemberEntity member, String accessToken, String refreshToken, Timestamp refreshTime) {
+        return tokenRepository.findByMemberEntity_MemberId(member.getMemberId())
+                .map(existingToken -> updateToken(existingToken, accessToken, refreshToken, refreshTime))
+                .orElseGet(() -> createNewToken(member, accessToken, refreshToken, refreshTime));
+        //  orElseGet() Optional에 값이 없을 때 실행
+    }
+
+    private TokenEntity updateToken(TokenEntity token, String accessToken, String refreshToken, Timestamp refreshTime) {
+        token.setAccessToken(accessToken);
+        token.setRefreshToken(refreshToken);
+        token.setRefreshExpirationTime(refreshTime);
+        return tokenRepository.save(token);
+    }
+
+    private TokenEntity createNewToken(MemberEntity member, String accessToken, String refreshToken, Timestamp refreshTime) {
+        TokenEntity token = TokenEntity.builder()
+                .memberEntity(member)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .refreshExpirationTime(refreshTime)
+                .build();
+        return tokenRepository.save(token);
     }
 
     public TokenResponse refreshNew(String RefreshToken){
@@ -96,7 +109,7 @@ public class MemberService {
 
             TokenEntity token;
             if(!isToken.isPresent()){
-                throw new TokenException("DB Warning - Login Again");
+                throw new TokenException(LOGIN_AGAIN);
             } else{
                 token = isToken.get();
                 token.setAccessToken(accessToken);
@@ -105,36 +118,22 @@ public class MemberService {
             return new TokenResponse(claims.getSubject(), accessToken);
         } catch (ExpiredJwtException e) { // Token 만료 시 발생
             log.error("ExpiredJwtException e = {}", e.getMessage());
-            throw new TokenException("expired - Login Again");
+            throw new TokenException(LOGIN_AGAIN);
         }catch (Exception e) { // 유효하지 않으면
             log.error("Exception e = {}", e.getMessage());
-            throw new TokenException("Faill - Login Again");
+            throw new TokenException(LOGIN_AGAIN);
         }
-    }
-
-    public SolvedProblemResponse memberLevel(String memberId){
-        MemberEntity member = vaildMemberId(memberId);
-        List<CodeLevelDTO> CodeLeverCount = codeRepository.findSolvedProblemLevelCountByMemberId(memberId);
-        return new SolvedProblemResponse(CodeLeverCount);
     }
 
     public SolvedListResponse solvedProblemList(String memberId, int page, int size, String title){
         MemberEntity member = vaildMemberId(memberId);
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<CodeSolvedListDTO> results;
-        if (title != null && !title.isEmpty()) {
-            results = codeRepository.findSolvedProblemListTitleByMemberId(memberId, title, pageable);
-        } else {
-            results = codeRepository.findSolvedProblemListByMemberId(memberId, pageable);
-        }
+        Page<CodeSolvedListDTO> results = title != null && !title.isEmpty()
+                ? codeRepository.findSolvedProblemListTitleByMemberId(memberId, title, pageable)
+                : codeRepository.findSolvedProblemListByMemberId(memberId, pageable);
 
         return SolvedListResponse.solvedDto(results);
-    }
-
-    public MemberEntity vaildMemberId(String memberId){
-        return memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 회원이 존재하지 않습니다."));
     }
 
     public void tokenDelete(String memberId){
@@ -150,55 +149,67 @@ public class MemberService {
         }
     }
 
-    public MemberInfoDTO memberInfo(String memberId){
-        return memberRepository.findByMemberId(memberId).map(member -> new MemberInfoDTO(
+    public MemberInfoResponse memberInfo(String memberId){
+        return memberRepository.findByMemberId(memberId).map(member -> new MemberInfoResponse(
                 member.getMemberId(),
                 member.getName(),
                 member.getEmail(),
                 member.getStudyEntity() != null ? member.getStudyEntity().getStudyId() : null,
                 member.getImgUrl()
-        )).orElseThrow(() -> new RuntimeException("해당 ID의 회원이 존재하지 않습니다."));
+        )).orElseThrow(() -> new RuntimeException(MEMBER_NOT_FOUND));
     }
 
-    public MemberInfoDTO updateUser(MemberReNameDto nameDto, String memberId) {
+    public MemberInfoResponse updateUser(MemberReNameDto nameDto, String memberId) {
         MemberEntity member = vaildMemberId(memberId);
 
         member.setName(nameDto.getName());
         memberRepository.save(member);
-        return new MemberInfoDTO( member.getMemberId(),
+        return new MemberInfoResponse( member.getMemberId(),
                 member.getName(),
                 member.getEmail(),
                 member.getStudyEntity().getStudyId(),
                 member.getImgUrl());
     }
 
-    public MemberInfoDTO uploadImg(MultipartFile file, String memberId) throws IOException {
+    public MemberInfoResponse uploadImg(MultipartFile file, String reqMemberId, String memberId) throws IOException {
+        isSameMember(reqMemberId, memberId);
         MemberEntity member = vaildMemberId(memberId);
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException(NO_FILES_TO_UPLOAD);
+        }
 
         if(!basic.equals(member.getImgUrl())){
             amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, memberId));
         }
 
+        String fileUrl = uploadToS3(file, memberId);
+
+        member.setImgUrl(fileUrl);
+        memberRepository.save(member);
+
+        return new MemberInfoResponse( member.getMemberId(),
+                member.getName(),
+                member.getEmail(),
+                member.getStudyEntity().getStudyId(),
+                member.getImgUrl());
+    }
+
+    private String uploadToS3(MultipartFile file, String memberId) throws IOException {
         String fileName = "profile/" + memberId;
         String fileUrl = "https://s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
 
         ObjectMetadata metadata= new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
-        amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
 
-        member.setImgUrl(fileUrl);
-        memberRepository.save(member);
-
-        return new MemberInfoDTO( member.getMemberId(),
-                member.getName(),
-                member.getEmail(),
-                member.getStudyEntity().getStudyId(),
-                member.getImgUrl());
+        amazonS3Client.putObject(bucket,fileName, file.getInputStream(),metadata);
+        return fileUrl;
     }
 
     @Transactional
-    public void deleteMember(String memberId){
+    public void deleteMember(String reqMemberId, String memberId){
+        isSameMember(reqMemberId, memberId);
         MemberEntity member = vaildMemberId(memberId);
 
         if (member.getStudyEntity() == null || member.getStudyEntity().getStudyId() == null) {
@@ -209,7 +220,7 @@ public class MemberService {
         long count = memberRepository.countMembersByStudyId(member.getStudyEntity().getStudyId());
 
         if("Y".equals(member.getLeader()) && count > 1){
-            throw new RuntimeException("YOU LEADER CHANGE");
+            throw new RuntimeException(LEADER_CHANGE_REQUEST);
         }
 
         if (count == 1) {
@@ -231,19 +242,34 @@ public class MemberService {
         }
     }
 
-    public ProblemMemberDto problemMember(String memberId){
+    public ProblemPageInfoResponse problemPageInfo(String reqMemberId, String memberId){
+        isSameMember(reqMemberId, memberId);
+
         MemberEntity member = vaildMemberId(memberId);
         return memberRepository.countProblemByMemberId(memberId);
     }
 
-    public Optional<SolvedMemberListDto> solvedMember(String memberId, String studyId){
+    public Optional<SolvedMemberListResponse> solvedMember(String reqMemberId, String memberId, String studyId){
+        isSameMember(reqMemberId, memberId);
+
         MemberEntity member = vaildMemberId(memberId);
 
-        List<SolvedMemberListDto> members = memberRepository.solvedMemberRanking(studyId);
+        List<SolvedMemberListResponse> members = memberRepository.solvedMemberRanking(studyId);
+
+        assignRanks(members);
+
+        return members.stream()
+                .filter(m -> m.getMemberId().equals(memberId))
+                .findFirst();
+    }
+
+    private void assignRanks(List<SolvedMemberListResponse> members) {
+        // 문제 풀이 수를 기준으로 내림차순 정렬
         // sort 메서드를 이용해서 Integer.compare 정수 비교 메서드 사용해서 정렬
         // a 객체가 0번째 인덱스에 오고 b 객체가 a보다 크면 앞으로 오고 작으면 뒤로 가고 값이 같으면 순서를 바꾸지 않는 방식
         members.sort((a, b) -> Integer.compare(b.getSolvedProblem(), a.getSolvedProblem()));
 
+        // 순위 부여
         int rank = 1;
         for (int i = 0; i < members.size(); i++) {
             if (i > 0 && members.get(i).getSolvedProblem() < members.get(i - 1).getSolvedProblem()) {
@@ -251,12 +277,19 @@ public class MemberService {
             }
             members.get(i).setRank(rank);
         }
-
-        return members.stream()
-                .filter(m -> m.getMemberId().equals(memberId))
-                .findFirst();
     }
 
+
+    public MemberEntity vaildMemberId(String memberId){
+        return memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new IllegalArgumentException(MEMBER_NOT_FOUND));
+    }
+
+    private static void isSameMember(String reqMemberId, String memberId) {
+        if (!memberId.equals(reqMemberId)) {
+            throw new MemberEqException(LOGGED_IN_MEMEBER_DIFFERENT);
+        }
+    }
 
     public boolean checkExtensionSync(String userId, String studyId) {
         return memberRepository.checkExtensionSync(userId, studyId);
