@@ -25,7 +25,7 @@ scrape_configs:
         labels:
           job: "spring-boot-logs"
           level: "info"
-          __path__: /home/ubuntu/test_dev/info.log
+          __path__: /home/ubuntu/test_dev/log/info/info.log
 
   - job_name: "error_logs"
     static_configs:
@@ -34,4 +34,4 @@ scrape_configs:
         labels:
           job: "spring-boot-logs"
           level: "error"
-          __path__: /home/ubuntu/test_dev/error.log
+          __path__: /home/ubuntu/test_dev/log/warn_error/error.log
