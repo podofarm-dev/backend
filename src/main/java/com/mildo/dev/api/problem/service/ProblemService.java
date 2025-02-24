@@ -7,6 +7,9 @@ import com.mildo.dev.api.problem.domain.dto.response.ProblemStaticDto;
 import com.mildo.dev.api.problem.domain.entity.ProblemEntity;
 import com.mildo.dev.api.problem.repository.ProblemRepository;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
+import com.mildo.dev.api.study.domain.entity.StudyEntity;
+import com.mildo.dev.api.study.repository.StudyRepository;
+import com.mildo.dev.api.study.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_NOT_FOUND_MSG;
+
 @Slf4j
 @Service
 @Transactional
@@ -27,6 +32,7 @@ import java.util.stream.Collectors;
 public class ProblemService {
 
     private final ProblemRepository problemRepository;
+    private final StudyRepository studyRepository;
 
     public ProblemListResponse getProblemList(String memberId, String studyId, String category, String title, int  page, int size) {
         Pageable pageable = PageRequest.of(page, size);
