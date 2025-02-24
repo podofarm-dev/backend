@@ -2,7 +2,7 @@
 <configuration>
 
     <!-- 로그 파일 저장 위치 설정 -->
-    <property name="LOG_PATH" value="./logs" />
+    <property name="LOG_PATH" value="/home/ubuntu/test_dev/log" />
 
     <!-- 콘솔 로그 패턴 설정 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -13,9 +13,9 @@
 
     <!-- INFO 로그를 저장하는 파일 -->
     <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/home/ubuntu/test_dev/log/info/info.log</file>
+        <file>${LOG_PATH}/info/info.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/home/ubuntu/test_dev/log/info/info-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/info/info-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>3</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -28,9 +28,9 @@
 
     <!-- WARN & ERROR 로그를 저장하는 파일 -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/home/ubuntu/test_dev/log/warn_error/error.log</file>
+        <file>${LOG_PATH}/warn_error/error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/home/ubuntu/test_dev/log/warn_error/error-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/warn_error/error-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>3</maxHistory>
         </rollingPolicy>
         <encoder>
