@@ -1,6 +1,7 @@
 package com.mildo.dev.api.problem.domain.dto.response;
 
 import com.mildo.dev.api.member.domain.dto.response.SolvedListResponse;
+import com.mildo.dev.api.problem.domain.dto.request.UserProfileDto;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
 import com.mildo.dev.api.study.service.utils.DashBoardUtils;
 import lombok.Builder;
@@ -28,7 +29,7 @@ public class ProblemListResponse {
         private Integer problemLevel;
         private String problemLink;
         private Boolean status;
-        private List<String> img;
+        private List<UserProfileDto> img;
     }
 
     @Getter
@@ -40,7 +41,7 @@ public class ProblemListResponse {
         private final int size;
     }
 
-    public static ProblemListResponse problemDto(Page<ProblemListDslDto> res, Map<Long, List<String>> problemSolverMap) {
+    public static ProblemListResponse problemDto(Page<ProblemListDslDto> res, Map<Long, List<UserProfileDto>> problemSolverMap) {
         return ProblemListResponse.builder()
                 .problem(res.stream()
                         .map(p -> ProblemList.builder()
