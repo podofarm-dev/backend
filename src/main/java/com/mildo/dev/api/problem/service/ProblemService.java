@@ -1,5 +1,6 @@
 package com.mildo.dev.api.problem.service;
 
+import com.mildo.dev.api.problem.domain.dto.request.UserProfileDto;
 import com.mildo.dev.api.problem.domain.dto.response.ProblemListResponse;
 import com.mildo.dev.api.problem.domain.dto.request.ProblemSolverDto;
 import com.mildo.dev.api.problem.domain.dto.response.ProblemStaticDto;
@@ -42,9 +43,10 @@ public class ProblemService {
         List<ProblemSolverDto> solvers = problemRepository.findSolversByProblemNos(problemNos, studyId);
 
         // 4. 문제들과 풀었는 문제들 맞춰 넣어 주기
-        Map<Long, List<String>> problemSolverMap = solvers.stream()
+        Map<Long, List<UserProfileDto>> problemSolverMap = solvers.stream()
                 .collect(Collectors.groupingBy(ProblemSolverDto::getProblemNo,
-                        Collectors.mapping(ProblemSolverDto::getImgUrl, Collectors.toList())));
+                        Collectors.mapping(solver -> new UserProfileDto(solver.getImgUrl(), solver.getName()),
+                            Collectors.toList())));
 
         return ProblemListResponse.problemDto(results, problemSolverMap);
     }

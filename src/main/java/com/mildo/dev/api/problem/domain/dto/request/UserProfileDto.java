@@ -1,15 +1,14 @@
 package com.mildo.dev.api.problem.domain.dto.request;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Builder
 @ToString
-public class ProblemSolverDto {
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserProfileDto {
 
-    private Long problemNo;
     private String imgUrl;
     private String name;
 }
