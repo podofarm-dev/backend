@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 @Service
 public class CustomOAuthUserService extends DefaultOAuth2UserService {
 
@@ -33,13 +35,12 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email"); // 이메일
         String username = oAuth2User.getAttribute("name"); //이름
 
+        String defaultImage = generateDefaultImage();
+        log.info("Generated default image: {}", defaultImage);
+
         MemberEntity member = memberRepository.findByGoogleId(googleId);
         if (member == null) {
-            String memberId;
-
-            do {
-                memberId = CodeGenerator.generateRandomCode();
-            } while (memberRepository.findByMemberId(memberId).isPresent());
+            String memberId = generateUniqueMemberId();
 
             member = MemberEntity.builder()
                     .memberId(memberId)
@@ -47,7 +48,7 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
                     .googleId(googleId)
                     .email(email)
                     .leader("N")
-                    .imgUrl(basic)
+                    .imgUrl(defaultImage)
                     .build();
             memberRepository.save(member);
 
@@ -56,6 +57,19 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
         }
 
         return new CustomUser(member.getMemberId(), member.getName(), member.getEmail());
+    }
+
+    private String generateDefaultImage() {
+        int randomNumber = new Random().nextInt(6) + 1;
+        return basic + randomNumber;
+    }
+
+    private String generateUniqueMemberId() {
+        String memberId;
+        do {
+            memberId = CodeGenerator.generateRandomCode();
+        } while (memberRepository.findByMemberId(memberId).isPresent());
+        return memberId;
     }
 
 }
