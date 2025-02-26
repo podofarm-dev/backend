@@ -12,6 +12,7 @@ import java.sql.Time;
 @Setter
 @Builder
 public class CodeInfoDTO {
+    private Long codeNo;
     private String codeSource;
 
     @CreationTimestamp
@@ -20,10 +21,11 @@ public class CodeInfoDTO {
     private Time codeTime;
     private String codePerformance;
     private String codeAccuracy;
-    private String problemType;  
+    private String problemType;
 
     public static CodeInfoDTO fromEntity(CodeEntity code) {
         return CodeInfoDTO.builder()
+                .codeNo(code.getCodeNo())
                 .codeSource(code.getCodeSource())
                 .codeSolvedDate(code.getCodeSolvedDate())
                 .codeStatus(code.getCodeStatus())
