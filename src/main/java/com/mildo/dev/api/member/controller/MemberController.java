@@ -54,13 +54,9 @@ public class MemberController {
         if (RefreshToken == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cookie is missing");
         }
-        try {
-            TokenResponse res = userService.refreshNew(RefreshToken);
-            return ResponseEntity.ok(res);
-        }
-        catch (TokenException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
+
+        TokenResponse res = userService.refreshNew(RefreshToken);
+        return ResponseEntity.ok(res);
     }
 
     @ResponseBody
