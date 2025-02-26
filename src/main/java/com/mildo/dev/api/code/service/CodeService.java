@@ -149,4 +149,21 @@ public class CodeService {
         return codeInfoList;
     }
 
+    public String memberSolvedEdit(String memberId, String problemId, String code) {
+        int updatedRows = codeRepository.memberSolvedEdit(memberId, problemId, code);
+        if (updatedRows > 0) {
+            return "코드 수정 성공";
+        } else {
+            return "코드 수정 실패";
+        }
+    }
+
+    public String memberSolvedDelete(String memberId, String problemId) {
+        int updatedRows = codeRepository.memberSolvedDelete(memberId, problemId);
+        if (updatedRows > 0) {
+            return "코드 삭제 성공";
+        } else {
+            return "코드 삭제 실패";
+        }
+    }
 }
