@@ -61,7 +61,6 @@ public class ProblemService {
         ProblemEntity problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new RuntimeException("문제를 찾을 수 없습니다: " + problemId));
 
-
         return ProblemStaticDto.formatTitle(problem);
     }
 
