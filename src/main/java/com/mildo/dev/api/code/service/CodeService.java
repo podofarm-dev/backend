@@ -143,8 +143,9 @@ public class CodeService {
         List<CodeEntity> codeEntities = codeRepository.findByMemberEntity_MemberIdAndProblemEntity_ProblemId(memberId, problemId);
         List<CodeInfoDTO> codeInfoList = new ArrayList<>();
 
-        for (int i = 0; i < codeEntities.size(); i++)
-            codeInfoList.add(CodeInfoDTO.fromEntity(codeEntities.get(i)));
+        for (CodeEntity codeEntity : codeEntities) {
+            codeInfoList.add(CodeInfoDTO.fromEntity(codeEntity));
+        }
 
         return codeInfoList;
     }

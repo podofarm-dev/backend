@@ -39,7 +39,6 @@ public class ProblemController {
         Map<String, String> response = new HashMap<>();
         response.put("readme", problemDto.getReadme());
         response.put("title", problemDto.formatTitle());
-
         return ResponseEntity.ok(response);
     }
 
