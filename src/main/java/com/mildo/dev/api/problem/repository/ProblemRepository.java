@@ -23,5 +23,5 @@ public interface ProblemRepository extends JpaRepository<ProblemEntity, Long>, P
     Optional<ProblemEntity> findByProblemId(Long problemId);
 
     @Query("SELECT c.codeNo FROM CodeEntity c WHERE c.problemEntity.problemId = :problemId")
-    Optional<Long> findCodeNoByProblemId(@Param("problemId") Long problemId); // ✅ 추가
+    Optional<Long> findCodeNoByProblemId(@Param("problemId") Long problemId);
 }
