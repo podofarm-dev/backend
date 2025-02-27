@@ -3,6 +3,8 @@ package com.mildo.dev.api.code.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mildo.dev.api.code.domain.dto.request.OpenAIRequest;
+import com.mildo.dev.api.code.domain.dto.response.OpenAIResponse;
 import com.mildo.dev.api.code.service.CodeService;
 import com.mildo.dev.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -124,6 +126,11 @@ public class CodeController {
     {
         CommentResponse resComment = codeService.updateComment(codeNo, commentNo, comment.getCommentContent(), customUser.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(resComment);
+    }
+
+    @PostMapping("/analyze")
+    public OpenAIResponse analyzeCode(@RequestBody OpenAIRequest request) {
+        return codeService.analyzeCode(request);
     }
 }
 
