@@ -10,7 +10,7 @@ ext {
     springCloudVersion = "2023.0.4"
 }
 
-group = 'com.mildo'
+group = 'com.podofarm'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -82,7 +82,7 @@ dependencies {
     // QueryDSL 디펜던시 추가 끝
 
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
 
