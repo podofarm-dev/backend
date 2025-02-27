@@ -10,7 +10,7 @@ ext {
     springCloudVersion = "2023.0.4"
 }
 
-group = 'com.mildo'
+group = 'com.podofarm'
 version = '0.0.1-SNAPSHOT'
 
 java {

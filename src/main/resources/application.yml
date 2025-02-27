@@ -47,3 +47,7 @@ management:
   endpoint:
     prometheus:
       enabled: true
+
+domain:
+  front: "${FRONTEND_DOMAIN}"
+  back: "${BACKEND_DOMAIN}"
