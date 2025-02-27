@@ -1,11 +1,15 @@
 package com.mildo.dev.api.problem.service;
 
+import com.mildo.dev.api.problem.domain.dto.request.UserProfileDto;
 import com.mildo.dev.api.problem.domain.dto.response.ProblemListResponse;
 import com.mildo.dev.api.problem.domain.dto.request.ProblemSolverDto;
 import com.mildo.dev.api.problem.domain.dto.response.ProblemStaticDto;
 import com.mildo.dev.api.problem.domain.entity.ProblemEntity;
 import com.mildo.dev.api.problem.repository.ProblemRepository;
 import com.mildo.dev.api.problem.repository.dto.ProblemListDslDto;
+import com.mildo.dev.api.study.domain.entity.StudyEntity;
+import com.mildo.dev.api.study.repository.StudyRepository;
+import com.mildo.dev.api.study.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,6 +23,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import static com.mildo.dev.global.exception.message.ExceptionMessage.STUDY_NOT_FOUND_MSG;
+
 @Slf4j
 @Service
 @Transactional
@@ -26,6 +32,7 @@ import java.util.stream.Collectors;
 public class ProblemService {
 
     private final ProblemRepository problemRepository;
+    private final StudyRepository studyRepository;
 
     public ProblemListResponse getProblemList(String memberId, String studyId, String category, String title, int  page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -42,9 +49,10 @@ public class ProblemService {
         List<ProblemSolverDto> solvers = problemRepository.findSolversByProblemNos(problemNos, studyId);
 
         // 4. 문제들과 풀었는 문제들 맞춰 넣어 주기
-        Map<Long, List<String>> problemSolverMap = solvers.stream()
+        Map<Long, List<UserProfileDto>> problemSolverMap = solvers.stream()
                 .collect(Collectors.groupingBy(ProblemSolverDto::getProblemNo,
-                        Collectors.mapping(ProblemSolverDto::getImgUrl, Collectors.toList())));
+                        Collectors.mapping(solver -> new UserProfileDto(solver.getImgUrl(), solver.getName()),
+                            Collectors.toList())));
 
         return ProblemListResponse.problemDto(results, problemSolverMap);
     }
@@ -52,7 +60,6 @@ public class ProblemService {
     public ProblemStaticDto getFormattedProblemInfo(Long problemId) {
         ProblemEntity problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new RuntimeException("문제를 찾을 수 없습니다: " + problemId));
-
 
         return ProblemStaticDto.formatTitle(problem);
     }

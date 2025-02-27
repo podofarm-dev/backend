@@ -179,8 +179,12 @@ public class MemberService {
             throw new IllegalArgumentException(NO_FILES_TO_UPLOAD);
         }
 
-        if(!basic.equals(member.getImgUrl())){
-            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, memberId));
+        for(int i = 1; i <= 6; i++){
+            String basicWithNumber = basic + i;
+            if(basicWithNumber.equals(member.getImgUrl())){
+                amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, memberId));
+                break;
+            }
         }
 
         String fileUrl = uploadToS3(file, memberId);

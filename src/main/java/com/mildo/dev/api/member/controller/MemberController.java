@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -54,13 +55,9 @@ public class MemberController {
         if (RefreshToken == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cookie is missing");
         }
-        try {
-            TokenResponse res = userService.refreshNew(RefreshToken);
-            return ResponseEntity.ok(res);
-        }
-        catch (TokenException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
+
+        TokenResponse res = userService.refreshNew(RefreshToken);
+        return ResponseEntity.ok(res);
     }
 
     @ResponseBody
@@ -164,4 +161,22 @@ public class MemberController {
         return ResponseEntity.ok(codeList);
     }
 
+    @PatchMapping("/edit-code")
+    public ResponseEntity<?> memberSolvedEdit(@RequestBody Map<String, String> requestData) {
+        String memberId = requestData.get("memberId");
+        String problemId = requestData.get("problemId");
+        String code = requestData.get("code");
+
+        String response = codeService.memberSolvedEdit(memberId, problemId, code);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/delete-code")
+    public ResponseEntity<?> memberSolvedDelete(@RequestBody Map<String, String> requestData) {
+        String memberId = requestData.get("memberId");
+        String problemId = requestData.get("problemId");
+
+        String response = codeService.memberSolvedDelete(memberId, problemId);
+        return ResponseEntity.ok(response);
+    }
 }
