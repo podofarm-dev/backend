@@ -2,6 +2,7 @@ package com.podofarm.dev.api.member.controller;
 
 import com.podofarm.dev.api.member.customoauth.dto.CustomUser;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,9 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class HomeController {
 
+    @Value("${domain.front}")
+    private String frontDomain;
+
     @GetMapping("/dev-login")
     public RedirectView login() {
         String redirectUrl = "/oauth2/authorization/google";
@@ -20,16 +24,17 @@ public class HomeController {
 
     @GetMapping("/loginSuccess")
     public RedirectView loginSuccess(@AuthenticationPrincipal CustomUser customUser) {
+        log.info("frontDomain={}", frontDomain);
         String social = "google";
-        String redirectUrl = "http://podofarm.xyz/social-login/" + social + "?memberId=" + customUser.getName();
+        String redirectUrl = "https://" + frontDomain + "/social-login/" + social + "?memberId=" + customUser.getName();
         return new RedirectView(redirectUrl);
     }
 
     @GetMapping("/loginFailure")
     public RedirectView loginFailure(@RequestParam(required = false) String error){
         log.info("error = {}", error);
-
-        String redirectUrl = "http://podofarm.xyz/social-login/fail";
+        log.info("frontDomain={}", frontDomain);
+        String redirectUrl = "https://" + frontDomain + "/social-login/fail";
         return new RedirectView(redirectUrl);
     }
 
