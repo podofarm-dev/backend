@@ -1,6 +1,7 @@
 package com.podofarm.dev.global.config.cors;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -13,9 +14,14 @@ import java.util.Arrays;
 @Configuration
 public class CorsConfig {
 
+    @Value("${domain.front}")
+    private String frontDomain;
+
     // Cors 직접 사용
     @Bean
     public CorsFilter corsFitter(){
+        log.info("frontDomain={}", frontDomain);
+
         log.info("================== Cors 필터1 시작 ========================");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
@@ -29,7 +35,7 @@ public class CorsConfig {
                                                 "http://localhost:5174",
                                                 "http://localhost:5175",
                                                 "https://school.programmers.co.kr",
-                                                "https://podofarm.xyz",
+                                                "https://" + frontDomain,
                                                 "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb")
                                                 );
 
