@@ -248,14 +248,13 @@ public class MemberService {
 
     public ProblemPageInfoResponse problemPageInfo(String reqMemberId, String memberId){
         isSameMember(reqMemberId, memberId);
-
         MemberEntity member = vaildMemberId(memberId);
+
         return memberRepository.countProblemByMemberId(memberId);
     }
 
     public Optional<SolvedMemberListResponse> solvedMember(String reqMemberId, String memberId, String studyId){
         isSameMember(reqMemberId, memberId);
-
         MemberEntity member = vaildMemberId(memberId);
 
         List<SolvedMemberListResponse> members = memberRepository.solvedMemberRanking(studyId);

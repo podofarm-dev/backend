@@ -10,14 +10,11 @@ import com.mildo.dev.api.member.domain.dto.response.*;
 import com.mildo.dev.api.member.service.MemberService;
 import com.mildo.dev.api.utils.cookie.CookieUtil;
 import com.mildo.dev.global.exception.exceptionClass.ServerUnstableException;
-import com.mildo.dev.global.exception.exceptionClass.TokenException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -36,7 +33,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private static final Logger log = LoggerFactory.getLogger(MemberController.class);
     private final MemberService userService;
     private final CodeService codeService;
 
