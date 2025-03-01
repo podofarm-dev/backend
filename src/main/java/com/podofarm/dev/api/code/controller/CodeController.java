@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.podofarm.dev.api.code.service.CodeService;
 import com.podofarm.dev.api.member.service.MemberService;
+import com.podofarm.dev.api.code.domain.dto.request.OpenAIRequest;
+import com.podofarm.dev.api.code.domain.dto.response.OpenAIResponse;
+import com.podofarm.dev.api.code.service.CodeService;
+import com.podofarm.dev.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -124,6 +128,11 @@ public class CodeController {
     {
         CommentResponse resComment = codeService.updateComment(codeNo, commentNo, comment.getCommentContent(), customUser.getMemberId());
         return ResponseEntity.status(HttpStatus.OK).body(resComment);
+    }
+
+    @PostMapping("/analyze")
+    public OpenAIResponse analyzeCode(@RequestBody OpenAIRequest request) {
+        return codeService.analyzeCode(request);
     }
 }
 
