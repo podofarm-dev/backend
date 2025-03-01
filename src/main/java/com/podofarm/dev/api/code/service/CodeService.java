@@ -17,7 +17,6 @@ import com.podofarm.dev.api.member.service.MemberService;
 import com.podofarm.dev.api.problem.domain.entity.ProblemEntity;
 import com.podofarm.dev.api.problem.repository.ProblemRepository;
 import com.podofarm.dev.global.OpenAI.OpenAIConfig;
-import com.podofarm.dev.global.config.OpenAI.OpenAIConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
