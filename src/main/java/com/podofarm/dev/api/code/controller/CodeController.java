@@ -59,6 +59,7 @@ public class CodeController {
             ObjectMapper Data = new ObjectMapper();
             JsonNode convertData = Data.readTree(data);
 
+
             log.info(data);
             if (validateUserStudySync(convertData)) {
                 return ResponseEntity.ok("success");
@@ -76,6 +77,8 @@ public class CodeController {
     public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
         ObjectMapper Data = new ObjectMapper();
         JsonNode convertData = Data.readTree(request);
+
+        log.info(String.valueOf(convertData));
 
         codeService.upload(convertData);
         return ResponseEntity.ok("Upload successful");
@@ -135,7 +138,6 @@ public class CodeController {
         return codeService.analyzeCode(request);
     }
 }
-
 
 
 

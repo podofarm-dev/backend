@@ -16,18 +16,21 @@ public class UploadDTO {
     private String time;
     private String performance;
     private String annotation;
-    private String status;
+    private boolean status;
     private String annotatedSource;
     private String accuracy;
 
     public UploadDTO(JsonNode request) {
         this.memberId = request.get("id").asText();
         this.problemId = request.get("problemId").asText();
+
+
+        //.
         this.source = request.get("sourceText").asText();
         this.time = request.get("timeSpent").asText();
         this.performance = request.get("commitMessage").asText();
         this.annotation = "/** 주석 공간 테스트 */";
-        this.status = "Y";
+        this.status = true;
         this.annotatedSource = annotation + "\n" + source;
         this.accuracy = request.get("resultMessage").asText();
         this.performance = request.get("commitMessage").asText();
