@@ -36,7 +36,10 @@ public class CorsConfig {
                                                 "http://localhost:5175",
                                                 "https://school.programmers.co.kr",
                                                 "https://" + frontDomain,
-                                                "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb")
+                                                "https://www." + frontDomain,
+                                                "https://test.mildo.xyz/*",
+                                                "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb",
+                                                "chrome-extension://bcbabakaolnokikhllajhgchlgeiihld")
                                                 );
 
         config.addAllowedHeader("*"); // 모든 헤데어 응답을 허용

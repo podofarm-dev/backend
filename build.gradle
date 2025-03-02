@@ -10,7 +10,7 @@ ext {
     springCloudVersion = "2023.0.4"
 }
 
-group = 'com.podofarm'
+group = 'com.mildo'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -91,6 +91,11 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //web flux Open API - 비동기 호출
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'io.projectreactor:reactor-core'
+
 }
 
 tasks.named('test') {

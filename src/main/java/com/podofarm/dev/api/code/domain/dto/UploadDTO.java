@@ -16,7 +16,7 @@ public class UploadDTO {
     private String time;
     private String performance;
     private String annotation;
-    private String status;
+    private boolean status;
     private String annotatedSource;
     private String accuracy;
 
@@ -27,10 +27,9 @@ public class UploadDTO {
         this.time = request.get("timeSpent").asText();
         this.performance = request.get("commitMessage").asText();
         this.annotation = "/** 주석 공간 테스트 */";
-        this.status = "Y";
+        this.status = true;
         this.annotatedSource = annotation + "\n" + source;
         this.accuracy = request.get("resultMessage").asText();
-        this.performance = request.get("commitMessage").asText();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {
