@@ -36,6 +36,7 @@ public class CorsConfig {
                                                 "http://localhost:5175",
                                                 "https://school.programmers.co.kr",
                                                 "https://" + frontDomain,
+                                                "https://www." + frontDomain,
                                                 "https://test.mildo.xyz/*",
                                                 "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb")
                                                 );
