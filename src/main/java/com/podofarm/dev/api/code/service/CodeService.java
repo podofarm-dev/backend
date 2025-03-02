@@ -44,23 +44,35 @@ public class CodeService {
     public void upload(JsonNode request) {
         UploadDTO uploadDTO = new UploadDTO(request);
 
-        MemberEntity memberEntity = memberRepository.findById(uploadDTO.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId()));
+        // 1. OpenAI 코드 분석 API를 호출하여 1차 포장된 source 얻기
+        OpenAIRequest openAIRequest = new OpenAIRequest();
+        openAIRequest.setCode(uploadDTO.getSource());
 
+        OpenAIResponse aiResponse = analyzeCode(openAIRequest);
+        String analyzedSource = aiResponse.getAnalyzedCode();
+
+        // 2. problemId로 problem 테이블에서 problemSolution 조회 후 source에 추가
         ProblemEntity problemEntity = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()))
                 .orElseThrow(() -> new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId()));
+
+        // 3. 최종코드 
+        String finalSource = problemEntity.getProblemSolution()  + analyzedSource;
+
+        MemberEntity memberEntity = memberRepository.findById(uploadDTO.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId()));
 
         CodeEntity codeEntity = CodeEntity.builder()
                 .memberEntity(memberEntity)
                 .problemEntity(problemEntity)
-                .codeSource(uploadDTO.getAnnotatedSource())
+                .codeSource(finalSource)
                 .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
                 .codeTime(Time.valueOf(uploadDTO.getTime()))
-                .codeStatus(Boolean.valueOf(uploadDTO.getStatus()))
+                .codeStatus(uploadDTO.isStatus())
                 .build();
 
         codeRepository.save(codeEntity);
     }
+
 
     public CommentListResponse allComment(Long codeNo) {
         CodeEntity code = codeRepository.findByIdWithComments(codeNo)

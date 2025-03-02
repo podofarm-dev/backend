@@ -44,4 +44,11 @@ public class OpenAIResponse {
         @JsonProperty("total_tokens")
         private int totalTokens;
     }
+
+    public String getAnalyzedCode() {
+        if (choices != null && !choices.isEmpty()) {
+            return choices.get(0).getMessage().getContent(); // 첫 번째 응답의 content 반환
+        }
+        return ""; // choices가 비어있으면 빈 문자열 반환
+    }
 }
