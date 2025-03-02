@@ -158,7 +158,7 @@ public class StudyService {
         checkValidMemberAndStudy(memberId, studyId);
 
         //2. 해당 스터디의 최근 활동 정보 조회
-        List<RecentActivityInfoDto> repoDto = studyRepository.searchRecentActivityInfo(studyId);
+        List<RecentActivityInfoDto> repoDto = studyRepository.searchTodayActivityInfo(studyId);
         return LogResDto.fromRepoDto(repoDto, LocalDateTime.now());
     }
 
