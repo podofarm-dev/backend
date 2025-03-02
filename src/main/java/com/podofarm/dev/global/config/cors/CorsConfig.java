@@ -37,7 +37,8 @@ public class CorsConfig {
                                                 "https://school.programmers.co.kr",
                                                 "https://" + frontDomain,
                                                 "https://test.mildo.xyz/*",
-                                                "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb")
+                                                "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb",
+                                                "chrome-extension://bcbabakaolnokikhllajhgchlgeiihld")
                                                 );
 
         config.addAllowedHeader("*"); // 모든 헤데어 응답을 허용
