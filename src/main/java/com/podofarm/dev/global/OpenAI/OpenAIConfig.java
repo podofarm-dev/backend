@@ -20,8 +20,4 @@ public class OpenAIConfig {
         return apiKey;
     }
 
-    public void printConfig() {
-        System.out.println("🔍 OpenAI Model: " + model);
-        System.out.println("🔍 OpenAI API Key: " + (apiKey != null ? "Loaded Successfully" : "Not Set"));
-    }
 }

@@ -68,6 +68,8 @@ public class CodeService {
                 .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
                 .codeTime(Time.valueOf(uploadDTO.getTime()))
                 .codeStatus(uploadDTO.isStatus())
+                .codePerformance(uploadDTO.getPerformance())
+                .codeAccuracy(uploadDTO.getAccuracy())
                 .build();
 
         codeRepository.save(codeEntity);
@@ -171,6 +173,7 @@ public class CodeService {
                 .retrieve()
                 .bodyToMono(OpenAIResponse.class)
                 .block();
+
 
         return response;
     }
