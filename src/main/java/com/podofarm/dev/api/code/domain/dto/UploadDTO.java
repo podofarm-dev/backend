@@ -23,9 +23,6 @@ public class UploadDTO {
     public UploadDTO(JsonNode request) {
         this.memberId = request.get("id").asText();
         this.problemId = request.get("problemId").asText();
-
-
-        //.
         this.source = request.get("sourceText").asText();
         this.time = request.get("timeSpent").asText();
         this.performance = request.get("commitMessage").asText();
@@ -33,7 +30,6 @@ public class UploadDTO {
         this.status = true;
         this.annotatedSource = annotation + "\n" + source;
         this.accuracy = request.get("resultMessage").asText();
-        this.performance = request.get("commitMessage").asText();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {

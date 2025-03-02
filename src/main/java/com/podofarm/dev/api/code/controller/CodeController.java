@@ -32,7 +32,6 @@ public class CodeController {
 
     private final MemberService memberService;
     private final CodeService codeService;
-
     @CrossOrigin(origins = "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb")
     @PostMapping("/receive-sync")
     public ResponseEntity<String> receiveSync(@RequestBody String data) {
@@ -77,9 +76,6 @@ public class CodeController {
     public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
         ObjectMapper Data = new ObjectMapper();
         JsonNode convertData = Data.readTree(request);
-
-        log.info(String.valueOf(convertData));
-
         codeService.upload(convertData);
         return ResponseEntity.ok("Upload successful");
     }

@@ -55,7 +55,7 @@ public class CodeService {
         ProblemEntity problemEntity = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()))
                 .orElseThrow(() -> new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId()));
 
-        // 3. 최종코드 
+        // 3. 최종코드
         String finalSource = problemEntity.getProblemSolution()  + analyzedSource;
 
         MemberEntity memberEntity = memberRepository.findById(uploadDTO.getMemberId())
@@ -68,6 +68,8 @@ public class CodeService {
                 .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
                 .codeTime(Time.valueOf(uploadDTO.getTime()))
                 .codeStatus(uploadDTO.isStatus())
+                .codePerformance(uploadDTO.getPerformance())
+                .codeAccuracy(uploadDTO.getAccuracy())
                 .build();
 
         codeRepository.save(codeEntity);
@@ -171,6 +173,7 @@ public class CodeService {
                 .retrieve()
                 .bodyToMono(OpenAIResponse.class)
                 .block();
+
 
         return response;
     }
