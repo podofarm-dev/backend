@@ -151,7 +151,9 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     }
 
     @Override
-    public List<RecentActivityInfoDto> searchRecentActivityInfo(String studyId) {
+    public List<RecentActivityInfoDto> searchTodayActivityInfo(String studyId) {
+        Timestamp startOfToday = Timestamp.valueOf(LocalDate.now().atStartOfDay());
+
         return query
                 .select(new QRecentActivityInfoDto(
                         memberEntity.memberId,
@@ -165,10 +167,10 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .join(codeEntity.memberEntity, memberEntity)
                 .where(
                         memberEntity.studyEntity.studyId.eq(studyId),
-                        codeEntity.codeStatus.isTrue()
+                        codeEntity.codeStatus.isTrue(),
+                        codeEntity.codeSolvedDate.goe(startOfToday)
                 )
                 .orderBy(codeEntity.codeSolvedDate.desc())
-                .limit(20)
                 .fetch();
     }
 
