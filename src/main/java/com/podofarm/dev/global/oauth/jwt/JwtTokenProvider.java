@@ -24,7 +24,7 @@ public class JwtTokenProvider implements JwtInterface{
                 .setSubject(memberId) // userName을 subject로 설정
 //                .claim("username", user.getUserName()) // 추가 정보 저장
                 .setIssuedAt(new Date()) // 발급 시간 (현재 시간으로 자동 설정)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1시간 후 만료
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60)) // 1시간 후 만료
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY) // 서명
                 .compact();
     }
