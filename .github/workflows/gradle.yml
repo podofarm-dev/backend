@@ -72,7 +72,23 @@ jobs:
       
     # 8. Docker 이미지 빌드
     - name: docker image build
-      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/podofarm .
+      run: |
+        docker build \
+        --build-arg BACKEND_DOMAIN=${{ secrets.BACKEND_DOMAIN }} \
+        --build-arg BASIC_URL=${{ secrets.BASIC_URL }} \
+        --build-arg BUCKET=${{ secrets.BUCKET }} \
+        --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+        --build-arg DB_URL=${{ secrets.DB_URL }} \
+        --build-arg DB_USERNAME=${{ secrets.DB_USERNAME }} \
+        --build-arg FRONTEND_DOMAIN=${{ secrets.FRONTEND_DOMAIN }} \
+        --build-arg GOOGLE_ID=${{ secrets.GOOGLE_ID }} \
+        --build-arg GOOGLE_SECRET=${{ secrets.GOOGLE_SECRET }} \
+        --build-arg REDIRECT_URI=${{ secrets.REDIRECT_URI }} \
+        --build-arg S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} \
+        --build-arg S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} \
+        --build-arg TEST_BACKEND_DOMAIN=${{ secrets.TEST_BACKEND_DOMAIN }} \
+        --build-arg TEST_FRONTEND_DOMAIN=${{ secrets.TEST_FRONTEND_DOMAIN }} \
+        -t ${{ secrets.DOCKERHUB_USERNAME }}/podofarm .
 
     # 9. DockerHub 로그인
     - name: docker login
