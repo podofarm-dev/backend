@@ -282,7 +282,6 @@ public class MemberService {
         }
     }
 
-
     public MemberEntity vaildMemberId(String memberId){
         return memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException(MEMBER_NOT_FOUND));

@@ -145,11 +145,6 @@ public class MemberController {
     * MEMBER별 푼 문제 API
     * */
 
-    @GetMapping("/test")
-    public String Test(){
-        return "TEST";
-    }
-
     @GetMapping("/{memberId}/problem/{problemId}/solved-info")
     public ResponseEntity<List<CodeInfoDTO>> memberSolvedInfo(@PathVariable String problemId,
                                                               @PathVariable String memberId) {
