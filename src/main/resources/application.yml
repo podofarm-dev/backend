@@ -51,3 +51,8 @@ management:
 domain:
   front: "${FRONTEND_DOMAIN}"
   back: "${BACKEND_DOMAIN}"
+
+
+openai:
+  api-key: "${OPENAI_API_KEY}"
+  model: gpt-4

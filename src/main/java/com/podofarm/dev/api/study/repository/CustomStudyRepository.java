@@ -20,6 +20,6 @@ public interface CustomStudyRepository {
 
     List<ProblemInfoDto> searchSolvedProblemInfo(LocalDate date, String memberId);
 
-    List<RecentActivityInfoDto> searchRecentActivityInfo(String studyId);
+    List<RecentActivityInfoDto> searchTodayActivityInfo(String studyId);
 }
 
