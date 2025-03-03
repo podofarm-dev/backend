@@ -1,0 +1,53 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "V1" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 코드 체크아웃
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    # 2. JDK 17 설치
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # 3. 현재 작업 디렉토리 확인
+    - name: Print working directory
+      run: pwd
+
+    # 4. gradlew 파일 확인
+    - name: List files in the directory
+      run: ls -la
+
+    # 5. Gradle 캐시 설정
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    # 6. Gradle Wrapper 실행 권한 추가
+    - name: Set executable permission for gradlew
+      run: chmod +x ./gradlew
+
+    # 7. Gradle 빌드 및 테스트 실행
+    - name: Build with Gradle
+      run: ./gradlew build -x test --no-daemon
