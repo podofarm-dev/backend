@@ -17,22 +17,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-#    env:
-#      BACKEND_DOMAIN : ${{secrets.BACKEND_DOMAIN}}
-#      BASIC_URL : ${{secrets.BASIC_URL}}
-#      BUCKET : ${{secrets.BUCKET}}
-#      DB_PASSWORD : ${{secrets.DB_PASSWORD}}
-#      DB_URL : ${{secrets.DB_URL}}
-#      DB_USERNAME : ${{secrets.DB_USERNAME}}
-#      FRONTEND_DOMAIN : ${{secrets.FRONTEND_DOMAIN}}
-#      GOOGLE_ID : ${{secrets.GOOGLE_ID}}
-#      GOOGLE_SECRET : ${{secrets.GOOGLE_SECRET}}
-#      REDIRECT_URI : ${{secrets.REDIRECT_URI}}
-#      S3_ACCESS_KEY : ${{secrets.S3_ACCESS_KEY}}
-#      S3_SECRET_KEY : ${{secrets.S3_SECRET_KEY}}
-#      TEST_BACKEND_DOMAIN : ${{secrets.TEST_BACKEND_DOMAIN}}
-#      TEST_FRONTEND_DOMAIN : ${{secrets.TEST_FRONTEND_DOMAIN}}
-#      OPENAI_API_KEY : ${{secrets.OPENAI_API_KEY}}
+    env:
+      BACKEND_DOMAIN : ${{secrets.BACKEND_DOMAIN}}
+      BASIC_URL : ${{secrets.BASIC_URL}}
+      BUCKET : ${{secrets.BUCKET}}
+      DB_PASSWORD : ${{secrets.DB_PASSWORD}}
+      DB_URL : ${{secrets.DB_URL}}
+      DB_USERNAME : ${{secrets.DB_USERNAME}}
+      FRONTEND_DOMAIN : ${{secrets.FRONTEND_DOMAIN}}
+      GOOGLE_ID : ${{secrets.GOOGLE_ID}}
+      GOOGLE_SECRET : ${{secrets.GOOGLE_SECRET}}
+      REDIRECT_URI : ${{secrets.REDIRECT_URI}}
+      S3_ACCESS_KEY : ${{secrets.S3_ACCESS_KEY}}
+      S3_SECRET_KEY : ${{secrets.S3_SECRET_KEY}}
+      TEST_BACKEND_DOMAIN : ${{secrets.TEST_BACKEND_DOMAIN}}
+      TEST_FRONTEND_DOMAIN : ${{secrets.TEST_FRONTEND_DOMAIN}}
+      OPENAI_API_KEY : ${{secrets.OPENAI_API_KEY}}
 
     steps:
     # 1. 코드 체크아웃
@@ -75,25 +75,25 @@ jobs:
     - name: docker image build
       run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/podofarm .
 
-#    - name: docker image build
-#      run: |
-#        docker build \
-#        --build-arg BACKEND_DOMAIN=${{ secrets.BACKEND_DOMAIN }} \
-#        --build-arg BASIC_URL=${{ secrets.BASIC_URL }} \
-#        --build-arg BUCKET=${{ secrets.BUCKET }} \
-#        --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-#        --build-arg DB_URL=${{ secrets.DB_URL }} \
-#        --build-arg DB_USERNAME=${{ secrets.DB_USERNAME }} \
-#        --build-arg FRONTEND_DOMAIN=${{ secrets.FRONTEND_DOMAIN }} \
-#        --build-arg GOOGLE_ID=${{ secrets.GOOGLE_ID }} \
-#        --build-arg GOOGLE_SECRET=${{ secrets.GOOGLE_SECRET }} \
-#        --build-arg REDIRECT_URI=${{ secrets.REDIRECT_URI }} \
-#        --build-arg S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} \
-#        --build-arg S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} \
-#        --build-arg TEST_BACKEND_DOMAIN=${{ secrets.TEST_BACKEND_DOMAIN }} \
-#        --build-arg TEST_FRONTEND_DOMAIN=${{ secrets.TEST_FRONTEND_DOMAIN }} \
-#        --build-arg OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-#        -t ${{ secrets.DOCKERHUB_USERNAME }}/podofarm .
+    - name: docker image build
+      run: |
+        docker build \
+        --build-arg BACKEND_DOMAIN=${{ secrets.BACKEND_DOMAIN }} \
+        --build-arg BASIC_URL=${{ secrets.BASIC_URL }} \
+        --build-arg BUCKET=${{ secrets.BUCKET }} \
+        --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+        --build-arg DB_URL=${{ secrets.DB_URL }} \
+        --build-arg DB_USERNAME=${{ secrets.DB_USERNAME }} \
+        --build-arg FRONTEND_DOMAIN=${{ secrets.FRONTEND_DOMAIN }} \
+        --build-arg GOOGLE_ID=${{ secrets.GOOGLE_ID }} \
+        --build-arg GOOGLE_SECRET=${{ secrets.GOOGLE_SECRET }} \
+        --build-arg REDIRECT_URI=${{ secrets.REDIRECT_URI }} \
+        --build-arg S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} \
+        --build-arg S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} \
+        --build-arg TEST_BACKEND_DOMAIN=${{ secrets.TEST_BACKEND_DOMAIN }} \
+        --build-arg TEST_FRONTEND_DOMAIN=${{ secrets.TEST_FRONTEND_DOMAIN }} \
+        --build-arg OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+        -t ${{ secrets.DOCKERHUB_USERNAME }}/podofarm .
 
     # 9. DockerHub 로그인
     - name: docker login
@@ -117,5 +117,4 @@ jobs:
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fodofarm
           docker stop myapp || true
           docker rm myapp || true
-          docker run -d --name myapp -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/fodofarm
-          
+          docker run -d --name myapp -p 8081:8081 ${{ secrets.DOCKERHUB_USERNAME }}/fodofarm
