@@ -73,6 +73,9 @@ jobs:
       
     # 8. Docker 이미지 빌드
     - name: docker image build
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/podofarm .
+
+    - name: docker image build
       run: |
         docker build \
         --build-arg BACKEND_DOMAIN=${{ secrets.BACKEND_DOMAIN }} \
@@ -102,3 +105,16 @@ jobs:
     # 10. Docker Hub 이미지 푸시
     - name: docker Hub push
       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
+
+    # 11. EC2 자동 배포 명령어
+    - name: SSH to EC2 and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
+          docker stop myapp || true
+          docker rm myapp || true
+          docker run -d --name myapp -p 8081:8081 ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
