@@ -73,6 +73,8 @@ public class CodeService {
                 .build();
 
         codeRepository.save(codeEntity);
+
+
     }
 
 
@@ -159,7 +161,7 @@ public class CodeService {
                 " *  2. 어떤 메소드나 함수를 썼는지 차례로 정리" +
                 " *  " +
                 "******/\n" +
-                "코드:\n```java\n" + request.getCode() + "\n```";
+                "코드:\n" + request.getCode() ;
 
         Map<String, Object> requestBody = Map.of(
                 "model", openAiConfig.getModel(),
