@@ -114,7 +114,8 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fodofarm
+          cd myapp
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
           docker stop myapp || true
           docker rm myapp || true
-          docker run -d --name myapp -p 8081:8081 ${{ secrets.DOCKERHUB_USERNAME }}/fodofarm
+          docker run -d --name myapp -p 8081:8081 ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
