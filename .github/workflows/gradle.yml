@@ -117,4 +117,4 @@ jobs:
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
           docker stop myapp || true
           docker rm myapp || true
-          docker run -d --name myapp -p 8081:8081 ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
+          docker run -d --name myapp -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
