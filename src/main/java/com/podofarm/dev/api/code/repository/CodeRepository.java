@@ -51,4 +51,9 @@ public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
     @Transactional
     @Query("DELETE FROM CodeEntity c WHERE c.memberEntity.memberId = :memberId AND c.problemEntity.problemId = :problemId")
     int memberSolvedDelete(@Param("memberId") String memberId, @Param("problemId") String problemId);
+
+
+    @Query("SELECT DISTINCT c.problemEntity.problemId FROM CodeEntity c WHERE c.memberEntity.memberId = :memberId")
+    List<Long> getProblemIdByMemberId(@Param("memberId") String memberId);
+
 }

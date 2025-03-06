@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import com.podofarm.dev.api.code.domain.dto.request.CommentContentDTO;
 import com.podofarm.dev.api.code.domain.dto.response.CommentResponse;
@@ -22,6 +23,10 @@ import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 
 @RestController
@@ -34,43 +39,25 @@ public class CodeController {
     private final CodeService codeService;
 
     @PostMapping("/receive-sync")
-    public ResponseEntity<?> receiveSync(@RequestBody String data) {
-        try {
-            ObjectMapper sync = new ObjectMapper();
-            JsonNode convertSync = sync.readTree(data);
+    public ResponseEntity<String> receiveSync(@RequestBody Map<String, String> requestBody) {
+        String memberId = requestBody.get("id");
+        String studyId = requestBody.get("studyId");
 
-            if (validateUserStudySync(convertSync)) {
-                return ResponseEntity.ok("success");
-            } else {
-                return ResponseEntity.ok("fail");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while processing the request");
+        if (memberService.checkExtensionSync(memberId, studyId)) {
+
+            codeService.fetchData(memberId);
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.ok("fail");
         }
     }
 
-    @PostMapping("/receive-data")
-    public ResponseEntity<String> receiveData(@RequestBody String data) {
-        try {
-
-            ObjectMapper Data = new ObjectMapper();
-            JsonNode convertData = Data.readTree(data);
-
-
-            log.info(data);
-            if (validateUserStudySync(convertData)) {
-                return ResponseEntity.ok("success");
-            } else {
-                return ResponseEntity.ok("fail");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while processing the request");
-        }
+    @GetMapping("/fetchDataFromServer")
+    public ResponseEntity<Map<String, Object>> fetchDataFromServer(@RequestParam String id) {
+        List<Long> problemIdList = codeService.getProblemIdList(id);
+        return ResponseEntity.ok(Collections.singletonMap("problemIdList", problemIdList));
     }
 
-    @CrossOrigin(origins = {"chrome-extension://kmleenknngfkjncchnbfenfamoighddf", "https://school.programmers.co.kr"})
     @RequestMapping(method = RequestMethod.POST, value = "/upload")
     public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
         ObjectMapper Data = new ObjectMapper();
@@ -78,16 +65,6 @@ public class CodeController {
         codeService.upload(convertData);
         return ResponseEntity.ok("Upload successful");
     }
-
-
-    private boolean validateUserStudySync(JsonNode convertData) {
-        // 필요한 정보 추출
-        String userId = convertData.get("id").asText();
-        String studyId = convertData.get("studyId").asText();
-
-        return memberService.checkExtensionSync(userId, studyId);
-    }
-
 
     @ResponseBody
     @GetMapping(value = "/{codeNo}/comment", produces="application/json; charset=UTF-8")

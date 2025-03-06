@@ -19,14 +19,18 @@ import com.podofarm.dev.api.problem.repository.ProblemRepository;
 import com.podofarm.dev.global.OpenAI.OpenAIConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
@@ -40,6 +44,10 @@ public class CodeService {
     private final ProblemRepository problemRepository;
     private final OpenAIConfig openAiConfig;
     private final WebClient webClient;
+
+    // TTL 적용, 전역변수 설정으로 메모리 관리
+    private final Map<String, List<Long>> responseData = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public void upload(JsonNode request) {
         UploadDTO uploadDTO = new UploadDTO(request);
@@ -176,7 +184,23 @@ public class CodeService {
                 .bodyToMono(OpenAIResponse.class)
                 .block();
 
-
         return response;
     }
+
+    @Async("sync-extension")
+    public CompletableFuture<List<Long>> fetchData(String memberId) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Long> problemIdList = codeRepository.getProblemIdByMemberId(memberId);
+            responseData.put(memberId, problemIdList);
+            scheduler.schedule(() -> responseData.remove(memberId), 30, TimeUnit.SECONDS); // 30초 후 삭제
+
+            log.info("비동기 처리 완료: 문제 ID 리스트 반환 -> " + problemIdList);
+            return problemIdList;
+        });
+    }
+
+    public List<Long> getProblemIdList(String memberId) {
+        return responseData.getOrDefault(memberId, Collections.emptyList());
+    }
+
 }

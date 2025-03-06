@@ -17,7 +17,7 @@ public class AsyncConfig {
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(4);
         executor.setQueueCapacity(20);
-        executor.setThreadNamePrefix("sync-memberId,StudyId");
+        executor.setThreadNamePrefix("sync-extension");
         executor.initialize();
         return executor;
     }
@@ -28,7 +28,7 @@ public class AsyncConfig {
         executor.setCorePoolSize(4);
         executor.setMaxPoolSize(8);
         executor.setQueueCapacity(200);
-        executor.setThreadNamePrefix("sync-code,problemId");
+        executor.setThreadNamePrefix("sync-code");
         executor.initialize();
         return executor;
     }
