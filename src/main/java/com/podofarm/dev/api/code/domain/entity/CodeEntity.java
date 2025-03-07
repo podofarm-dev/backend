@@ -60,9 +60,6 @@ public class CodeEntity {
     @Column(name = "code_accuracy")
     private String codeAccuracy;
 
-//    @Column(name = "problem_id")
-//    private Long problemId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private MemberEntity memberEntity;
@@ -73,11 +70,5 @@ public class CodeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
     private ProblemEntity problemEntity;
-
-
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "problem_no")
-//    private ProblemEntity problemEntity;
 
 }
