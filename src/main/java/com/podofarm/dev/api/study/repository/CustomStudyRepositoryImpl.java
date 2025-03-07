@@ -150,12 +150,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 )
                 .fetch();
     }
-
-    /**
-     * TODO 변경 사항
-     *      1. 금일 활동은 개수 상관없이 모두 출력
-     *      2. 금일 활동이 20개 이하면 그 이전 활동과 합산하여 최대 20개 출력
-     */
+    
     @Override
     public List<RecentActivityInfoDto> searchActivityInfo(String studyId) {
         LocalDateTime todayMidnight = LocalDate.now().atStartOfDay();
