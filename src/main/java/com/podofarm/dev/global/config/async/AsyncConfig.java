@@ -14,9 +14,9 @@ public class AsyncConfig {
     @Bean(name = "sync-extension")
     public Executor syncExtension() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(20);
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(40);
         executor.setThreadNamePrefix("sync-extension");
         executor.initialize();
         return executor;

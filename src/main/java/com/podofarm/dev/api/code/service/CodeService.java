@@ -19,6 +19,8 @@ import com.podofarm.dev.api.problem.repository.ProblemRepository;
 import com.podofarm.dev.global.OpenAI.OpenAIConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -50,25 +52,44 @@ public class CodeService {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public void upload(JsonNode request) {
-        UploadDTO uploadDTO = new UploadDTO(request);
+        long startTime = System.currentTimeMillis(); // ⏱️ 전체 실행 시작 시간
+        log.info("[UPLOAD PROCESS] 시작...");
 
-        // 1. OpenAI 코드 분석 API를 호출하여 1차 포장된 source 얻기
+        UploadDTO uploadDTO = new UploadDTO(request);
+        long dtoParseTime = System.currentTimeMillis();
+        log.info("[UPLOAD PROCESS] DTO 변환 완료, 소요 시간: {} ms", (dtoParseTime - startTime));
+
+        // 1. OpenAI 코드 분석 API 호출
+        long openAIStartTime = System.currentTimeMillis();
         OpenAIRequest openAIRequest = new OpenAIRequest();
         openAIRequest.setCode(uploadDTO.getSource());
 
         OpenAIResponse aiResponse = analyzeCode(openAIRequest);
         String analyzedSource = aiResponse.getAnalyzedCode();
+        long openAIEndTime = System.currentTimeMillis();
+        log.info("[UPLOAD PROCESS] OpenAI 코드 분석 완료, 소요 시간: {} ms", (openAIEndTime - openAIStartTime));
 
         // 2. problemId로 problem 테이블에서 problemSolution 조회 후 source에 추가
+        long dbQueryStartTime = System.currentTimeMillis();
         ProblemEntity problemEntity = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()))
                 .orElseThrow(() -> new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId()));
+        long dbQueryEndTime = System.currentTimeMillis();
+        log.info("[UPLOAD PROCESS] 문제 테이블 조회 완료, 소요 시간: {} ms", (dbQueryEndTime - dbQueryStartTime));
 
-        // 3. 최종코드
-        String finalSource = problemEntity.getProblemSolution()  + analyzedSource;
+        // 3. 최종 코드 생성
+        String finalSource = problemEntity.getProblemSolution() + analyzedSource;
+        long finalSourceTime = System.currentTimeMillis();
+        log.info("[UPLOAD PROCESS] 최종 코드 생성 완료, 소요 시간: {} ms", (finalSourceTime - dbQueryEndTime));
 
+        // 4. 회원 조회
+        long memberQueryStartTime = System.currentTimeMillis();
         MemberEntity memberEntity = memberRepository.findById(uploadDTO.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId()));
+        long memberQueryEndTime = System.currentTimeMillis();
+        log.info("[UPLOAD PROCESS] 회원 조회 완료, 소요 시간: {} ms", (memberQueryEndTime - memberQueryStartTime));
 
+        // 5. 코드 저장
+        long saveStartTime = System.currentTimeMillis();
         CodeEntity codeEntity = CodeEntity.builder()
                 .memberEntity(memberEntity)
                 .problemEntity(problemEntity)
@@ -79,12 +100,31 @@ public class CodeService {
                 .codePerformance(uploadDTO.getPerformance())
                 .codeAccuracy(uploadDTO.getAccuracy())
                 .build();
-
         codeRepository.save(codeEntity);
+        long saveEndTime = System.currentTimeMillis();
+        log.info("[UPLOAD PROCESS] 코드 저장 완료, 소요 시간: {} ms", (saveEndTime - saveStartTime));
 
-
+        long totalExecutionTime = saveEndTime - startTime;
+        log.info("✅ [UPLOAD PROCESS] 전체 실행 시간: {} ms", totalExecutionTime);
     }
 
+
+    @CachePut(value = "syncData", key = "#id")
+    public Map<String, String> cacheSyncData(String id, Long problemId) {
+        Map<String, String> cachedData = Map.of(
+                "id", id,
+                "problemId", String.valueOf(problemId)
+        );
+
+        System.out.println("✅ 캐시에 저장됨: " + cachedData);
+        return cachedData;
+    }
+
+    @Cacheable(value = "syncData", key = "#id")
+    public Map<String, String> getCachedData(String id) {
+        System.out.println("❌ 캐시에 데이터 없음 (DB 조회 필요) - ID: " + id);
+        return null; // 캐시에 데이터가 없으면 null 반환
+}
 
     public CommentListResponse allComment(Long codeNo) {
         CodeEntity code = codeRepository.findByIdWithComments(codeNo)

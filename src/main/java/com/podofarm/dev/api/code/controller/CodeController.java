@@ -3,6 +3,7 @@ package com.podofarm.dev.api.code.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.podofarm.dev.api.code.domain.dto.request.CacheRequestDTO;
 import com.podofarm.dev.api.code.service.CodeService;
 import com.podofarm.dev.api.member.service.MemberService;
 import com.podofarm.dev.api.code.domain.dto.request.OpenAIRequest;
@@ -44,7 +45,6 @@ public class CodeController {
         String studyId = requestBody.get("studyId");
 
         if (memberService.checkExtensionSync(memberId, studyId)) {
-
             codeService.fetchData(memberId);
             return ResponseEntity.ok("success");
         } else {
@@ -58,12 +58,41 @@ public class CodeController {
         return ResponseEntity.ok(Collections.singletonMap("problemIdList", problemIdList));
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/upload")
+    @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
+        long startTime = System.currentTimeMillis(); // 실행 시작 시간 측정
+        log.info("[UPLOAD START] 요청 데이터 수신...");
+
         ObjectMapper Data = new ObjectMapper();
         JsonNode convertData = Data.readTree(request);
+
+        long parseTime = System.currentTimeMillis();
+        log.info("[UPLOAD] JSON 파싱 완료, 소요 시간: {} ms", (parseTime - startTime));
+
         codeService.upload(convertData);
+
+        long endTime = System.currentTimeMillis(); // 실행 종료 시간 측정
+        long executionTime = endTime - startTime; // 총 실행 시간
+
+        log.info("[UPLOAD SUCCESS] 총 실행 시간: {} ms", executionTime);
         return ResponseEntity.ok("Upload successful");
+    }
+
+    //캐시관련
+
+    @PostMapping("/cacheData")
+    public Map<String, String> receiveCacheData(@RequestBody CacheRequestDTO requestData) {
+        String id = requestData.getMemberId();
+        Long problemId = requestData.getProblemId();
+
+        // 캐시에 저장
+        return codeService.cacheSyncData(id, problemId);
+    }
+
+    // 캐시에서 데이터 조회 (테스트용)
+    @GetMapping("/cacheData/{id}")
+    public Map<String, String> getCachedData(@PathVariable String id) {
+        return codeService.getCachedData(id);
     }
 
     @ResponseBody
