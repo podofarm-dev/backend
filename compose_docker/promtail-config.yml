@@ -19,7 +19,7 @@ scrape_configs:
           __path__: /home/ubuntu/test_dev/app.log
     pipeline_stages:
       - regex:
-          expression: '^(?P<time>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z)\\s+(?P<level>INFO|ERROR|WARN|DEBUG)\\s+(?P<pid>\\d+)\\s+---\\s+\\[(?P<thread>[^]]+)]\\s+(?P<class>[^:]+)\\s+:\\s+(?P<message>.*)$'
+          expression: '^(?P<time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)\s+(?P<level>INFO|ERROR|WARN|DEBUG)\s+(?P<pid>\d+)\s+---\s+\[(?P<thread>[^\]]+)]\s+(?P<class>[^:]+)\s+:\s+(?P<message>.*)$'
       - timestamp:
           source: time
           format: RFC3339
