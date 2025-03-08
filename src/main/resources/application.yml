@@ -35,8 +35,8 @@ spring:
             scope: profile, email
             authorization-grant-type: authorization_code
 
-logging.level:
-  org.hibernate.SQL: debug
+#logging.level:
+#  org.hibernate.SQL: debug
 
 management:
   endpoints:
