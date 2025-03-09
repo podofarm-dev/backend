@@ -7,6 +7,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.time.temporal.ChronoUnit.YEARS;
 
 public class DashBoardUtils {
@@ -37,7 +38,7 @@ public class DashBoardUtils {
         if ((duration = MINUTES.between(solvedAt, now)) != 0L) {
             return duration + MINUTE_SUFFIX;
         }
-        return duration + SECOND_SUFFIX;
+        return SECONDS.between(solvedAt, now) + SECOND_SUFFIX;
     }
 
     public static Integer getLevel(String levelString) {
