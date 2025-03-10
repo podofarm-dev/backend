@@ -40,12 +40,15 @@ logging.level:
   com.zaxxer.hikari: OFF
   org.hibernate.orm.connections.pooling: OFF
 
+
 management:
   endpoints:
     enabled-by-default: true
     web:
       exposure:
-        include: "prometheus"
+        include:
+          - "prometheus"
+          - "health"
   endpoint:
     prometheus:
       enabled: true

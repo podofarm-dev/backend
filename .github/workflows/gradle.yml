@@ -10,29 +10,10 @@ name: Java CI with Gradle
 on:
   push:
     branches: [ "V1" ]
-  pull_request:
-    branches: [ "V1" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    env:
-      BACKEND_DOMAIN : ${{secrets.BACKEND_DOMAIN}}
-      BASIC_URL : ${{secrets.BASIC_URL}}
-      BUCKET : ${{secrets.BUCKET}}
-      DB_PASSWORD : ${{secrets.DB_PASSWORD}}
-      DB_URL : ${{secrets.DB_URL}}
-      DB_USERNAME : ${{secrets.DB_USERNAME}}
-      FRONTEND_DOMAIN : ${{secrets.FRONTEND_DOMAIN}}
-      GOOGLE_ID : ${{secrets.GOOGLE_ID}}
-      GOOGLE_SECRET : ${{secrets.GOOGLE_SECRET}}
-      REDIRECT_URI : ${{secrets.REDIRECT_URI}}
-      S3_ACCESS_KEY : ${{secrets.S3_ACCESS_KEY}}
-      S3_SECRET_KEY : ${{secrets.S3_SECRET_KEY}}
-      TEST_BACKEND_DOMAIN : ${{secrets.TEST_BACKEND_DOMAIN}}
-      TEST_FRONTEND_DOMAIN : ${{secrets.TEST_FRONTEND_DOMAIN}}
-      OPENAI_API_KEY : ${{secrets.OPENAI_API_KEY}}
 
     steps:
     # 1. 코드 체크아웃
@@ -46,15 +27,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # 3. 현재 작업 디렉토리 확인
-    - name: Print working directory
-      run: pwd
-
-    # 4. gradlew 파일 확인
-    - name: List files in the directory
-      run: ls -la
-
-    # 5. Gradle 캐시 설정
+    # 3. Gradle 캐시 설정
     - name: Cache Gradle packages
       uses: actions/cache@v3
       with:
@@ -63,15 +36,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    # 6. Gradle Wrapper 실행 권한 추가
+    # 4. Gradle Wrapper 실행 권한 추가
     - name: Set executable permission for gradlew
       run: chmod +x ./gradlew
 
-    # 7. Gradle 빌드 및 테스트 실행
+    # 5. Gradle 빌드 및 테스트 실행
     - name: Build with Gradle
       run: ./gradlew build -x test --no-daemon
       
-    # 8. Docker 이미지 빌드
+    # 6. Docker 이미지 빌드
+    - name: docker image build
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/podofarm .
+
     - name: docker image build
       run: |
         docker build \
@@ -92,13 +68,26 @@ jobs:
         --build-arg OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
         -t ${{ secrets.DOCKERHUB_USERNAME }}/podofarm .
 
-    # 9. DockerHub 로그인
+    # 7. DockerHub 로그인
     - name: docker login
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-    # 10. Docker Hub 이미지 푸시
+    # 8. Docker Hub 이미지 푸시
     - name: docker Hub push
       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
+
+    # 9. EC2 자동 배포 명령어
+    - name: SSH to EC2 and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
+          docker stop myapp || true
+          docker rm myapp || true
+          docker run -d --name myapp -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/podofarm
