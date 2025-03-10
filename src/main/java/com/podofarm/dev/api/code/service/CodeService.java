@@ -1,9 +1,7 @@
 package com.podofarm.dev.api.code.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.podofarm.dev.api.code.domain.dto.CodeInfoDTO;
 import com.podofarm.dev.api.code.domain.dto.UploadDTO;
-import com.podofarm.dev.api.code.domain.dto.request.OpenAIRequest;
 import com.podofarm.dev.api.code.domain.dto.response.CommentListResponse;
 import com.podofarm.dev.api.code.domain.dto.response.CommentResponse;
 import com.podofarm.dev.api.code.domain.dto.response.OpenAIResponse;
@@ -14,7 +12,6 @@ import com.podofarm.dev.api.code.repository.CommentRepository;
 import com.podofarm.dev.api.member.domain.entity.MemberEntity;
 import com.podofarm.dev.api.member.repository.MemberRepository;
 import com.podofarm.dev.api.member.service.MemberService;
-import com.podofarm.dev.api.problem.domain.entity.ProblemEntity;
 import com.podofarm.dev.api.problem.repository.ProblemRepository;
 import com.podofarm.dev.global.OpenAI.OpenAIClient;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,6 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
