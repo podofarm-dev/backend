@@ -96,6 +96,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'io.projectreactor:reactor-core'
 
+    // Spring Boot 캐시
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // Caffeine 캐시
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+
 }
 
 tasks.named('test') {

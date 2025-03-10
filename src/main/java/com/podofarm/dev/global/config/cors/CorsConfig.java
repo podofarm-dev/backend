@@ -20,9 +20,6 @@ public class CorsConfig {
     // Cors 직접 사용
     @Bean
     public CorsFilter corsFitter(){
-        log.info("frontDomain={}", frontDomain);
-
-        log.info("================== Cors 필터1 시작 ========================");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         CorsConfiguration config = new CorsConfiguration();
@@ -39,7 +36,8 @@ public class CorsConfig {
                                                 "https://www." + frontDomain,
                                                 "https://test.mildo.xyz/*",
                                                 "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb",
-                                                "chrome-extension://bcbabakaolnokikhllajhgchlgeiihld")
+                                                "chrome-extension://bcbabakaolnokikhllajhgchlgeiihld",
+                                                "chrome-extension://hhhhekobidkpfgkaobifjgpepddjdkhi") // 개인 개발용
                                                 );
 
         config.addAllowedHeader("*"); // 모든 헤데어 응답을 허용

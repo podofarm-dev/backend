@@ -20,8 +20,6 @@ public interface ProblemRepository extends JpaRepository<ProblemEntity, Long>, P
     List<ProblemSolverDto> findSolversByProblemNos(@Param("problemNos") List<Long> problemNos,
                                                    @Param("studyId") String studyId);
 
-    Optional<ProblemEntity> findByProblemId(Long problemId);
 
-    @Query("SELECT c.codeNo FROM CodeEntity c WHERE c.problemEntity.problemId = :problemId")
-    Optional<Long> findCodeNoByProblemId(@Param("problemId") Long problemId);
-}
+    @Query("SELECT p.problemSolution FROM ProblemEntity p WHERE p.problemId = :problemId")
+    String findSolutionByProblemId(@Param("problemId") Long problemId);}

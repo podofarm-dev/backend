@@ -51,4 +51,18 @@ public class OpenAIResponse {
         }
         return ""; // choices가 비어있으면 빈 문자열 반환
     }
+
+    public static String getPrompt(String code) {
+        return  code +
+                "\n 1. 전달받은 코드를정리하기. 반드시 // 붙여서 주석으로 처리\n" +
+                "2. 주석은 한 공간에 몰아서 작성\n" +
+                "3. 예시:\n" +
+                "Open AI 정리" +
+                "//01 내용1\n" +
+                "//02 내용2\n" +
+                "//03 내용3\n" +
+                "4. 간단한 문장으로 설명\n" +
+                "5. 60 글자가 넘으면 줄바꿈\n" +
+                "\n";
+    }
 }

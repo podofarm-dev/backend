@@ -1,8 +1,12 @@
 package com.podofarm.dev.api.code.domain.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.podofarm.dev.api.code.domain.entity.CodeEntity;
+import com.podofarm.dev.api.member.domain.entity.MemberEntity;
+import com.podofarm.dev.api.problem.domain.entity.ProblemEntity;
 import lombok.Getter;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,8 +42,28 @@ public class UploadDTO {
             this.solvedDate = LocalDateTime.now();
         }
     }
-
     public Timestamp getSolvedDateAsTimestamp() {
         return Timestamp.valueOf(solvedDate);
+    }
+
+    public CodeEntity insertCodeEntity(MemberEntity member, ProblemEntity problem) {
+        return CodeEntity.builder()
+                .memberEntity(member)
+                .problemEntity(problem)
+                .codeSource("분석 중...\n\n" + source)
+                .codeSolvedDate(getSolvedDateAsTimestamp())
+                .codeTime(Time.valueOf(this.time))
+                .codeStatus(this.status)
+                .codePerformance(this.performance)
+                .codeAccuracy(this.accuracy)
+                .build();
+    }
+
+    public void updateCodeEntity(CodeEntity updateCode) {
+        updateCode.setCodeSource("분석 중...\n\n" + this.source);
+        updateCode.setCodeSolvedDate(getSolvedDateAsTimestamp());
+        updateCode.setCodeTime(Time.valueOf(this.time));
+        updateCode.setCodePerformance(this.performance);
+        updateCode.setCodeAccuracy(this.accuracy);
     }
 }
