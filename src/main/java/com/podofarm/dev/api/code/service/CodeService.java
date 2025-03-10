@@ -1,7 +1,9 @@
 package com.podofarm.dev.api.code.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.podofarm.dev.api.code.domain.dto.CodeInfoDTO;
 import com.podofarm.dev.api.code.domain.dto.UploadDTO;
+import com.podofarm.dev.api.code.domain.dto.request.OpenAIRequest;
 import com.podofarm.dev.api.code.domain.dto.response.CommentListResponse;
 import com.podofarm.dev.api.code.domain.dto.response.CommentResponse;
 import com.podofarm.dev.api.code.domain.dto.response.OpenAIResponse;
@@ -99,32 +101,45 @@ public class CodeService {
     }
 
     public CommentListResponse allComment(Long codeNo) {
-        CodeEntity code = checkedCode(codeNo);
+        CodeEntity code = codeRepository.findByIdWithComments(codeNo)
+                .orElseThrow(() -> new RuntimeException("없는 코드입니다."));
+
         return CommentListResponse.fromRepoDto(code.getCommentList());
     }
 
     public CommentResponse insertComment(Long codeNo, String commentContent, String memberId) {
+        CodeEntity code = checkedCode(codeNo);
+        MemberEntity member = memberService.vaildMemberId(memberId);
+
         CommentEntity comment = CommentEntity.builder()
-                .codeEntity(checkedCode(codeNo))
-                .memberEntity(memberService.vaildMemberId(memberId))
+                .codeEntity(code)
+                .memberEntity(member)
                 .commentContent(commentContent)
                 .commentDate(new Timestamp(System.currentTimeMillis()))
                 .build();
+
         return new CommentResponse(commentRepository.save(comment));
     }
 
     public void deleteComment(Long codeNo, Long commentNo, String memberId) {
-        if (!checkedComment(commentNo).getMemberEntity().getMemberId().equals(memberId)) {
+        checkedCode(codeNo);
+        CommentEntity comment = checkedComment(commentNo);
+
+        if (!comment.getMemberEntity().getMemberId().equals(memberId)) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
-        commentRepository.delete(checkedComment(commentNo));
+
+        commentRepository.delete(comment);
     }
 
     public CommentResponse updateComment(Long codeNo, Long commentNo, String commentContent, String memberId) {
+        checkedCode(codeNo);
         CommentEntity comment = checkedComment(commentNo);
+
         if (!comment.getMemberEntity().getMemberId().equals(memberId)) {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
+
         comment.setCommentContent(commentContent);
         return new CommentResponse(commentRepository.save(comment));
     }
@@ -138,4 +153,29 @@ public class CodeService {
         return codeRepository.findById(codeNo)
                 .orElseThrow(() -> new RuntimeException("없는 코드입니다."));
     }
+
+    public List<CodeInfoDTO> getMemberSolvedInfo(String memberId, Long problemId) {
+        List<CodeEntity> codeEntities = codeRepository.findByMemberEntity_MemberIdAndProblemEntity_ProblemId(memberId, problemId);
+        List<CodeInfoDTO> codeInfoList = new ArrayList<>();
+
+        for (CodeEntity codeEntity : codeEntities) {
+            codeInfoList.add(CodeInfoDTO.fromEntity(codeEntity));
+        }
+
+        return codeInfoList;
+    }
+
+    public String memberSolvedEdit(String memberId, String problemId, String code) {
+        int updatedRows = codeRepository.memberSolvedEdit(memberId, problemId, code);
+        return (updatedRows > 0) ? "코드 수정 성공" : "코드 수정 실패";
+    }
+
+    public String memberSolvedDelete(String memberId, String problemId) {
+        int updatedRows = codeRepository.memberSolvedDelete(memberId, problemId);
+        return (updatedRows > 0) ? "코드 삭제 성공" : "코드 삭제 실패";
+    }
+
+
+
+
 }
