@@ -7,15 +7,11 @@ import com.podofarm.dev.api.code.domain.dto.UploadDTO;
 import com.podofarm.dev.api.code.domain.dto.request.CacheRequestDTO;
 import com.podofarm.dev.api.code.service.CodeService;
 import com.podofarm.dev.api.member.service.MemberService;
-import com.podofarm.dev.api.code.domain.dto.request.OpenAIRequest;
 import com.podofarm.dev.api.code.domain.dto.response.OpenAIResponse;
-import com.podofarm.dev.api.code.service.CodeService;
-import com.podofarm.dev.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import com.podofarm.dev.api.code.domain.dto.request.CommentContentDTO;
 import com.podofarm.dev.api.code.domain.dto.response.CommentResponse;
@@ -28,7 +24,6 @@ import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 
 @RestController
@@ -70,12 +65,13 @@ public class CodeController {
         JsonNode convertData = Data.readTree(request);
 
         UploadDTO upload = new UploadDTO(convertData);
+        String source = upload.getSource();
+        String memberId = upload.getMemberId();
+        String problemId = upload.getProblemId();
 
-        //@async(sync)
+        //@async
         codeService.upload(upload);
-
-        //@async(open)
-        // codeService.openai(upload.getSource());
+        codeService.openAI(source, memberId, problemId);
 
         return ResponseEntity.ok("Podofarm 업로드 완료");
     }
@@ -140,7 +136,7 @@ public class CodeController {
     }
 
     @PostMapping("/analyze")
-    public OpenAIResponse analyzeCode(@RequestBody OpenAIRequest request) {
+    public OpenAIResponse analyzeCode(@RequestBody String request) {
         return codeService.analyzeCode(request);
     }
 }
