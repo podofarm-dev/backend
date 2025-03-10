@@ -35,17 +35,17 @@ spring:
             scope: profile, email
             authorization-grant-type: authorization_code
 
-logging.level:
-  org.hibernate.SQL: false
-  com.zaxxer.hikari: OFF
-  org.hibernate.orm.connections.pooling: OFF
+#logging.level:
+#  org.hibernate.SQL: debug
 
 management:
   endpoints:
     enabled-by-default: true
     web:
       exposure:
-        include: "prometheus"
+        include:
+          - "prometheus"
+          - "health"
   endpoint:
     prometheus:
       enabled: true
@@ -53,6 +53,7 @@ management:
 domain:
   front: "${FRONTEND_DOMAIN}"
   back: "${BACKEND_DOMAIN}"
+
 
 openai:
   api-key: "${OPENAI_API_KEY}"
