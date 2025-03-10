@@ -36,6 +36,7 @@ public class CodeController {
     private final MemberService memberService;
     private final CodeService codeService;
 
+    @CrossOrigin(origins = "chrome-extension://hhhhekobidkpfgkaobifjgpepddjdkhi")
     @PostMapping("/receive-sync")
     public ResponseEntity<String> receiveSync(@RequestBody Map<String, String> requestBody) {
         String memberId = requestBody.get("id");
