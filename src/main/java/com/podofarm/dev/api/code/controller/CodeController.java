@@ -3,6 +3,7 @@ package com.podofarm.dev.api.code.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.podofarm.dev.api.code.domain.dto.UploadDTO;
 import com.podofarm.dev.api.code.domain.dto.request.CacheRequestDTO;
 import com.podofarm.dev.api.code.service.CodeService;
 import com.podofarm.dev.api.member.service.MemberService;
@@ -55,27 +56,28 @@ public class CodeController {
     @GetMapping("/fetchDataFromServer")
     public ResponseEntity<Map<String, Object>> fetchDataFromServer(@RequestParam String id) {
         List<Long> problemIdList = codeService.getProblemIdList(id);
+        if (problemIdList == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "아직 데이터가 준비되지 않았습니다."));
+        }
         return ResponseEntity.ok(Collections.singletonMap("problemIdList", problemIdList));
     }
 
+
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestBody String request) throws JsonProcessingException, ParseException {
-        long startTime = System.currentTimeMillis(); // 실행 시작 시간 측정
-        log.info("[UPLOAD START] 요청 데이터 수신...");
-
         ObjectMapper Data = new ObjectMapper();
         JsonNode convertData = Data.readTree(request);
 
-        long parseTime = System.currentTimeMillis();
-        log.info("[UPLOAD] JSON 파싱 완료, 소요 시간: {} ms", (parseTime - startTime));
+        UploadDTO upload = new UploadDTO(convertData);
 
-        codeService.upload(convertData);
+        //@async(sync)
+        codeService.upload(upload);
 
-        long endTime = System.currentTimeMillis(); // 실행 종료 시간 측정
-        long executionTime = endTime - startTime; // 총 실행 시간
+        //@async(open)
+        // codeService.openai(upload.getSource());
 
-        log.info("[UPLOAD SUCCESS] 총 실행 시간: {} ms", executionTime);
-        return ResponseEntity.ok("Upload successful");
+        return ResponseEntity.ok("Podofarm 업로드 완료");
     }
 
     //캐시관련
@@ -94,6 +96,9 @@ public class CodeController {
     public Map<String, String> getCachedData(@PathVariable String id) {
         return codeService.getCachedData(id);
     }
+
+
+
 
     @ResponseBody
     @GetMapping(value = "/{codeNo}/comment", produces="application/json; charset=UTF-8")

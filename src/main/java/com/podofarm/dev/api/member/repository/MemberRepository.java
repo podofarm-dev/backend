@@ -3,7 +3,9 @@ package com.podofarm.dev.api.member.repository;
 import com.podofarm.dev.api.member.domain.dto.response.ProblemPageInfoResponse;
 import com.podofarm.dev.api.member.domain.dto.response.SolvedMemberListResponse;
 import com.podofarm.dev.api.member.domain.entity.MemberEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -47,4 +49,8 @@ public interface MemberRepository extends JpaRepository<MemberEntity, String> {
                                          @Param("loggedIn") String loggedIn,
                                          @Param("endOfMonth") Date endOfMonth);
 
+    @Modifying
+    @Query(value = "UPDATE member SET member_solvedproblem = member_solvedproblem + 1 WHERE member_id = :memberId", nativeQuery = true)
+    @Transactional
+    void incrementSolvedProblem(String memberId);
 }
