@@ -19,4 +19,5 @@ public class OpenAIConfig {
     public String getApiKey() {
         return apiKey;
     }
+
 }

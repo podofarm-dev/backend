@@ -1,7 +1,9 @@
 package com.podofarm.dev.api.code.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.podofarm.dev.api.code.domain.dto.CodeInfoDTO;
 import com.podofarm.dev.api.code.domain.dto.UploadDTO;
+import com.podofarm.dev.api.code.domain.dto.request.OpenAIRequest;
 import com.podofarm.dev.api.code.domain.dto.response.CommentListResponse;
 import com.podofarm.dev.api.code.domain.dto.response.CommentResponse;
 import com.podofarm.dev.api.code.domain.dto.response.OpenAIResponse;
@@ -14,15 +16,14 @@ import com.podofarm.dev.api.member.repository.MemberRepository;
 import com.podofarm.dev.api.member.service.MemberService;
 import com.podofarm.dev.api.problem.domain.entity.ProblemEntity;
 import com.podofarm.dev.api.problem.repository.ProblemRepository;
+import com.podofarm.dev.global.OpenAI.OpenAIClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import com.podofarm.dev.global.OpenAI.OpenAIClient;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
@@ -31,7 +32,6 @@ import java.util.concurrent.*;
 @Service
 @RequiredArgsConstructor
 public class CodeService {
-
     private final CommentRepository commentRepository;
     private final CodeRepository codeRepository;
     private final MemberService memberService;
@@ -39,16 +39,13 @@ public class CodeService {
     private final ProblemRepository problemRepository;
     private final OpenAIClient openaiCient;
 
-    // TTL 적용, 전역변수 설정으로 메모리 관리
     private final Map<String, List<Long>> responseData = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
 
     @Async("sync-extension")
     public void upload(UploadDTO request) {
         Long problemId = Long.valueOf(request.getProblemId());
         String memberId = request.getMemberId();
-
         Optional<CodeEntity> checkSolvedProblem = codeRepository.findByMemberIdAndProblemId(memberId, problemId);
 
         if (checkSolvedProblem.isPresent()) {
@@ -56,11 +53,9 @@ public class CodeService {
             request.updateCodeEntity(updateCode);
             codeRepository.save(updateCode);
         } else {
-            //Reference 이용하여 프록시 객체로 외래키 참조만 사용
             CodeEntity insertCode = request.insertCodeEntity(
                     memberRepository.getReferenceById(memberId),
-                    problemRepository.getReferenceById(problemId)
-            );
+                    problemRepository.getReferenceById(problemId));
             codeRepository.save(insertCode);
             memberRepository.incrementSolvedProblem(memberId);
         }
@@ -69,68 +64,41 @@ public class CodeService {
     @Async("sync-code")
     public void openAI(String source, String memberId, String problemId) {
         OpenAIResponse responseAI = analyzeCode(source);
-        String resultAI = responseAI.getAnalyzedCode();
-        updateSource(resultAI, memberId, problemId, source);
+        updateSource(responseAI.getAnalyzedCode(), memberId, problemId, source);
     }
 
     public OpenAIResponse analyzeCode(String request) {
-        String prompt = OpenAIResponse.getPrompt(request);
-        return openaiCient.sendRequestToOpenAI(prompt);
+        return openaiCient.sendRequestToOpenAI(OpenAIResponse.getPrompt(request));
     }
 
     public void updateSource(String result, String memberId, String problemId, String source) {
         String problemSolution = problemRepository.findSolutionByProblemId(Long.valueOf(problemId));
-
-        log.info(problemSolution + "problemSolution");
-        log.info(source + "source");
-        //토큰 수를 줄이기위해 원본 source는 다시 가져고온다.
-        String finalSource = problemSolution + "\n\n" + result + "\n\n" + source;
-        codeRepository.updateCodeSource(finalSource, memberId, Long.valueOf(problemId));
-
-        log.info(" 코드 업데이트 완료! MemberID: {}, ProblemID: {}", memberId, problemId);
+        codeRepository.updateCodeSource(problemSolution + "\n\n" + result + "\n\n" + source, memberId, Long.valueOf(problemId));
+        log.info("코드 업데이트 완료! MemberID: {}, ProblemID: {}", memberId, problemId);
     }
-
-
-
 
     @Async("sync-extension")
     public void fetchData(String memberId) {
-        List<Long> problemIdList = codeRepository.getProblemIdByMemberId(memberId);
-        if (problemIdList == null || problemIdList.isEmpty())
-            problemIdList = Collections.singletonList(0L);
+        List<Long> problemIdList = Optional.ofNullable(codeRepository.getProblemIdByMemberId(memberId))
+                .orElse(Collections.singletonList(0L));
         responseData.put(memberId, problemIdList);
         scheduler.schedule(() -> responseData.remove(memberId), 30, TimeUnit.SECONDS);
-
-        log.info("비동기 처리 완료: 문제 ID 리스트 반환 -> " + problemIdList);
+        log.info("비동기 처리 완료: 문제 ID 리스트 반환 -> {}", problemIdList);
     }
 
     public List<Long> getProblemIdList(String memberId) {
-        List<Long> problemList = responseData.getOrDefault(memberId, Collections.emptyList());
-        // 로그 추가
-        if (problemList.isEmpty())
-            log.warn("문제 리스트 없음: memberId = {}", memberId);
-        else
-            log.info("문제 리스트 조회 성공: memberId = {}, 문제 리스트 = {}", memberId, problemList);
-        return problemList;
+        return responseData.getOrDefault(memberId, Collections.emptyList());
     }
 
     @CachePut(value = "syncData", key = "#id")
     public Map<String, String> cacheSyncData(String id, Long problemId) {
-        Map<String, String> cachedData = Map.of(
-                "id", id,
-                "problemId", String.valueOf(problemId)
-        );
-
-        return cachedData;
+        return Map.of("id", id, "problemId", String.valueOf(problemId));
     }
 
     @Cacheable(value = "syncData", key = "#id")
     public Map<String, String> getCachedData(String id) {
         return null;
     }
-
-    /* 코멘트 시작 */
-
 
     public CommentListResponse allComment(Long codeNo) {
         CodeEntity code = codeRepository.findByIdWithComments(codeNo)
@@ -206,5 +174,8 @@ public class CodeService {
         int updatedRows = codeRepository.memberSolvedDelete(memberId, problemId);
         return (updatedRows > 0) ? "코드 삭제 성공" : "코드 삭제 실패";
     }
+
+
+
 
 }
