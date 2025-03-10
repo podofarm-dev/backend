@@ -42,8 +42,6 @@ public class UploadDTO {
             this.solvedDate = LocalDateTime.now();
         }
     }
-
-
     public Timestamp getSolvedDateAsTimestamp() {
         return Timestamp.valueOf(solvedDate);
     }
@@ -52,7 +50,7 @@ public class UploadDTO {
         return CodeEntity.builder()
                 .memberEntity(member)
                 .problemEntity(problem)
-                .codeSource("분석 중...")
+                .codeSource("분석 중...\n\n" + source)
                 .codeSolvedDate(getSolvedDateAsTimestamp())
                 .codeTime(Time.valueOf(this.time))
                 .codeStatus(this.status)
@@ -62,7 +60,7 @@ public class UploadDTO {
     }
 
     public void updateCodeEntity(CodeEntity updateCode) {
-        updateCode.setCodeSource(this.source);
+        updateCode.setCodeSource("분석 중...\n\n" + this.source);
         updateCode.setCodeSolvedDate(getSolvedDateAsTimestamp());
         updateCode.setCodeTime(Time.valueOf(this.time));
         updateCode.setCodePerformance(this.performance);

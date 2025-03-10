@@ -1,9 +1,7 @@
 package com.podofarm.dev.api.code.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.podofarm.dev.api.code.domain.dto.CodeInfoDTO;
 import com.podofarm.dev.api.code.domain.dto.UploadDTO;
-import com.podofarm.dev.api.code.domain.dto.request.OpenAIRequest;
 import com.podofarm.dev.api.code.domain.dto.response.CommentListResponse;
 import com.podofarm.dev.api.code.domain.dto.response.CommentResponse;
 import com.podofarm.dev.api.code.domain.dto.response.OpenAIResponse;
@@ -16,17 +14,15 @@ import com.podofarm.dev.api.member.repository.MemberRepository;
 import com.podofarm.dev.api.member.service.MemberService;
 import com.podofarm.dev.api.problem.domain.entity.ProblemEntity;
 import com.podofarm.dev.api.problem.repository.ProblemRepository;
-import com.podofarm.dev.global.OpenAI.OpenAIConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import com.podofarm.dev.global.OpenAI.OpenAIClient;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
@@ -41,8 +37,7 @@ public class CodeService {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final ProblemRepository problemRepository;
-    private final OpenAIConfig openAiConfig;
-    private final WebClient webClient;
+    private final OpenAIClient openaiCient;
 
     // TTL 적용, 전역변수 설정으로 메모리 관리
     private final Map<String, List<Long>> responseData = new ConcurrentHashMap<>();
@@ -71,21 +66,52 @@ public class CodeService {
         }
     }
 
-    public String openai(String answer) {
-        long dtoParseTime = System.currentTimeMillis();
-        long startTime = System.currentTimeMillis();
-        log.info("[UPLOAD PROCESS] DTO 변환 완료, 소요 시간: {} ms", (dtoParseTime - startTime));
+    @Async("sync-code")
+    public void openAI(String source, String memberId, String problemId) {
+        OpenAIResponse responseAI = analyzeCode(source);
+        String resultAI = responseAI.getAnalyzedCode();
+        updateSource(resultAI, memberId, problemId, source);
+    }
 
-        // 1. OpenAI 코드 분석 API 호출
-        long openAIStartTime = System.currentTimeMillis();
-        OpenAIRequest openAIRequest = new OpenAIRequest();
-        //openAIRequest.setCode(uploadDTO.getSource());
+    public OpenAIResponse analyzeCode(String request) {
+        String prompt = OpenAIResponse.getPrompt(request);
+        return openaiCient.sendRequestToOpenAI(prompt);
+    }
 
-        OpenAIResponse aiResponse = analyzeCode(openAIRequest);
-        String analyzedSource = aiResponse.getAnalyzedCode();
-        long openAIEndTime = System.currentTimeMillis();
-        log.info("[UPLOAD PROCESS] OpenAI 코드 분석 완료, 소요 시간: {} ms", (openAIEndTime - openAIStartTime));
-        return analyzedSource;
+    public void updateSource(String result, String memberId, String problemId, String source) {
+        String problemSolution = problemRepository.findSolutionByProblemId(Long.valueOf(problemId));
+
+        log.info(problemSolution + "problemSolution");
+        log.info(source + "source");
+        //토큰 수를 줄이기위해 원본 source는 다시 가져고온다.
+        String finalSource = problemSolution + "\n\n" + result + "\n\n" + source;
+        codeRepository.updateCodeSource(finalSource, memberId, Long.valueOf(problemId));
+
+        log.info(" 코드 업데이트 완료! MemberID: {}, ProblemID: {}", memberId, problemId);
+    }
+
+
+
+
+    @Async("sync-extension")
+    public void fetchData(String memberId) {
+        List<Long> problemIdList = codeRepository.getProblemIdByMemberId(memberId);
+        if (problemIdList == null || problemIdList.isEmpty())
+            problemIdList = Collections.singletonList(0L);
+        responseData.put(memberId, problemIdList);
+        scheduler.schedule(() -> responseData.remove(memberId), 30, TimeUnit.SECONDS);
+
+        log.info("비동기 처리 완료: 문제 ID 리스트 반환 -> " + problemIdList);
+    }
+
+    public List<Long> getProblemIdList(String memberId) {
+        List<Long> problemList = responseData.getOrDefault(memberId, Collections.emptyList());
+        // 로그 추가
+        if (problemList.isEmpty())
+            log.warn("문제 리스트 없음: memberId = {}", memberId);
+        else
+            log.info("문제 리스트 조회 성공: memberId = {}, 문제 리스트 = {}", memberId, problemList);
+        return problemList;
     }
 
     @CachePut(value = "syncData", key = "#id")
@@ -101,58 +127,7 @@ public class CodeService {
     @Cacheable(value = "syncData", key = "#id")
     public Map<String, String> getCachedData(String id) {
         return null;
-}
-
-    public OpenAIResponse analyzeCode(OpenAIRequest request) {
-        String prompt = "다음 Java 코드를 분석하고, 적절한 주석을 `/** ... */` 형식으로 코드 상단에 추가해 주세요.\n" +
-                "반환 형식 예시:\n" +
-                "/***OPEN AI***\n" +
-                " *  1. 푼 문제를 다시 봤을 때 흐름을 알게끔 하기 위함" +
-                " *  2. 어떤 메소드나 함수를 썼는지 차례로 정리" +
-                " *  " +
-                "******/\n" +
-                "코드:\n" + request.getCode() ;
-
-        Map<String, Object> requestBody = Map.of(
-                "model", openAiConfig.getModel(),
-                "messages", List.of(Map.of("role", "user", "content", prompt)),
-                "temperature", 0.3
-        );
-
-        OpenAIResponse response = webClient.post()
-                .uri("/chat/completions")
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(OpenAIResponse.class)
-                .block();
-
-        return response;
     }
-
-    @Async("sync-extension")
-    public void fetchData(String memberId) {
-        List<Long> problemIdList = codeRepository.getProblemIdByMemberId(memberId);
-        if (problemIdList == null || problemIdList.isEmpty())
-            problemIdList = Collections.singletonList(0L);
-        responseData.put(memberId, problemIdList);
-        scheduler.schedule(() -> responseData.remove(memberId), 30, TimeUnit.SECONDS);
-
-        log.info("비동기 처리 완료: 문제 ID 리스트 반환 -> " + problemIdList);
-    }
-
-    public List<Long> getProblemIdList(String memberId) {
-        List<Long> problemList = responseData.getOrDefault(memberId, Collections.emptyList());
-
-        // 로그 추가
-        if (problemList.isEmpty()) {
-            log.warn("🚨 문제 리스트 없음: memberId = {}", memberId);
-        } else {
-            log.info("✅ 문제 리스트 조회 성공: memberId = {}, 문제 리스트 = {}", memberId, problemList);
-        }
-
-        return problemList;
-    }
-
 
     /* 코멘트 시작 */
 
@@ -231,8 +206,5 @@ public class CodeService {
         int updatedRows = codeRepository.memberSolvedDelete(memberId, problemId);
         return (updatedRows > 0) ? "코드 삭제 성공" : "코드 삭제 실패";
     }
-
-
-
 
 }

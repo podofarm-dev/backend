@@ -71,12 +71,4 @@ public class CodeEntity {
     @JoinColumn(name = "problem_id")
     private ProblemEntity problemEntity;
 
-    public void updateCode(Timestamp solvedDate, String time, String performance, String accuracy) {
-        this.codeSource = "분석중 ...";
-        this.codeSolvedDate = solvedDate;
-        this.codeTime = Time.valueOf(time);
-        this.codePerformance = performance;
-        this.codeAccuracy = accuracy;
-    }
-
 }

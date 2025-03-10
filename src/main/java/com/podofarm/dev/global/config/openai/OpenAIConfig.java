@@ -1,4 +1,4 @@
-package com.podofarm.dev.global.OpenAI;
+package com.podofarm.dev.global.config.openai;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -19,5 +19,4 @@ public class OpenAIConfig {
     public String getApiKey() {
         return apiKey;
     }
-
 }
