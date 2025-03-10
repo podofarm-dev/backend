@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 public class UploadDTO {
     private String memberId;
     private String problemId;
-    private LocalDateTime solvedDate;
+    private Timestamp solvedDate;
     private String source;
     private String time;
     private String performance;
@@ -35,15 +35,12 @@ public class UploadDTO {
         this.annotatedSource = annotation + "\n" + source;
         this.accuracy = request.get("resultMessage").asText();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {
-            this.solvedDate = LocalDateTime.parse(request.get("dateInfo").asText(), formatter);
+            String resultDay = request.get("resultDay").asText();
+            this.solvedDate = Timestamp.valueOf(resultDay);
         } catch (Exception e) {
-            this.solvedDate = LocalDateTime.now();
+            this.solvedDate = new Timestamp(System.currentTimeMillis());
         }
-    }
-    public Timestamp getSolvedDateAsTimestamp() {
-        return Timestamp.valueOf(solvedDate);
     }
 
     public CodeEntity insertCodeEntity(MemberEntity member, ProblemEntity problem) {
@@ -51,7 +48,7 @@ public class UploadDTO {
                 .memberEntity(member)
                 .problemEntity(problem)
                 .codeSource("분석 중...\n\n" + source)
-                .codeSolvedDate(getSolvedDateAsTimestamp())
+                .codeSolvedDate(this.solvedDate)
                 .codeTime(Time.valueOf(this.time))
                 .codeStatus(this.status)
                 .codePerformance(this.performance)
@@ -61,7 +58,7 @@ public class UploadDTO {
 
     public void updateCodeEntity(CodeEntity updateCode) {
         updateCode.setCodeSource("분석 중...\n\n" + this.source);
-        updateCode.setCodeSolvedDate(getSolvedDateAsTimestamp());
+        updateCode.setCodeSolvedDate(this.solvedDate);
         updateCode.setCodeTime(Time.valueOf(this.time));
         updateCode.setCodePerformance(this.performance);
         updateCode.setCodeAccuracy(this.accuracy);
