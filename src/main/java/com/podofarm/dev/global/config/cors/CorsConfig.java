@@ -35,6 +35,7 @@ public class CorsConfig {
                                                 "https://" + frontDomain,
                                                 "https://www." + frontDomain,
                                                 "https://test.podofarm.xyz/*",
+                                                "https://api.podofarm.xyz/*",
                                                 "chrome-extension://magnaalaamndcofdpgeicpnlpdjajbjb",
                                                 "chrome-extension://bcbabakaolnokikhllajhgchlgeiihld",
                                                 "chrome-extension://hhhhekobidkpfgkaobifjgpepddjdkhi") // 개인 개발용
