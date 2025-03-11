@@ -55,7 +55,9 @@ public class OpenAIResponse {
     public static String getPrompt(String code) {
         return  code +
                 "코드를 자동으로 정렬 및 들여쓰기를 맞춤" +
+                "```java 붙이지 말 것```" +
                 "\n";
+        
 
     }
 }
