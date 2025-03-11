@@ -41,7 +41,6 @@ logging.level:
   org.hibernate.SQL: false
   com.zaxxer.hikari: OFF
   org.hibernate.orm.connections.pooling: OFF
-  connection-init-sql: SET time_zone = 'Asia/Seoul'
 
 
 
