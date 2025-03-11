@@ -75,7 +75,7 @@ public class CodeController {
         codeService.upload(upload);
         codeService.openAI(source, memberId, problemId);
 
-        return ResponseEntity.ok("Podofarm 업로드 완료");
+        return ResponseEntity.ok("업로드 완료");
     }
 
     //캐시관련
