@@ -68,9 +68,10 @@ public class CodeService {
     }
 
     public void updateSource(String result, String memberId, String problemId, String source) {
-        String problemSolution = problemRepository.findSolutionByProblemId(Long.valueOf(problemId));
+        String problemSolution = Optional.ofNullable(problemRepository.findSolutionByProblemId(Long.valueOf(problemId)))
+                .orElse("");
+
         codeRepository.updateCodeSource(problemSolution + "\n\n" + result + "\n\n" + source, memberId, Long.valueOf(problemId));
-        log.info("코드 업데이트 완료! MemberID: {}, ProblemID: {}", memberId, problemId);
     }
 
     @Async("sync-extension")
