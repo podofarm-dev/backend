@@ -17,7 +17,7 @@ spring:
     username: "${DB_USERNAME}"
     password: "${DB_PASSWORD}"
   hikari:
-    connection-init-sql: SET time_zone = 'Asia/Seoul'
+    hibernate.jdbc.time_zone: Asia/Seoul
 
   jpa:
     hibernate:

@@ -27,7 +27,7 @@ public class OpenAIClient {
         Map<String, Object> requestBody = Map.of(
                 "model", openAiConfig.getModel(),
                 "messages", List.of(Map.of("role", "user", "content", prompt)),
-                "temperature", 0.8
+                "temperature", 1
         );
 
         return webClient.post()
