@@ -1,5 +1,6 @@
 package com.podofarm.dev.api.member.domain.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.podofarm.dev.api.code.domain.dto.request.CodeSolvedListDTO;
 import com.podofarm.dev.api.study.service.utils.DashBoardUtils;
 import lombok.Builder;
@@ -26,6 +27,7 @@ public class SolvedListResponse {
         private String problemTitle;
         private Integer problemLevel;
         private String problemType;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private Timestamp codeSolvedDate;
         private Time codeTime;
 
