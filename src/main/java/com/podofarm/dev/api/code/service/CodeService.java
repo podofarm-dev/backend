@@ -1,9 +1,7 @@
 package com.podofarm.dev.api.code.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.podofarm.dev.api.code.domain.dto.CodeInfoDTO;
 import com.podofarm.dev.api.code.domain.dto.UploadDTO;
-import com.podofarm.dev.api.code.domain.dto.request.OpenAIRequest;
 import com.podofarm.dev.api.code.domain.dto.response.CommentListResponse;
 import com.podofarm.dev.api.code.domain.dto.response.CommentResponse;
 import com.podofarm.dev.api.code.domain.dto.response.OpenAIResponse;
@@ -14,77 +12,92 @@ import com.podofarm.dev.api.code.repository.CommentRepository;
 import com.podofarm.dev.api.member.domain.entity.MemberEntity;
 import com.podofarm.dev.api.member.repository.MemberRepository;
 import com.podofarm.dev.api.member.service.MemberService;
-import com.podofarm.dev.api.problem.domain.entity.ProblemEntity;
 import com.podofarm.dev.api.problem.repository.ProblemRepository;
-import com.podofarm.dev.global.OpenAI.OpenAIConfig;
+import com.podofarm.dev.global.OpenAI.OpenAIClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CodeService {
-
     private final CommentRepository commentRepository;
     private final CodeRepository codeRepository;
     private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final ProblemRepository problemRepository;
-    private final OpenAIConfig openAiConfig;
-    private final WebClient webClient;
+    private final OpenAIClient openaiCient;
 
-    // TTL 적용, 전역변수 설정으로 메모리 관리
     private final Map<String, List<Long>> responseData = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public void upload(JsonNode request) {
-        UploadDTO uploadDTO = new UploadDTO(request);
+    @Async("sync-extension")
+    public void upload(UploadDTO request) {
+        Long problemId = Long.valueOf(request.getProblemId());
+        String memberId = request.getMemberId();
+        Optional<CodeEntity> checkSolvedProblem = codeRepository.findByMemberIdAndProblemId(memberId, problemId);
 
-        // 1. OpenAI 코드 분석 API를 호출하여 1차 포장된 source 얻기
-        OpenAIRequest openAIRequest = new OpenAIRequest();
-        openAIRequest.setCode(uploadDTO.getSource());
-
-        OpenAIResponse aiResponse = analyzeCode(openAIRequest);
-        String analyzedSource = aiResponse.getAnalyzedCode();
-
-        // 2. problemId로 problem 테이블에서 problemSolution 조회 후 source에 추가
-        ProblemEntity problemEntity = problemRepository.findById(Long.parseLong(uploadDTO.getProblemId()))
-                .orElseThrow(() -> new IllegalArgumentException("해당 문제 ID가 존재하지 않습니다: " + uploadDTO.getProblemId()));
-
-        // 3. 최종코드
-        String finalSource = problemEntity.getProblemSolution()  + analyzedSource;
-
-        MemberEntity memberEntity = memberRepository.findById(uploadDTO.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다: " + uploadDTO.getMemberId()));
-
-        CodeEntity codeEntity = CodeEntity.builder()
-                .memberEntity(memberEntity)
-                .problemEntity(problemEntity)
-                .codeSource(finalSource)
-                .codeSolvedDate(uploadDTO.getSolvedDateAsTimestamp())
-                .codeTime(Time.valueOf(uploadDTO.getTime()))
-                .codeStatus(uploadDTO.isStatus())
-                .codePerformance(uploadDTO.getPerformance())
-                .codeAccuracy(uploadDTO.getAccuracy())
-                .build();
-
-        codeRepository.save(codeEntity);
-
-
+        if (checkSolvedProblem.isPresent()) {
+            CodeEntity updateCode = checkSolvedProblem.get();
+            request.updateCodeEntity(updateCode);
+            codeRepository.save(updateCode);
+        } else {
+            CodeEntity insertCode = request.insertCodeEntity(
+                    memberRepository.getReferenceById(memberId),
+                    problemRepository.getReferenceById(problemId));
+            codeRepository.save(insertCode);
+            memberRepository.incrementSolvedProblem(memberId);
+        }
     }
 
+    @Async("sync-code")
+    public void openAI(String source, String memberId, String problemId) {
+        OpenAIResponse responseAI = analyzeCode(source);
+        updateSource(responseAI.getAnalyzedCode(), memberId, problemId);
+    }
+
+    public OpenAIResponse analyzeCode(String request) {
+        return openaiCient.sendRequestToOpenAI(OpenAIResponse.getPrompt(request));
+    }
+
+    public void updateSource(String result, String memberId, String problemId) {
+        String problemSolution = Optional.ofNullable(problemRepository.findSolutionByProblemId(Long.valueOf(problemId)))
+                .orElse("");
+
+        codeRepository.updateCodeSource(problemSolution + "\n\n" + result + "\n\n", memberId, Long.valueOf(problemId));
+    }
+
+
+    @Async("sync-extension")
+    public void fetchData(String memberId) {
+        List<Long> problemIdList = Optional.ofNullable(codeRepository.getProblemIdByMemberId(memberId))
+                .orElse(Collections.singletonList(0L));
+        responseData.put(memberId, problemIdList);
+        scheduler.schedule(() -> responseData.remove(memberId), 30, TimeUnit.SECONDS);
+        log.info("비동기 처리 완료: 문제 ID 리스트 반환 -> {}", problemIdList);
+    }
+
+    public List<Long> getProblemIdList(String memberId) {
+        return responseData.getOrDefault(memberId, Collections.emptyList());
+    }
+
+    @CachePut(value = "syncData", key = "#id")
+    public Map<String, String> cacheSyncData(String id, Long problemId) {
+        return Map.of("id", id, "problemId", String.valueOf(problemId));
+    }
+
+    @Cacheable(value = "syncData", key = "#id")
+    public Map<String, String> getCachedData(String id) {
+        return null;
+    }
 
     public CommentListResponse allComment(Long codeNo) {
         CodeEntity code = codeRepository.findByIdWithComments(codeNo)
@@ -161,46 +174,5 @@ public class CodeService {
         return (updatedRows > 0) ? "코드 삭제 성공" : "코드 삭제 실패";
     }
 
-    public OpenAIResponse analyzeCode(OpenAIRequest request) {
-        String prompt = "다음 Java 코드를 분석하고, 적절한 주석을 `/** ... */` 형식으로 코드 상단에 추가해 주세요.\n" +
-                "반환 형식 예시:\n" +
-                "/***OPEN AI***\n" +
-                " *  1. 푼 문제를 다시 봤을 때 흐름을 알게끔 하기 위함" +
-                " *  2. 어떤 메소드나 함수를 썼는지 차례로 정리" +
-                " *  " +
-                "******/\n" +
-                "코드:\n" + request.getCode() ;
-
-        Map<String, Object> requestBody = Map.of(
-                "model", openAiConfig.getModel(),
-                "messages", List.of(Map.of("role", "user", "content", prompt)),
-                "temperature", 0.3
-        );
-
-        OpenAIResponse response = webClient.post()
-                .uri("/chat/completions")
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(OpenAIResponse.class)
-                .block();
-
-        return response;
-    }
-
-    @Async("sync-extension")
-    public CompletableFuture<List<Long>> fetchData(String memberId) {
-        return CompletableFuture.supplyAsync(() -> {
-            List<Long> problemIdList = codeRepository.getProblemIdByMemberId(memberId);
-            responseData.put(memberId, problemIdList);
-            scheduler.schedule(() -> responseData.remove(memberId), 30, TimeUnit.SECONDS); // 30초 후 삭제
-
-            log.info("비동기 처리 완료: 문제 ID 리스트 반환 -> " + problemIdList);
-            return problemIdList;
-        });
-    }
-
-    public List<Long> getProblemIdList(String memberId) {
-        return responseData.getOrDefault(memberId, Collections.emptyList());
-    }
 
 }

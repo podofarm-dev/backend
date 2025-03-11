@@ -16,6 +16,8 @@ spring:
     url: "${DB_URL}"
     username: "${DB_USERNAME}"
     password: "${DB_PASSWORD}"
+  hikari:
+    connection-init-sql: SET time_zone = 'Asia/Seoul'
 
   jpa:
     hibernate:
@@ -35,8 +37,12 @@ spring:
             scope: profile, email
             authorization-grant-type: authorization_code
 
-#logging.level:
-#  org.hibernate.SQL: debug
+logging.level:
+  org.hibernate.SQL: false
+  com.zaxxer.hikari: OFF
+  org.hibernate.orm.connections.pooling: OFF
+
+
 
 management:
   endpoints:
@@ -54,7 +60,6 @@ domain:
   front: "${FRONTEND_DOMAIN}"
   back: "${BACKEND_DOMAIN}"
 
-
 openai:
   api-key: "${OPENAI_API_KEY}"
-  model: gpt-4
+  model: gpt-3.5-turbo

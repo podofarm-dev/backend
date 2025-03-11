@@ -51,4 +51,13 @@ public class OpenAIResponse {
         }
         return ""; // choices가 비어있으면 빈 문자열 반환
     }
+
+    public static String getPrompt(String code) {
+        return  code +
+                "1. Summarize the methods used. " +
+                "2. Add comments before each method In Korea, such as // String.valueOf 사용, // dp[]배열 선언. " +
+                "3. Automatically format the code for better readability. " +
+                "\n";
+
+    }
 }

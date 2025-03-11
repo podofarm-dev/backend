@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CodeSolvedListDTO {
-
     private Long problemNo;
     private Long problemId;
     private String problemTitle;
