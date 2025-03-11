@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.*;
@@ -60,19 +61,20 @@ public class CodeService {
     @Async("sync-code")
     public void openAI(String source, String memberId, String problemId) {
         OpenAIResponse responseAI = analyzeCode(source);
-        updateSource(responseAI.getAnalyzedCode(), memberId, problemId, source);
+        updateSource(responseAI.getAnalyzedCode(), memberId, problemId);
     }
 
     public OpenAIResponse analyzeCode(String request) {
         return openaiCient.sendRequestToOpenAI(OpenAIResponse.getPrompt(request));
     }
 
-    public void updateSource(String result, String memberId, String problemId, String source) {
+    public void updateSource(String result, String memberId, String problemId) {
         String problemSolution = Optional.ofNullable(problemRepository.findSolutionByProblemId(Long.valueOf(problemId)))
                 .orElse("");
 
-        codeRepository.updateCodeSource(problemSolution + "\n\n" + result + "\n\n" + source, memberId, Long.valueOf(problemId));
+        codeRepository.updateCodeSource(problemSolution + "\n\n" + result + "\n\n", memberId, Long.valueOf(problemId));
     }
+
 
     @Async("sync-extension")
     public void fetchData(String memberId) {
@@ -171,8 +173,6 @@ public class CodeService {
         int updatedRows = codeRepository.memberSolvedDelete(memberId, problemId);
         return (updatedRows > 0) ? "코드 삭제 성공" : "코드 삭제 실패";
     }
-
-
 
 
 }
