@@ -51,4 +51,11 @@ public class OpenAIResponse {
         }
         return ""; // choices가 비어있으면 빈 문자열 반환
     }
+
+    public static String getPrompt(String code) {
+        return  code +
+                "코드를 자동으로 정렬 및 들여쓰기를 맞춤" +
+                "\n";
+
+    }
 }

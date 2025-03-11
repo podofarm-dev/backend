@@ -56,4 +56,10 @@ public interface CodeRepository extends JpaRepository<CodeEntity, Long> {
     @Query("SELECT DISTINCT c.problemEntity.problemId FROM CodeEntity c WHERE c.memberEntity.memberId = :memberId")
     List<Long> getProblemIdByMemberId(@Param("memberId") String memberId);
 
-}
+    @Query("SELECT c FROM CodeEntity c WHERE c.memberEntity.memberId = :memberId AND c.problemEntity.problemId = :problemId")
+    Optional<CodeEntity> findByMemberIdAndProblemId(String memberId, Long problemId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE CodeEntity c SET c.codeSource = :codeSource WHERE c.memberEntity.memberId = :memberId AND c.problemEntity.problemId = :problemId")
+    void updateCodeSource(@Param("codeSource") String codeSource, @Param("memberId") String memberId, @Param("problemId") Long problemId);}
