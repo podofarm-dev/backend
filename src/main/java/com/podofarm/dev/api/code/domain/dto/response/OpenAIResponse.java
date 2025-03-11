@@ -54,9 +54,7 @@ public class OpenAIResponse {
 
     public static String getPrompt(String code) {
         return  code +
-                "1. Summarize the methods used. " +
-                "2. Add comments before each method In Korea, such as // String.valueOf 사용, // dp[]배열 선언. " +
-                "3. Automatically format the code for better readability. " +
+                "코드를 자동으로 정렬 및 들여쓰기를 맞춤" +
                 "\n";
 
     }
