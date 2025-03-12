@@ -34,15 +34,9 @@ public class UploadDTO {
         this.status = true;
         this.annotatedSource = annotation + "\n" + source;
         this.accuracy = request.get("resultMessage").asText();
+        this.solvedDate = Timestamp.valueOf(request.get("resultDay").asText());
+        System.out.println("solvedDate 출력" + solvedDate);
 
-        try {
-            String resultDay = request.get("resultDay").asText();
-            System.out.println("resultDay 출력"  + resultDay);
-            this.solvedDate = Timestamp.valueOf(resultDay);
-            System.out.println("solvedDate 출력" + solvedDate);
-        } catch (Exception e) {
-            this.solvedDate = new Timestamp(System.currentTimeMillis());
-        }
     }
 
     public CodeEntity insertCodeEntity(MemberEntity member, ProblemEntity problem) {
