@@ -16,10 +16,25 @@ scrape_configs:
         labels:
           job: "spring-boot-logs"
           application: spring-boot
-          __path__: /home/ubuntu/test_dev/app.log
+          __path__: /home/ubuntu/test_dev/log/info/info.log
     pipeline_stages:
       - regex:
-          expression: '^(?P<time>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)\s+(?P<level>INFO|ERROR|WARN|DEBUG)\s+(?P<pid>\d+)\s+---\s+\[(?P<thread>[^\]]+)]\s+(?P<class>[^:]+)\s+:\s+(?P<message>.*)$'
+          expression: '^\[(?P<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(?P<level>INFO|ERROR|WARN|DEBUG)\] (?P<class>[^-]+) - (?P<message>.*)$'
+      - timestamp:
+          source: time
+          format: RFC3339
+
+  - job_name: "error_logs"
+    static_configs:
+      - targets:
+          - localhost
+      - labels:
+          job: "spring-boot-logs"
+          level: "error"
+          __path__: /home/ubuntu/test_dev/log/warn_error/error.log
+    pipeline_stages:
+      - regex:
+          expression: '^\[(?P<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(?P<level>INFO|ERROR|WARN|DEBUG)\] (?P<class>[^-]+) - (?P<message>.*)$'
       - timestamp:
           source: time
           format: RFC3339

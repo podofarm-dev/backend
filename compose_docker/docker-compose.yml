@@ -38,7 +38,7 @@ services:
     ports:
       - "9080:9080"
     volumes:
-      - /home/ubuntu/test_dev/app.log:/home/ubuntu/test_dev/app.log  # 로그 파일 마운트
+      - /home/ubuntu/test_dev/log:/home/ubuntu/test_dev/log  # 로그 파일 마운트
       - ./promtail-config.yml:/etc/promtail/promtail-config.yml
     command: -config.file=/etc/promtail/promtail-config.yml
     networks:
