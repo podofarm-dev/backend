@@ -21,6 +21,7 @@ import jakarta.persistence.EntityManager;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -149,12 +150,39 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 )
                 .fetch();
     }
-
+    
     @Override
-    public List<RecentActivityInfoDto> searchTodayActivityInfo(String studyId) {
-        Timestamp startOfToday = Timestamp.valueOf(LocalDate.now().atStartOfDay());
+    public List<RecentActivityInfoDto> searchActivityInfo(String studyId) {
+        LocalDateTime todayMidnight = LocalDate.now().atStartOfDay();
 
-        return query
+        //1. 최근 활동 20개 조회 (금일 활동인지 여부 상관없이)
+        List<RecentActivityInfoDto> recentActivities = query
+                .select(new QRecentActivityInfoDto(
+                        memberEntity.memberId,
+                        memberEntity.name,
+                        problemEntity.problemId,
+                        problemEntity.problemTitle,
+                        codeEntity.codeSolvedDate
+                ))
+                .from(codeEntity)
+                .join(codeEntity.problemEntity, problemEntity)
+                .join(codeEntity.memberEntity, memberEntity)
+                .where(
+                        memberEntity.studyEntity.studyId.eq(studyId),
+                        codeEntity.codeStatus.isTrue()
+                )
+                .orderBy(codeEntity.codeSolvedDate.desc())
+                .limit(20)
+                .fetch();
+
+        //2. 조회한 값 중 마지막 활동이 금일 자정 전에 이뤄졌다면 그대로 반환
+        RecentActivityInfoDto oldestActivity = recentActivities.get(recentActivities.size() - 1);
+        if (oldestActivity.getSolvedAt().isBefore(todayMidnight)) {
+            return recentActivities;
+        }
+
+        //3. 아니라면 추가 쿼리 실행 (금일 활동이 더 있을 수 있으므로)
+        List<RecentActivityInfoDto> additionalActivities = query
                 .select(new QRecentActivityInfoDto(
                         memberEntity.memberId,
                         memberEntity.name,
@@ -168,10 +196,14 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .where(
                         memberEntity.studyEntity.studyId.eq(studyId),
                         codeEntity.codeStatus.isTrue(),
-                        codeEntity.codeSolvedDate.goe(startOfToday)
+                        codeEntity.codeSolvedDate.goe(Timestamp.valueOf(todayMidnight))
                 )
                 .orderBy(codeEntity.codeSolvedDate.desc())
+                .offset(recentActivities.size())
                 .fetch();
+
+        recentActivities.addAll(additionalActivities);
+        return recentActivities;
     }
 
     private BooleanExpression solvedAt(YearMonth yearMonth) {
