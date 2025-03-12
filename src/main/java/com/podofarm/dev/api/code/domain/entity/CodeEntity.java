@@ -42,7 +42,7 @@ public class CodeEntity {
     private String codeSource;
 
     @Column(name = "code_solved_date")
-    @CreationTimestamp
+//    @CreationTimestamp
     private Timestamp codeSolvedDate;
 
     @Column(name = "code_annotation")
