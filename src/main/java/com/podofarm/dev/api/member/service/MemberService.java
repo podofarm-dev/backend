@@ -253,8 +253,7 @@ public class MemberService {
         return memberRepository.countProblemByMemberId(memberId);
     }
 
-    public Optional<SolvedMemberListResponse> solvedMember(String reqMemberId, String memberId, String studyId){
-        isSameMember(reqMemberId, memberId);
+    public Optional<SolvedMemberListResponse> solvedMember(String memberId, String studyId){
         MemberEntity member = vaildMemberId(memberId);
 
         List<SolvedMemberListResponse> members = memberRepository.solvedMemberRanking(studyId);

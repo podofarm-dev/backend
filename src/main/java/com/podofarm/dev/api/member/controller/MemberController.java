@@ -137,7 +137,7 @@ public class MemberController {
                                           @PathVariable String studyId,
                                           @AuthenticationPrincipal CustomUser customUser)
     {
-        Optional<SolvedMemberListResponse> res = userService.solvedMember(memberId, customUser.getMemberId(), studyId);
+        Optional<SolvedMemberListResponse> res = userService.solvedMember(memberId, studyId);
         return ResponseEntity.ok(res);
     }
 
