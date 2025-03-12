@@ -159,7 +159,13 @@ public class StudyService {
 
         //2. 해당 스터디의 최근 활동 정보 조회
         List<RecentActivityInfoDto> repoDto = studyRepository.searchActivityInfo(studyId);
-        return LogResDto.fromRepoDto(repoDto, LocalDateTime.now());
+        for (RecentActivityInfoDto aDto : repoDto) {
+            log.info("{}-{}: solved at={}", aDto.getMemberName(), aDto.getProblemTitle(), aDto.getSolvedAt());
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        log.info("now={}");
+        return LogResDto.fromRepoDto(repoDto, now);
     }
 
     @Transactional(readOnly = true)
