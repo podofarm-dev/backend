@@ -158,8 +158,14 @@ public class StudyService {
         checkValidMemberAndStudy(memberId, studyId);
 
         //2. 해당 스터디의 최근 활동 정보 조회
-        List<RecentActivityInfoDto> repoDto = studyRepository.searchTodayActivityInfo(studyId);
-        return LogResDto.fromRepoDto(repoDto, LocalDateTime.now());
+        List<RecentActivityInfoDto> repoDto = studyRepository.searchActivityInfo(studyId);
+        for (RecentActivityInfoDto aDto : repoDto) {
+            log.info("{}-{}: solved at={}", aDto.getMemberName(), aDto.getProblemTitle(), aDto.getSolvedAt());
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        log.info("now={}", now);
+        return LogResDto.fromRepoDto(repoDto, now);
     }
 
     @Transactional(readOnly = true)
