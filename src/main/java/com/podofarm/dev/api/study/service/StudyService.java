@@ -164,7 +164,7 @@ public class StudyService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        log.info("now={}");
+        log.info("now={}", now);
         return LogResDto.fromRepoDto(repoDto, now);
     }
 
