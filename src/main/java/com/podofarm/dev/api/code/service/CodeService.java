@@ -72,6 +72,13 @@ public class CodeService {
         String problemSolution = Optional.ofNullable(problemRepository.findSolutionByProblemId(Long.valueOf(problemId)))
                 .orElse("해당 문제는 해설 및 심화 질문이 준비중입니다");
 
+        System.out.println(problemSolution + "problemsolution");
+        System.out.println(result + "result ```java 붙는거 확인");
+
+        if (result.startsWith("```java") && result.endsWith("```")) {
+            result = result.substring(7, result.length() - 3).trim();
+        }
+
         codeRepository.updateCodeSource(problemSolution + "\n\n" + result + "\n\n", memberId, Long.valueOf(problemId));
     }
 
