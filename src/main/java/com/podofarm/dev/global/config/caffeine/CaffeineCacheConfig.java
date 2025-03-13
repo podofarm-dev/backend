@@ -15,7 +15,7 @@ public class CaffeineCacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("syncData");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("Cache-problemList");
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(30, TimeUnit.MINUTES) // 30분 후 만료
                 .maximumSize(1000)); // 최대 1000개 저장

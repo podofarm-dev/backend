@@ -70,7 +70,14 @@ public class CodeService {
 
     public void updateSource(String result, String memberId, String problemId) {
         String problemSolution = Optional.ofNullable(problemRepository.findSolutionByProblemId(Long.valueOf(problemId)))
-                .orElse("");
+                .orElse("해당 문제는 해설 및 심화 질문이 준비중입니다");
+
+        System.out.println(problemSolution + "problemsolution");
+        System.out.println(result + "result ```java 붙는거 확인");
+
+        if (result.startsWith("```java") && result.endsWith("```")) {
+            result = result.substring(7, result.length() - 3).trim();
+        }
 
         codeRepository.updateCodeSource(problemSolution + "\n\n" + result + "\n\n", memberId, Long.valueOf(problemId));
     }
@@ -89,15 +96,6 @@ public class CodeService {
         return responseData.getOrDefault(memberId, Collections.emptyList());
     }
 
-    @CachePut(value = "syncData", key = "#id")
-    public Map<String, String> cacheSyncData(String id, Long problemId) {
-        return Map.of("id", id, "problemId", String.valueOf(problemId));
-    }
-
-    @Cacheable(value = "syncData", key = "#id")
-    public Map<String, String> getCachedData(String id) {
-        return null;
-    }
 
     public CommentListResponse allComment(Long codeNo) {
         CodeEntity code = codeRepository.findByIdWithComments(codeNo)
