@@ -70,7 +70,7 @@ public class CodeService {
 
     public void updateSource(String result, String memberId, String problemId) {
         String problemSolution = Optional.ofNullable(problemRepository.findSolutionByProblemId(Long.valueOf(problemId)))
-                .orElse("");
+                .orElse("해당 문제는 해설 및 심화 질문이 준비중입니다");
 
         codeRepository.updateCodeSource(problemSolution + "\n\n" + result + "\n\n", memberId, Long.valueOf(problemId));
     }
