@@ -75,26 +75,6 @@ public class CodeController {
         return ResponseEntity.ok("업로드 완료");
     }
 
-    //캐시관련
-
-    @PostMapping("/cacheData")
-    public Map<String, String> receiveCacheData(@RequestBody CacheRequestDTO requestData) {
-        String id = requestData.getMemberId();
-        Long problemId = requestData.getProblemId();
-
-        // 캐시에 저장
-        return codeService.cacheSyncData(id, problemId);
-    }
-
-    // 캐시에서 데이터 조회 (테스트용)
-    @GetMapping("/cacheData/{id}")
-    public Map<String, String> getCachedData(@PathVariable String id) {
-        return codeService.getCachedData(id);
-    }
-
-
-
-
     @ResponseBody
     @GetMapping(value = "/{codeNo}/comment", produces="application/json; charset=UTF-8")
     public ResponseEntity<?> commentList(@PathVariable Long codeNo)

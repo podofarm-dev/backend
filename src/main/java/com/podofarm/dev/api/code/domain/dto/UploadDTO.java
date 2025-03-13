@@ -35,8 +35,6 @@ public class UploadDTO {
         this.annotatedSource = annotation + "\n" + source;
         this.accuracy = request.get("resultMessage").asText();
         this.solvedDate = Timestamp.valueOf(request.get("resultDay").asText());
-        System.out.println("solvedDate 출력" + solvedDate);
-
     }
 
     public CodeEntity insertCodeEntity(MemberEntity member, ProblemEntity problem) {

@@ -8,6 +8,7 @@ import com.podofarm.dev.api.problem.domain.entity.ProblemEntity;
 import com.podofarm.dev.api.problem.repository.ProblemRepository;
 import com.podofarm.dev.api.problem.repository.dto.ProblemListDslDto;
 import com.podofarm.dev.api.study.repository.StudyRepository;
+import com.podofarm.dev.global.cache.CacheProblemList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,10 @@ public class ProblemService {
     private final ProblemRepository problemRepository;
     private final StudyRepository studyRepository;
 
+
+
+
+    @CacheProblemList
     public ProblemListResponse getProblemList(String memberId, String studyId, String category, String title, int  page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 

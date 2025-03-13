@@ -21,6 +21,9 @@ public class ProblemController {
 
     private final ProblemService problemService;
 
+
+    //이 API는 스터디 구성원이 다 사용하기 때문에 요청때마다 조회하는것이 아니라 캐시 데이터를 이용하여
+    //DB 조회를 최소화
     @GetMapping("/{studyId}/problem-list")
     public ResponseEntity<ProblemListResponse> getProblemList(@AuthenticationPrincipal CustomUser customUser,
                                                                   @PathVariable String studyId,

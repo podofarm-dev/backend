@@ -89,15 +89,6 @@ public class CodeService {
         return responseData.getOrDefault(memberId, Collections.emptyList());
     }
 
-    @CachePut(value = "syncData", key = "#id")
-    public Map<String, String> cacheSyncData(String id, Long problemId) {
-        return Map.of("id", id, "problemId", String.valueOf(problemId));
-    }
-
-    @Cacheable(value = "syncData", key = "#id")
-    public Map<String, String> getCachedData(String id) {
-        return null;
-    }
 
     public CommentListResponse allComment(Long codeNo) {
         CodeEntity code = codeRepository.findByIdWithComments(codeNo)
