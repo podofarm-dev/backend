@@ -34,7 +34,7 @@ public class ProblemService {
 
 
 
-    @CacheProblemList
+    //@CacheProblemList
     public ProblemListResponse getProblemList(String memberId, String studyId, String category, String title, int  page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
