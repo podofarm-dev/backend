@@ -16,9 +16,6 @@ spring:
     username: "${TEST_DB_USERNAME}"
     password: "${TEST_DB_PASSWORD}"
 
-server:
-  port: 8008
-
 domain:
   front: "${TEST_FRONTEND_DOMAIN}"
   back: "${TEST_BACKEND_DOMAIN}"
