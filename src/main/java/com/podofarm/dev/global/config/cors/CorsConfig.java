@@ -25,6 +25,8 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // 자바스크립트로 받을 수 있게 할건지
 
+        log.info("frontDomain=..{}..", frontDomain);
+
         // IP 출처가 달라도 응답을 허용
         config.setAllowedOrigins(Arrays.asList("http://localhost:3000",
                                                 "https://localhost:3000",
