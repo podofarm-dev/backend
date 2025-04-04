@@ -1,8 +1,11 @@
 package com.podofarm.dev.api.member.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.Permission;
 import com.podofarm.dev.api.code.domain.dto.request.CodeSolvedListDTO;
 import com.podofarm.dev.api.code.repository.CodeRepository;
 import com.podofarm.dev.api.member.domain.dto.request.MemberReNameDto;
@@ -201,14 +204,20 @@ public class MemberService {
 
     private String uploadToS3(MultipartFile file, String memberId) throws IOException {
         String fileName = "profile/" + memberId;
-        String fileUrl = "https://s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
+//        String fileUrl = "https://s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
 
         ObjectMetadata metadata= new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-        amazonS3Client.putObject(bucket,fileName, file.getInputStream(),metadata);
-        return fileUrl;
+        amazonS3Client.putObject(bucket, fileName, file.getInputStream(),metadata);
+
+        //업로드한 파일에 대한 읽기 권한을 모든 유저에게 부여(S3 -> Object Storage 로 이동하면서 추가된 코드)
+        AccessControlList acl = amazonS3Client.getObjectAcl(bucket, fileName);
+        acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+        amazonS3Client.setObjectAcl(bucket, fileName, acl);
+
+        return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
     @Transactional
