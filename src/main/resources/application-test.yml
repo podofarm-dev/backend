@@ -4,8 +4,9 @@ cloud:
       access-key: "${TEST_S3_ACCESS_KEY}"
       secret-key: "${TEST_S3_SECRET_KEY}"
     region:
-      static: ap-northeast-2
+      static: kr-standard
     s3:
+      endpoint: https://kr.object.ncloudstorage.com
       bucket: "${TEST_BUCKET}"
     stack:
       auto: false
