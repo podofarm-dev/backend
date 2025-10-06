@@ -1,0 +1,4 @@
+[2025-10-07 03:53:27] [WARN] o.m.s.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.podofarm.dev]' package. Please check your configuration.
+[2025-10-07 03:53:29] [WARN] o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[2025-10-07 03:53:30] [WARN] o.s.b.a.t.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+[2025-10-07 03:53:30] [WARN] i.m.c.i.b.cache.CaffeineCacheMetrics - The cache 'Cache-problemList' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.

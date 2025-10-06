@@ -2,7 +2,7 @@
 <configuration>
 
     <!-- 로그 파일 저장 위치 설정 -->
-    <property name="LOG_PATH" value="/home/ubuntu/test_dev/log" />
+    <property name="LOG_PATH" value="./logs" />
 
     <!-- 콘솔 로그 패턴 설정 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
