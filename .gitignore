@@ -38,3 +38,9 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Custom ignore ###
+.DS_Store
+.env.example
+application-dev.yml
+logs/
