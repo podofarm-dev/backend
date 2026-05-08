@@ -1,3 +1,6 @@
+server:
+  port: 8848
+
 cloud:
   aws:
     credentials:
@@ -41,6 +44,10 @@ logging.level:
   org.hibernate.SQL: false
   com.zaxxer.hikari: OFF
   org.hibernate.orm.connections.pooling: OFF
+  org.springframework.security: DEBUG
+  org.springframework.web: DEBUG
+  org.springdoc: DEBUG
+  com.podofarm.dev: DEBUG
 
 
 
@@ -63,3 +70,16 @@ domain:
 openai:
   api-key: "${OPENAI_API_KEY}"
   model: gpt-3.5-turbo
+
+# Swagger SpringDoc 설정
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json

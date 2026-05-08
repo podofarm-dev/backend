@@ -59,7 +59,13 @@ public class JwtFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/actuator") ||  // Spring Boot Actuator 엔드포인트 (Prometheus 메트릭 수집)
                 requestURI.startsWith("/actuator/**") ||
                 requestURI.startsWith("/metrics") ||   // Grafana가 조회하는 메트릭 API
-                requestURI.startsWith("/api")
+                requestURI.startsWith("/api") ||
+                // Swagger 경로 (개발 모드)
+                requestURI.startsWith("/swagger-ui") ||
+                requestURI.startsWith("/v3/api-docs") ||
+                requestURI.equals("/swagger-ui.html") ||
+                requestURI.startsWith("/webjars/") ||
+                requestURI.startsWith("/swagger-resources")
         ) {
             filterChain.doFilter(request, response);
             return;
